@@ -5,7 +5,7 @@ pragma solidity ^0.8.24;
 /**
  * @title IAssetTransitDeskPrimary interface
  * @author CloudWalk Inc. (See https://www.cloudwalk.io)
- * @dev The primary part of the asset desk smart contract interface.
+ * @dev The primary part of the AssetTransitDesk smart contract interface.
  */
 interface IAssetTransitDeskPrimary {
     // ------------------ Events ---------------------------------- //
@@ -54,7 +54,7 @@ interface IAssetTransitDeskPrimary {
 /**
  * @title IAssetTransitDeskConfiguration interface
  * @author CloudWalk Inc. (See https://www.cloudwalk.io)
- * @dev The configuration part of the asset desk smart contract interface.
+ * @dev The configuration part of the AssetTransitDesk smart contract interface.
  */
 interface IAssetTransitDeskConfiguration {
     // ------------------ Events ---------------------------------- //
@@ -80,7 +80,7 @@ interface IAssetTransitDeskConfiguration {
     /**
      * @dev Sets the surplus treasury address.
      *
-     * Emits an {SurplusTreasuryChanged} event.
+     * Emits a {SurplusTreasuryChanged} event.
      *
      * @param newSurplusTreasury The new address of the surplus treasury to set.
      */
@@ -89,7 +89,7 @@ interface IAssetTransitDeskConfiguration {
     /**
      * @dev Sets the liquidity pool address.
      *
-     * Emits an {LiquidityPoolChanged} event.
+     * Emits a {LiquidityPoolChanged} event.
      *
      * @param newLiquidityPool The new address of the liquidity pool to set.
      */
@@ -130,7 +130,7 @@ interface IAssetTransitDeskErrors {
     /// @dev Thrown if the provided buyer address is zero.
     error AssetTransitDesk_BuyerAddressZero();
 
-    /// @dev Thrown if the provided new implementation address is not of a asset desk contract.
+    /// @dev Thrown if the provided new implementation address is not an AssetTransitDesk contract.
     error AssetTransitDesk_ImplementationAddressInvalid();
 
     /// @dev Thrown if the provided net yield amount is zero.
@@ -155,15 +155,15 @@ interface IAssetTransitDeskErrors {
 /**
  * @title IAssetTransitDesk interface
  * @author CloudWalk Inc. (See https://www.cloudwalk.io)
- * @dev The full interface of the asset desk smart contract.
+ * @dev The full interface of the AssetTransitDesk smart contract.
  *
- * The smart contract to manage and log token transfers related to some CDB buying and selling operations.
+ * The smart contract manages and logs token transfers related to CDB buying and selling operations.
  */
 interface IAssetTransitDesk is IAssetTransitDeskPrimary, IAssetTransitDeskConfiguration, IAssetTransitDeskErrors {
     /**
-     * @dev Proves the contract is the asset desk one. A marker function.
+     * @dev Proves the contract is the AssetTransitDesk one. A marker function.
      *
-     * It is used for simple contract compliance checks, e.g. during an upgrade.
+     * It is used for simple contract compliance checks, e.g., during an upgrade.
      * This avoids situations where a wrong contract address is specified by mistake.
      */
     function proveAssetTransitDesk() external pure;

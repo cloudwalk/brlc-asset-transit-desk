@@ -21,8 +21,7 @@ import { AssetTransitDeskStorageLayout } from "./AssetTransitDeskStorageLayout.s
 /**
  * @title AssetTransitDesk contract
  * @author CloudWalk Inc. (See https://www.cloudwalk.io)
- * @dev The smart contract is designed as a reference and template one.
- * It executes issue and redeem CDB operations.
+ * @dev Manages CDB issue and redeem operations.
  *
  * See details about the contract in the comments of the {IAssetTransitDesk} interface.
  */
@@ -88,11 +87,10 @@ contract AssetTransitDesk is
      * @inheritdoc IAssetTransitDeskPrimary
      *
      * @dev Requirements:
-     *
-     * - The caller must have the {MANAGER_ROLE} role.
-     * - The buyer address must not be zero.
-     * - The principal amount must not be zero.
-     * - The contract must not be paused.
+     * - Caller must have the {MANAGER_ROLE} role.
+     * - `buyer` must not be the zero address.
+     * - `principalAmount` must be greater than zero.
+     * - Contract must not be paused.
      */
     function issueAsset(address buyer, uint64 principalAmount) external whenNotPaused onlyRole(MANAGER_ROLE) {
         if (buyer == address(0)) {
@@ -115,13 +113,11 @@ contract AssetTransitDesk is
      * @inheritdoc IAssetTransitDeskPrimary
      *
      * @dev Requirements:
-     *
-     * - The caller must have the {MANAGER_ROLE} role.
-     * - The buyer address must not be zero.
-     * - The principal amount must not be zero.
-     * - The net yield amount must not be zero.
-     * - The tax amount must not be zero.
-     * - The contract must not be paused.
+     * - Caller must have the {MANAGER_ROLE} role.
+     * - `buyer` must not be the zero address.
+     * - `principalAmount` must be greater than zero.
+     * - `netYieldAmount` must be greater than zero.
+     * - Contract must not be paused.
      */
     function redeemAsset(
         address buyer,
@@ -153,11 +149,10 @@ contract AssetTransitDesk is
      * @inheritdoc IAssetTransitDeskConfiguration
      *
      * @dev Requirements:
-     *
-     * - The caller must have the {OWNER_ROLE} role.
-     * - The new surplus treasury address must not be zero.
-     * - The new surplus treasury address must not be the same as already configured.
-     * - The new surplus treasury address must have granted the contract allowance to spend tokens.
+     * - Caller must have the {OWNER_ROLE} role.
+     * - `newSurplusTreasury` must not be the zero address.
+     * - `newSurplusTreasury` must differ from the current value.
+     * - `newSurplusTreasury` must grant allowance to this contract for the underlying token.
      */
     function setSurplusTreasury(address newSurplusTreasury) external onlyRole(OWNER_ROLE) {
         AssetTransitDeskStorage storage $ = _getAssetTransitDeskStorage();
@@ -171,11 +166,10 @@ contract AssetTransitDesk is
      * @inheritdoc IAssetTransitDeskConfiguration
      *
      * @dev Requirements:
-     *
-     * - The caller must have the {OWNER_ROLE} role.
-     * - The new liquidity pool address must not be zero.
-     * - The new liquidity pool address must not be the same as already configured.
-     * - The new liquidity pool address must have granted the contract allowance to spend tokens.
+     * - Caller must have the {OWNER_ROLE} role.
+     * - `newLiquidityPool` must not be the zero address.
+     * - `newLiquidityPool` must differ from the current value.
+     * - `newLiquidityPool` must grant allowance to this contract for the underlying token.
      */
     function setLiquidityPool(address newLiquidityPool) external onlyRole(OWNER_ROLE) {
         AssetTransitDeskStorage storage $ = _getAssetTransitDeskStorage();

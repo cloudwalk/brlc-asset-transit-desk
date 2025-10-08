@@ -5,7 +5,7 @@ pragma solidity ^0.8.24;
 /**
  * @title AssetTransitDeskStorageLayout contract
  * @author CloudWalk Inc. (See https://www.cloudwalk.io)
- * @dev Defines the storage layout for the reference smart-contract.
+ * @dev Defines the storage layout for the AssetTransitDesk smart contract.
  *
  * See details about the contract in the comments of the {IAssetTransitDesk} interface.
  */
@@ -45,7 +45,7 @@ abstract contract AssetTransitDeskStorageLayout {
 
         // Slot 3
         address liquidityPool;
-        // uint96 __reserved2;
+        // uint96 __reserved2; // Reserved until the end of the storage slot
     }
 
     // ------------------ Internal functions ---------------------- //

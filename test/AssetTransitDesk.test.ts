@@ -364,14 +364,14 @@ describe("Contract 'AssetTransitDesk'", () => {
           .to.be.revertedWithCustomError(assetDesk, "AssetTransitDesk_TreasuryZero");
       });
 
-      it("the new liquidity poo address is the same as the current liquidity poo address", async () => {
+      it("the new liquidity pool address is the same as the current liquidity pool address", async () => {
         await expect(
           assetDesk.setLiquidityPool(liquidityPool.address),
         )
           .to.be.revertedWithCustomError(assetDesk, "AssetTransitDesk_TreasuryAlreadyConfigured");
       });
 
-      it("the new liquidity poo address has not granted the contract allowance to spend tokens", async () => {
+      it("the new liquidity pool address has not granted the contract allowance to spend tokens", async () => {
         await expect(
           assetDesk.setLiquidityPool(stranger.address),
         )
@@ -396,7 +396,7 @@ describe("Contract 'AssetTransitDesk'", () => {
           .withArgs(newSurplusTreasury, surplusTreasury.address);
       });
 
-      it("should update the liquidity pool address", async () => {
+      it("should update the surplus treasury address", async () => {
         expect(await assetDesk.getSurplusTreasury()).to.equal(newSurplusTreasury);
       });
     });
