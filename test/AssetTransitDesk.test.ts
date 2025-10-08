@@ -8,6 +8,7 @@ import * as Contracts from "../typechain-types";
 import { checkTokenPath } from "../test-utils/eth";
 
 const ADDRESS_ZERO = ethers.ZeroAddress;
+const SOME_ADDRESS = "0x1234567890123456789012345678901234567890";
 const BALANCE_INITIAL = 10000n;
 
 const OWNER_ROLE = ethers.id("OWNER_ROLE");
@@ -105,7 +106,7 @@ describe("Contract 'AssetTransitDesk'", () => {
     ({ assetDesk, tokenMock, liquidityPool } = await setUpFixture(deployAndConfigureContracts));
   });
 
-  describe.only("Method 'initialize()'", () => {
+  describe("Method 'initialize()'", () => {
     let deployedContract: Contracts.AssetTransitDesk;
 
     beforeEach(async () => {
@@ -343,32 +344,43 @@ describe("Contract 'AssetTransitDesk'", () => {
     });
   });
 
-  describe("Method 'setLiquidityPool()'", () => {
+  describe.only("Method 'setLiquidityPool()'", () => {
+    let newLiquidityPool: Contracts.LiquidityPoolMock;
+
+    async function getNewValidLiquidityPool() {
+      const liquidityPool = await upgrades.deployProxy(
+        liquidityPoolFactory,
+        [await tokenMock.getAddress(), [await assetDesk.getAddress()]],
+      );
+      await liquidityPool.waitForDeployment();
+      await liquidityPool.connect(deployer).grantRole(ADMIN_ROLE, assetDesk);
+      return liquidityPool;
+    }
+
+    beforeEach(async () => {
+      newLiquidityPool = await setUpFixture(getNewValidLiquidityPool);
+    });
+
     describe("Should execute as expected when called properly and", () => {
       let tx: TransactionResponse;
-      let newLpTreasury: HardhatEthersSigner;
 
       beforeEach(async () => {
-        newLpTreasury = stranger;
-        await tokenMock.connect(newLpTreasury).approve(assetDesk.getAddress(), BALANCE_INITIAL);
-        tx = await assetDesk.setLiquidityPool(newLpTreasury);
+        tx = await assetDesk.setLiquidityPool(newLiquidityPool);
       });
 
       it("should emit the required event", async () => {
-        await expect(tx).to.emit(assetDesk, "LiquidityPoolChanged").withArgs(newLpTreasury, liquidityPool.address);
+        await expect(tx).to.emit(assetDesk, "LiquidityPoolChanged").withArgs(newLiquidityPool, liquidityPool);
       });
 
       it("should update the liquidity pool address", async () => {
-        expect(await assetDesk.getLiquidityPool()).to.equal(newLpTreasury);
+        expect(await assetDesk.getLiquidityPool()).to.equal(newLiquidityPool);
       });
     });
 
     describe("Should revert if", () => {
       it("called by a non-owner", async () => {
-        const newLpTreasury = stranger;
-        await tokenMock.connect(newLpTreasury).approve(assetDesk.getAddress(), BALANCE_INITIAL);
         await expect(
-          assetDesk.connect(stranger).setLiquidityPool(stranger.address),
+          assetDesk.connect(stranger).setLiquidityPool(newLiquidityPool),
         )
           .to.be.revertedWithCustomError(assetDesk, "AccessControlUnauthorizedAccount")
           .withArgs(stranger.address, OWNER_ROLE);
@@ -383,16 +395,50 @@ describe("Contract 'AssetTransitDesk'", () => {
 
       it("the new liquidity pool address is the same as the current liquidity pool address", async () => {
         await expect(
-          assetDesk.setLiquidityPool(liquidityPool.address),
+          assetDesk.setLiquidityPool(liquidityPool),
         )
           .to.be.revertedWithCustomError(assetDesk, "AssetTransitDesk_TreasuryAlreadyConfigured");
       });
 
-      it("the new liquidity pool address has not granted the contract allowance to spend tokens", async () => {
+      it("the new liquidity pool address is not smart-contract", async () => {
         await expect(
-          assetDesk.setLiquidityPool(stranger.address),
+          assetDesk.setLiquidityPool(stranger),
         )
-          .to.be.revertedWithCustomError(assetDesk, "AssetTransitDesk_TreasuryAllowanceZero");
+          .to.be.revertedWithCustomError(assetDesk, "AssetTransitDesk_LiquidityPoolAddressInvalid");
+      });
+
+      it("the new liquidity pool address is not implementing the required interface", async () => {
+        await expect(
+          assetDesk.setLiquidityPool(tokenMock),
+        )
+          .to.be.revertedWithCustomError(assetDesk, "AssetTransitDesk_LiquidityPoolAddressInvalid");
+      });
+
+      it("the new liquidity pool token does not match the underlying token", async () => {
+        await newLiquidityPool.setToken(SOME_ADDRESS);
+
+        await expect(
+          assetDesk.setLiquidityPool(newLiquidityPool),
+        )
+          .to.be.revertedWithCustomError(assetDesk, "AssetTransitDesk_LiquidityPoolTokenMismatch");
+      });
+
+      it("the new liquidity pool has not configured the contract required role", async () => {
+        await newLiquidityPool.connect(deployer).revokeRole(ADMIN_ROLE, assetDesk);
+
+        await expect(
+          assetDesk.setLiquidityPool(newLiquidityPool),
+        )
+          .to.be.revertedWithCustomError(assetDesk, "AssetTransitDesk_LiquidityPoolNotAdmin");
+      });
+
+      it("the new liquidity pool is not registered as a working treasury", async () => {
+        await newLiquidityPool.setWorkingTreasuries([SOME_ADDRESS]);
+
+        await expect(
+          assetDesk.setLiquidityPool(newLiquidityPool),
+        )
+          .to.be.revertedWithCustomError(assetDesk, "AssetTransitDesk_LiquidityPoolNotRegisteredAsWorkingTreasury");
       });
     });
   });

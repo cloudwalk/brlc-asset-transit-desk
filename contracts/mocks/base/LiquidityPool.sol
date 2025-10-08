@@ -56,6 +56,14 @@ contract LiquidityPoolMock is ILiquidityPool, AccessControlExtUpgradeable, UUPSU
         emit Withdrawal(amount, 0);
     }
 
+    function setWorkingTreasuries(address[] memory newWorkingTreasuries) external {
+        _workingTreasuries = newWorkingTreasuries;
+    }
+
+    function setToken(address newToken) external {
+        _token = newToken;
+    }
+
     // ------------------ View functions -------------------------- //
 
     /// @inheritdoc ILiquidityPool

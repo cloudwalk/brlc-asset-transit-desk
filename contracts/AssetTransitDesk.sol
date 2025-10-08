@@ -226,6 +226,10 @@ contract AssetTransitDesk is
     }
 
     function _validateLiquidityPool(address newLiquidityPool) internal view {
+        if (newLiquidityPool.code.length == 0) {
+            revert AssetTransitDesk_LiquidityPoolAddressInvalid();
+        }
+
         try ILiquidityPool(newLiquidityPool).proveLiquidityPool() {} catch {
             revert AssetTransitDesk_LiquidityPoolAddressInvalid();
         }
