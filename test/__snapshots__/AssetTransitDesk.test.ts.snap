@@ -9,11 +9,11 @@ Array [
     ],
     "balances": Object {
       "brlc": Object {
+        "LP": 10100n,
         "account": 9900n,
         "assetDesk": 0n,
         "brlc": 0n,
         "deployer": 0n,
-        "liquidityPool": 10100n,
         "manager": 0n,
         "pauser": 0n,
         "stranger": 0n,
@@ -35,11 +35,18 @@ Array [
       Object {
         "args": Array [
           "assetDesk",
-          "liquidityPool",
+          "LP",
           100n,
         ],
         "contract": "brlc",
         "name": "Transfer",
+      },
+      Object {
+        "args": Array [
+          100n,
+        ],
+        "contract": "LP",
+        "name": "Deposit",
       },
       Object {
         "args": Array [
@@ -89,11 +96,11 @@ Array [
     ],
     "balances": Object {
       "brlc": Object {
+        "LP": 10000n,
         "account": 10010n,
         "assetDesk": 0n,
         "brlc": 0n,
         "deployer": 0n,
-        "liquidityPool": 10000n,
         "manager": 0n,
         "pauser": 0n,
         "stranger": 0n,
@@ -105,12 +112,20 @@ Array [
     "events": Array [
       Object {
         "args": Array [
-          "liquidityPool",
+          "LP",
           "assetDesk",
           100n,
         ],
         "contract": "brlc",
         "name": "Transfer",
+      },
+      Object {
+        "args": Array [
+          100n,
+          0n,
+        ],
+        "contract": "LP",
+        "name": "Withdrawal",
       },
       Object {
         "args": Array [

@@ -344,7 +344,7 @@ describe("Contract 'AssetTransitDesk'", () => {
     });
   });
 
-  describe.only("Method 'setLiquidityPool()'", () => {
+  describe("Method 'setLiquidityPool()'", () => {
     let newLiquidityPool: Contracts.LiquidityPoolMock;
 
     async function getNewValidLiquidityPool() {
@@ -510,8 +510,8 @@ describe("Contract 'AssetTransitDesk'", () => {
     it("simple scenario", async () => {
       await expect.startChainshot({
         name: "simple scenario",
-        accounts: { deployer, manager, account, liquidityPool, surplusTreasury, pauser, stranger },
-        contracts: { assetDesk },
+        accounts: { deployer, manager, account, surplusTreasury, pauser, stranger },
+        contracts: { assetDesk, LP: liquidityPool },
         tokens: { brlc: tokenMock },
       });
       await assetDesk.connect(manager).issueAsset(account.address, 100n);

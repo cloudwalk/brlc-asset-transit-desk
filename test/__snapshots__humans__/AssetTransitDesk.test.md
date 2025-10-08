@@ -10,19 +10,21 @@
 ```mermaid
 sequenceDiagram
   actor manager
+  participant LP
   participant account
   participant assetDesk
-  participant liquidityPool
   participant surplusTreasury
   rect rgb(230,255,230)
     manager->>assetDesk: manager calls assetDesk.issueAsset
     account-->>assetDesk: brlc.Transfer: account -> assetDesk (100)
-    assetDesk-->>liquidityPool: brlc.Transfer: assetDesk -> liquidityPool (100)
+    assetDesk-->>LP: brlc.Transfer: assetDesk -> LP (100)
+    Note over LP: LP.Deposit
     Note over assetDesk: assetDesk.AssetIssued
   end
   rect rgb(230,255,230)
     manager->>assetDesk: manager calls assetDesk.redeemAsset
-    liquidityPool-->>assetDesk: brlc.Transfer: liquidityPool -> assetDesk (100)
+    LP-->>assetDesk: brlc.Transfer: LP -> assetDesk (100)
+    Note over LP: LP.Withdrawal
     surplusTreasury-->>assetDesk: brlc.Transfer: surplusTreasury -> assetDesk (10)
     assetDesk-->>account: brlc.Transfer: assetDesk -> account (110)
     Note over assetDesk: assetDesk.AssetRedeemed
@@ -44,8 +46,9 @@ sequenceDiagram
 | # | Contract | Event | Args |
 | - | -------- | ----- | ---- |
 | 1 | brlc | Transfer | `[account, assetDesk, 100]` |
-| 2 | brlc | Transfer | `[assetDesk, liquidityPool, 100]` |
-| 3 | assetDesk | AssetIssued | `[account, 100]` |
+| 2 | brlc | Transfer | `[assetDesk, LP, 100]` |
+| 3 | LP | Deposit | `[100]` |
+| 4 | assetDesk | AssetIssued | `[account, 100]` |
 
 **Balances**
 
@@ -53,11 +56,11 @@ sequenceDiagram
 | Holder | Balance |
 | ------ | ------- |
 | assetDesk | 0 |
+| LP | 10100 |
 | brlc | 0 |
 | deployer | 0 |
 | manager | 0 |
 | account | 9900 |
-| liquidityPool | 10100 |
 | surplusTreasury | 10000 |
 | pauser | 0 |
 | stranger | 0 |
@@ -80,10 +83,11 @@ sequenceDiagram
 
 | # | Contract | Event | Args |
 | - | -------- | ----- | ---- |
-| 1 | brlc | Transfer | `[liquidityPool, assetDesk, 100]` |
-| 2 | brlc | Transfer | `[surplusTreasury, assetDesk, 10]` |
-| 3 | brlc | Transfer | `[assetDesk, account, 110]` |
-| 4 | assetDesk | AssetRedeemed | `[account, 100, 10]` |
+| 1 | brlc | Transfer | `[LP, assetDesk, 100]` |
+| 2 | LP | Withdrawal | `[100, 0]` |
+| 3 | brlc | Transfer | `[surplusTreasury, assetDesk, 10]` |
+| 4 | brlc | Transfer | `[assetDesk, account, 110]` |
+| 5 | assetDesk | AssetRedeemed | `[account, 100, 10]` |
 
 **Balances**
 
@@ -91,11 +95,11 @@ sequenceDiagram
 | Holder | Balance |
 | ------ | ------- |
 | assetDesk | 0 |
+| LP | 10000 |
 | brlc | 0 |
 | deployer | 0 |
 | manager | 0 |
 | account | 10010 |
-| liquidityPool | 10000 |
 | surplusTreasury | 9990 |
 | pauser | 0 |
 | stranger | 0 |
