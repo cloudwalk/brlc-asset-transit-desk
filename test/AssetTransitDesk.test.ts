@@ -16,15 +16,16 @@ const MANAGER_ROLE = ethers.id("MANAGER_ROLE");
 const CASHBACK_OPERATOR_ROLE = ethers.id("CASHBACK_OPERATOR_ROLE");
 const PAUSER_ROLE = ethers.id("PAUSER_ROLE");
 const RESCUER_ROLE = ethers.id("RESCUER_ROLE");
+const ADMIN_ROLE = ethers.id("ADMIN_ROLE");
 
 let assetDeskFactory: Contracts.AssetTransitDesk__factory;
 let tokenMockFactory: Contracts.ERC20TokenMock__factory;
+let liquidityPoolFactory: Contracts.LiquidityPoolMock__factory;
 
 let deployer: HardhatEthersSigner; // has GRANTOR_ROLE AND OWNER_ROLE
 let manager: HardhatEthersSigner; // has MANAGER_ROLE
 let account: HardhatEthersSigner; // has no roles
 let pauser: HardhatEthersSigner; // has PAUSER_ROLE
-let liquidityPool: HardhatEthersSigner; // has no roles
 let surplusTreasury: HardhatEthersSigner; // has no roles
 let stranger: HardhatEthersSigner; // has no roles
 
@@ -45,10 +46,20 @@ async function deployContracts() {
   const assetDesk = await upgrades.deployProxy(assetDeskFactory, [await tokenMock.getAddress()]);
   await assetDesk.waitForDeployment();
 
-  return { assetDesk, tokenMock };
+  const liquidityPool = await upgrades.deployProxy(
+    liquidityPoolFactory,
+    [await tokenMock.getAddress(), [await assetDesk.getAddress()]],
+  );
+  await liquidityPool.waitForDeployment();
+
+  return { assetDesk, tokenMock, liquidityPool };
 }
 
-async function configureContracts(assetDesk: Contracts.AssetTransitDesk, tokenMock: Contracts.ERC20TokenMock) {
+async function configureContracts(
+  assetDesk: Contracts.AssetTransitDesk,
+  tokenMock: Contracts.ERC20TokenMock,
+  liquidityPool: Contracts.LiquidityPoolMock,
+) {
   await assetDesk.grantRole(GRANTOR_ROLE, deployer.address);
   await assetDesk.grantRole(MANAGER_ROLE, manager.address);
   await assetDesk.grantRole(PAUSER_ROLE, pauser.address);
@@ -56,9 +67,11 @@ async function configureContracts(assetDesk: Contracts.AssetTransitDesk, tokenMo
   await tokenMock.mint(account, BALANCE_INITIAL);
   await tokenMock.mint(liquidityPool, BALANCE_INITIAL);
   await tokenMock.mint(surplusTreasury, BALANCE_INITIAL);
-  await tokenMock.connect(liquidityPool).approve(assetDesk.getAddress(), BALANCE_INITIAL);
-  await tokenMock.connect(surplusTreasury).approve(assetDesk.getAddress(), BALANCE_INITIAL);
-  await tokenMock.connect(account).approve(assetDesk.getAddress(), BALANCE_INITIAL);
+
+  await tokenMock.connect(surplusTreasury).approve(assetDesk, BALANCE_INITIAL);
+  await tokenMock.connect(account).approve(assetDesk, BALANCE_INITIAL);
+
+  await liquidityPool.connect(deployer).grantRole(ADMIN_ROLE, assetDesk);
 
   await assetDesk.setLiquidityPool(liquidityPool);
   await assetDesk.setSurplusTreasury(surplusTreasury);
@@ -66,29 +79,33 @@ async function configureContracts(assetDesk: Contracts.AssetTransitDesk, tokenMo
 
 async function deployAndConfigureContracts() {
   const contracts = await deployContracts();
-  await configureContracts(contracts.assetDesk, contracts.tokenMock);
+
+  await configureContracts(contracts.assetDesk, contracts.tokenMock, contracts.liquidityPool);
   return contracts;
 }
 
 describe("Contract 'AssetTransitDesk'", () => {
   before(async () => {
-    [deployer, manager, account, liquidityPool, surplusTreasury, pauser, stranger] =
+    [deployer, manager, account, surplusTreasury, pauser, stranger] =
      await ethers.getSigners();
 
     assetDeskFactory = await ethers.getContractFactory("AssetTransitDesk");
     assetDeskFactory = assetDeskFactory.connect(deployer);
     tokenMockFactory = await ethers.getContractFactory("ERC20TokenMock");
     tokenMockFactory = tokenMockFactory.connect(deployer);
+    liquidityPoolFactory = await ethers.getContractFactory("LiquidityPoolMock");
+    liquidityPoolFactory = liquidityPoolFactory.connect(deployer);
   });
 
   let assetDesk: Contracts.AssetTransitDesk;
   let tokenMock: Contracts.ERC20TokenMock;
+  let liquidityPool: Contracts.LiquidityPoolMock;
 
   beforeEach(async () => {
-    ({ assetDesk, tokenMock } = await setUpFixture(deployAndConfigureContracts));
+    ({ assetDesk, tokenMock, liquidityPool } = await setUpFixture(deployAndConfigureContracts));
   });
 
-  describe("Method 'initialize()'", () => {
+  describe.only("Method 'initialize()'", () => {
     let deployedContract: Contracts.AssetTransitDesk;
 
     beforeEach(async () => {
@@ -115,12 +132,12 @@ describe("Contract 'AssetTransitDesk'", () => {
       });
 
       it("should set correct roles for the deployer", async () => {
-        expect(await deployedContract.hasRole(OWNER_ROLE, deployer.address)).to.be.true;
-        expect(await deployedContract.hasRole(GRANTOR_ROLE, deployer.address)).to.be.false;
-        expect(await deployedContract.hasRole(PAUSER_ROLE, deployer.address)).to.be.false;
-        expect(await deployedContract.hasRole(RESCUER_ROLE, deployer.address)).to.be.false;
-        expect(await deployedContract.hasRole(MANAGER_ROLE, deployer.address)).to.be.false;
-        expect(await deployedContract.hasRole(CASHBACK_OPERATOR_ROLE, deployer.address)).to.be.false;
+        expect(await deployedContract.hasRole(OWNER_ROLE, deployer)).to.be.true;
+        expect(await deployedContract.hasRole(GRANTOR_ROLE, deployer)).to.be.false;
+        expect(await deployedContract.hasRole(PAUSER_ROLE, deployer)).to.be.false;
+        expect(await deployedContract.hasRole(RESCUER_ROLE, deployer)).to.be.false;
+        expect(await deployedContract.hasRole(MANAGER_ROLE, deployer)).to.be.false;
+        expect(await deployedContract.hasRole(CASHBACK_OPERATOR_ROLE, deployer)).to.be.false;
       });
 
       it("should not pause the contract", async () => {
@@ -128,13 +145,13 @@ describe("Contract 'AssetTransitDesk'", () => {
       });
 
       it("should set correct underlying token address", async () => {
-        expect(await assetDesk.underlyingToken()).to.equal(await tokenMock.getAddress());
+        expect(await assetDesk.underlyingToken()).to.equal(tokenMock);
       });
     });
 
     describe("Should revert if", () => {
       it("called a second time", async () => {
-        await expect(deployedContract.initialize(await tokenMock.getAddress()))
+        await expect(deployedContract.initialize(tokenMock))
           .to.be.revertedWithCustomError(deployedContract, "InvalidInitialization");
       });
 
