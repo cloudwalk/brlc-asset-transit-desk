@@ -28,6 +28,12 @@ let lpTreasury: HardhatEthersSigner; // has no roles
 let surplusTreasury: HardhatEthersSigner; // has no roles
 let stranger: HardhatEthersSigner; // has no roles
 
+const EXPECTED_VERSION = {
+  major: 1,
+  minor: 0,
+  patch: 0,
+};
+
 async function deployContracts() {
   const name = "ERC20 Test";
   const symbol = "TEST";
@@ -160,6 +166,16 @@ describe("Contract 'AssetDesk'", () => {
           .to.be.revertedWithCustomError(assetDesk, "AccessControlUnauthorizedAccount")
           .withArgs(stranger.address, OWNER_ROLE);
       });
+    });
+  });
+
+  describe("Method '$__VERSION()'", () => {
+    it("should return the expected version", async () => {
+      expect(await assetDesk.$__VERSION()).to.deep.equal([
+        EXPECTED_VERSION.major,
+        EXPECTED_VERSION.minor,
+        EXPECTED_VERSION.patch,
+      ]);
     });
   });
 
