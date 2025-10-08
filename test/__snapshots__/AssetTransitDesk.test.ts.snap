@@ -1,6 +1,678 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Contract 'AssetTransitDesk' Snapshot scenarios simple scenario 1`] = `
+exports[`Contract 'AssetTransitDesk' Snapshot scenarios Configuration scenario 1`] = `
+Array [
+  Object {
+    "args": Array [
+      "0xd10feaa7fea55567e367a112bc53907318a50949442dfc0570945570c5af57cf",
+      "deployer",
+    ],
+    "balances": Object {
+      "BRLC": Object {
+        "BRLC": 0n,
+        "LP": 0n,
+        "account": 0n,
+        "assetDesk": 0n,
+        "deployer": 0n,
+        "manager": 0n,
+        "surplusTreasury": 0n,
+      },
+    },
+    "caller": "deployer",
+    "contract": "assetDesk",
+    "events": Array [
+      Object {
+        "args": Array [
+          "0xd10feaa7fea55567e367a112bc53907318a50949442dfc0570945570c5af57cf",
+          "deployer",
+          "deployer",
+        ],
+        "contract": "assetDesk",
+        "name": "RoleGranted",
+      },
+    ],
+    "methodFragment": FunctionFragment {
+      "constant": false,
+      "gas": null,
+      "inputs": Array [
+        ParamType {
+          "arrayChildren": null,
+          "arrayLength": null,
+          "baseType": "bytes32",
+          "components": null,
+          "indexed": undefined,
+          "name": "role",
+          "type": "bytes32",
+        },
+        ParamType {
+          "arrayChildren": null,
+          "arrayLength": null,
+          "baseType": "address",
+          "components": null,
+          "indexed": undefined,
+          "name": "account",
+          "type": "address",
+        },
+      ],
+      "name": "grantRole",
+      "outputs": Array [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function",
+    },
+    "type": "methodCall",
+  },
+  Object {
+    "args": Array [
+      "0x241ecf16d79d0f8dbfb92cbc07fe17840425976cf0667f022fe9877caa831b08",
+      "manager",
+    ],
+    "balances": Object {
+      "BRLC": Object {
+        "BRLC": 0n,
+        "LP": 0n,
+        "account": 0n,
+        "assetDesk": 0n,
+        "deployer": 0n,
+        "manager": 0n,
+        "surplusTreasury": 0n,
+      },
+    },
+    "caller": "deployer",
+    "contract": "assetDesk",
+    "events": Array [
+      Object {
+        "args": Array [
+          "0x241ecf16d79d0f8dbfb92cbc07fe17840425976cf0667f022fe9877caa831b08",
+          "manager",
+          "deployer",
+        ],
+        "contract": "assetDesk",
+        "name": "RoleGranted",
+      },
+    ],
+    "methodFragment": FunctionFragment {
+      "constant": false,
+      "gas": null,
+      "inputs": Array [
+        ParamType {
+          "arrayChildren": null,
+          "arrayLength": null,
+          "baseType": "bytes32",
+          "components": null,
+          "indexed": undefined,
+          "name": "role",
+          "type": "bytes32",
+        },
+        ParamType {
+          "arrayChildren": null,
+          "arrayLength": null,
+          "baseType": "address",
+          "components": null,
+          "indexed": undefined,
+          "name": "account",
+          "type": "address",
+        },
+      ],
+      "name": "grantRole",
+      "outputs": Array [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function",
+    },
+    "type": "methodCall",
+  },
+  Object {
+    "args": Array [
+      "0x65d7a28e3265b37a6474929f336521b332c1681b933f6cb9f3376673440d862a",
+      "0x15d34aaf54267db7d7c367839aaf71a00a2c6a65",
+    ],
+    "balances": Object {
+      "BRLC": Object {
+        "BRLC": 0n,
+        "LP": 0n,
+        "account": 0n,
+        "assetDesk": 0n,
+        "deployer": 0n,
+        "manager": 0n,
+        "surplusTreasury": 0n,
+      },
+    },
+    "caller": "deployer",
+    "contract": "assetDesk",
+    "events": Array [
+      Object {
+        "args": Array [
+          "0x65d7a28e3265b37a6474929f336521b332c1681b933f6cb9f3376673440d862a",
+          "0x15d34aaf54267db7d7c367839aaf71a00a2c6a65",
+          "deployer",
+        ],
+        "contract": "assetDesk",
+        "name": "RoleGranted",
+      },
+    ],
+    "methodFragment": FunctionFragment {
+      "constant": false,
+      "gas": null,
+      "inputs": Array [
+        ParamType {
+          "arrayChildren": null,
+          "arrayLength": null,
+          "baseType": "bytes32",
+          "components": null,
+          "indexed": undefined,
+          "name": "role",
+          "type": "bytes32",
+        },
+        ParamType {
+          "arrayChildren": null,
+          "arrayLength": null,
+          "baseType": "address",
+          "components": null,
+          "indexed": undefined,
+          "name": "account",
+          "type": "address",
+        },
+      ],
+      "name": "grantRole",
+      "outputs": Array [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function",
+    },
+    "type": "methodCall",
+  },
+  Object {
+    "args": Array [
+      "account",
+      10000n,
+    ],
+    "balances": Object {
+      "BRLC": Object {
+        "BRLC": 0n,
+        "LP": 0n,
+        "account": 10000n,
+        "assetDesk": 0n,
+        "deployer": 0n,
+        "manager": 0n,
+        "surplusTreasury": 0n,
+      },
+    },
+    "caller": "deployer",
+    "contract": "BRLC",
+    "events": Array [
+      Object {
+        "args": Array [
+          "0x0000000000000000000000000000000000000000",
+          "account",
+          10000n,
+        ],
+        "contract": "BRLC",
+        "name": "Transfer",
+      },
+    ],
+    "methodFragment": FunctionFragment {
+      "constant": false,
+      "gas": null,
+      "inputs": Array [
+        ParamType {
+          "arrayChildren": null,
+          "arrayLength": null,
+          "baseType": "address",
+          "components": null,
+          "indexed": undefined,
+          "name": "account",
+          "type": "address",
+        },
+        ParamType {
+          "arrayChildren": null,
+          "arrayLength": null,
+          "baseType": "uint256",
+          "components": null,
+          "indexed": undefined,
+          "name": "amount",
+          "type": "uint256",
+        },
+      ],
+      "name": "mint",
+      "outputs": Array [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function",
+    },
+    "type": "methodCall",
+  },
+  Object {
+    "args": Array [
+      "LP",
+      10000n,
+    ],
+    "balances": Object {
+      "BRLC": Object {
+        "BRLC": 0n,
+        "LP": 10000n,
+        "account": 10000n,
+        "assetDesk": 0n,
+        "deployer": 0n,
+        "manager": 0n,
+        "surplusTreasury": 0n,
+      },
+    },
+    "caller": "deployer",
+    "contract": "BRLC",
+    "events": Array [
+      Object {
+        "args": Array [
+          "0x0000000000000000000000000000000000000000",
+          "LP",
+          10000n,
+        ],
+        "contract": "BRLC",
+        "name": "Transfer",
+      },
+    ],
+    "methodFragment": FunctionFragment {
+      "constant": false,
+      "gas": null,
+      "inputs": Array [
+        ParamType {
+          "arrayChildren": null,
+          "arrayLength": null,
+          "baseType": "address",
+          "components": null,
+          "indexed": undefined,
+          "name": "account",
+          "type": "address",
+        },
+        ParamType {
+          "arrayChildren": null,
+          "arrayLength": null,
+          "baseType": "uint256",
+          "components": null,
+          "indexed": undefined,
+          "name": "amount",
+          "type": "uint256",
+        },
+      ],
+      "name": "mint",
+      "outputs": Array [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function",
+    },
+    "type": "methodCall",
+  },
+  Object {
+    "args": Array [
+      "surplusTreasury",
+      10000n,
+    ],
+    "balances": Object {
+      "BRLC": Object {
+        "BRLC": 0n,
+        "LP": 10000n,
+        "account": 10000n,
+        "assetDesk": 0n,
+        "deployer": 0n,
+        "manager": 0n,
+        "surplusTreasury": 10000n,
+      },
+    },
+    "caller": "deployer",
+    "contract": "BRLC",
+    "events": Array [
+      Object {
+        "args": Array [
+          "0x0000000000000000000000000000000000000000",
+          "surplusTreasury",
+          10000n,
+        ],
+        "contract": "BRLC",
+        "name": "Transfer",
+      },
+    ],
+    "methodFragment": FunctionFragment {
+      "constant": false,
+      "gas": null,
+      "inputs": Array [
+        ParamType {
+          "arrayChildren": null,
+          "arrayLength": null,
+          "baseType": "address",
+          "components": null,
+          "indexed": undefined,
+          "name": "account",
+          "type": "address",
+        },
+        ParamType {
+          "arrayChildren": null,
+          "arrayLength": null,
+          "baseType": "uint256",
+          "components": null,
+          "indexed": undefined,
+          "name": "amount",
+          "type": "uint256",
+        },
+      ],
+      "name": "mint",
+      "outputs": Array [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function",
+    },
+    "type": "methodCall",
+  },
+  Object {
+    "args": Array [
+      "assetDesk",
+      10000n,
+    ],
+    "balances": Object {
+      "BRLC": Object {
+        "BRLC": 0n,
+        "LP": 10000n,
+        "account": 10000n,
+        "assetDesk": 0n,
+        "deployer": 0n,
+        "manager": 0n,
+        "surplusTreasury": 10000n,
+      },
+    },
+    "caller": "surplusTreasury",
+    "contract": "BRLC",
+    "events": Array [
+      Object {
+        "args": Array [
+          "surplusTreasury",
+          "assetDesk",
+          10000n,
+        ],
+        "contract": "BRLC",
+        "name": "Approval",
+      },
+    ],
+    "methodFragment": FunctionFragment {
+      "constant": false,
+      "gas": null,
+      "inputs": Array [
+        ParamType {
+          "arrayChildren": null,
+          "arrayLength": null,
+          "baseType": "address",
+          "components": null,
+          "indexed": undefined,
+          "name": "spender",
+          "type": "address",
+        },
+        ParamType {
+          "arrayChildren": null,
+          "arrayLength": null,
+          "baseType": "uint256",
+          "components": null,
+          "indexed": undefined,
+          "name": "value",
+          "type": "uint256",
+        },
+      ],
+      "name": "approve",
+      "outputs": Array [
+        ParamType {
+          "arrayChildren": null,
+          "arrayLength": null,
+          "baseType": "bool",
+          "components": null,
+          "indexed": undefined,
+          "name": "",
+          "type": "bool",
+        },
+      ],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function",
+    },
+    "type": "methodCall",
+  },
+  Object {
+    "args": Array [
+      "assetDesk",
+      10000n,
+    ],
+    "balances": Object {
+      "BRLC": Object {
+        "BRLC": 0n,
+        "LP": 10000n,
+        "account": 10000n,
+        "assetDesk": 0n,
+        "deployer": 0n,
+        "manager": 0n,
+        "surplusTreasury": 10000n,
+      },
+    },
+    "caller": "account",
+    "contract": "BRLC",
+    "events": Array [
+      Object {
+        "args": Array [
+          "account",
+          "assetDesk",
+          10000n,
+        ],
+        "contract": "BRLC",
+        "name": "Approval",
+      },
+    ],
+    "methodFragment": FunctionFragment {
+      "constant": false,
+      "gas": null,
+      "inputs": Array [
+        ParamType {
+          "arrayChildren": null,
+          "arrayLength": null,
+          "baseType": "address",
+          "components": null,
+          "indexed": undefined,
+          "name": "spender",
+          "type": "address",
+        },
+        ParamType {
+          "arrayChildren": null,
+          "arrayLength": null,
+          "baseType": "uint256",
+          "components": null,
+          "indexed": undefined,
+          "name": "value",
+          "type": "uint256",
+        },
+      ],
+      "name": "approve",
+      "outputs": Array [
+        ParamType {
+          "arrayChildren": null,
+          "arrayLength": null,
+          "baseType": "bool",
+          "components": null,
+          "indexed": undefined,
+          "name": "",
+          "type": "bool",
+        },
+      ],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function",
+    },
+    "type": "methodCall",
+  },
+  Object {
+    "args": Array [
+      "0xa49807205ce4d355092ef5a8a18f56e8913cf4a201fbe287825b095693c21775",
+      "assetDesk",
+    ],
+    "balances": Object {
+      "BRLC": Object {
+        "BRLC": 0n,
+        "LP": 10000n,
+        "account": 10000n,
+        "assetDesk": 0n,
+        "deployer": 0n,
+        "manager": 0n,
+        "surplusTreasury": 10000n,
+      },
+    },
+    "caller": "deployer",
+    "contract": "LP",
+    "events": Array [
+      Object {
+        "args": Array [
+          "0xa49807205ce4d355092ef5a8a18f56e8913cf4a201fbe287825b095693c21775",
+          "assetDesk",
+          "deployer",
+        ],
+        "contract": "assetDesk",
+        "name": "RoleGranted",
+      },
+    ],
+    "methodFragment": FunctionFragment {
+      "constant": false,
+      "gas": null,
+      "inputs": Array [
+        ParamType {
+          "arrayChildren": null,
+          "arrayLength": null,
+          "baseType": "bytes32",
+          "components": null,
+          "indexed": undefined,
+          "name": "role",
+          "type": "bytes32",
+        },
+        ParamType {
+          "arrayChildren": null,
+          "arrayLength": null,
+          "baseType": "address",
+          "components": null,
+          "indexed": undefined,
+          "name": "account",
+          "type": "address",
+        },
+      ],
+      "name": "grantRole",
+      "outputs": Array [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function",
+    },
+    "type": "methodCall",
+  },
+  Object {
+    "args": Array [
+      "LP",
+    ],
+    "balances": Object {
+      "BRLC": Object {
+        "BRLC": 0n,
+        "LP": 10000n,
+        "account": 10000n,
+        "assetDesk": 0n,
+        "deployer": 0n,
+        "manager": 0n,
+        "surplusTreasury": 10000n,
+      },
+    },
+    "caller": "deployer",
+    "contract": "assetDesk",
+    "events": Array [
+      Object {
+        "args": Array [
+          "assetDesk",
+          "LP",
+          115792089237316195423570985008687907853269984665640564039457584007913129639935n,
+        ],
+        "contract": "BRLC",
+        "name": "Approval",
+      },
+      Object {
+        "args": Array [
+          "LP",
+          "0x0000000000000000000000000000000000000000",
+        ],
+        "contract": "assetDesk",
+        "name": "LiquidityPoolChanged",
+      },
+    ],
+    "methodFragment": FunctionFragment {
+      "constant": false,
+      "gas": null,
+      "inputs": Array [
+        ParamType {
+          "arrayChildren": null,
+          "arrayLength": null,
+          "baseType": "address",
+          "components": null,
+          "indexed": undefined,
+          "name": "newLiquidityPool",
+          "type": "address",
+        },
+      ],
+      "name": "setLiquidityPool",
+      "outputs": Array [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function",
+    },
+    "type": "methodCall",
+  },
+  Object {
+    "args": Array [
+      "surplusTreasury",
+    ],
+    "balances": Object {
+      "BRLC": Object {
+        "BRLC": 0n,
+        "LP": 10000n,
+        "account": 10000n,
+        "assetDesk": 0n,
+        "deployer": 0n,
+        "manager": 0n,
+        "surplusTreasury": 10000n,
+      },
+    },
+    "caller": "deployer",
+    "contract": "assetDesk",
+    "events": Array [
+      Object {
+        "args": Array [
+          "surplusTreasury",
+          "0x0000000000000000000000000000000000000000",
+        ],
+        "contract": "assetDesk",
+        "name": "SurplusTreasuryChanged",
+      },
+    ],
+    "methodFragment": FunctionFragment {
+      "constant": false,
+      "gas": null,
+      "inputs": Array [
+        ParamType {
+          "arrayChildren": null,
+          "arrayLength": null,
+          "baseType": "address",
+          "components": null,
+          "indexed": undefined,
+          "name": "newSurplusTreasury",
+          "type": "address",
+        },
+      ],
+      "name": "setSurplusTreasury",
+      "outputs": Array [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function",
+    },
+    "type": "methodCall",
+  },
+]
+`;
+
+exports[`Contract 'AssetTransitDesk' Snapshot scenarios Simple usage scenario 1`] = `
 Array [
   Object {
     "args": Array [
@@ -8,11 +680,11 @@ Array [
       100n,
     ],
     "balances": Object {
-      "brlc": Object {
+      "BRLC": Object {
+        "BRLC": 0n,
         "LP": 10100n,
         "account": 9900n,
         "assetDesk": 0n,
-        "brlc": 0n,
         "deployer": 0n,
         "manager": 0n,
         "pauser": 0n,
@@ -29,7 +701,7 @@ Array [
           "assetDesk",
           100n,
         ],
-        "contract": "brlc",
+        "contract": "BRLC",
         "name": "Transfer",
       },
       Object {
@@ -38,7 +710,7 @@ Array [
           "LP",
           100n,
         ],
-        "contract": "brlc",
+        "contract": "BRLC",
         "name": "Transfer",
       },
       Object {
@@ -95,11 +767,11 @@ Array [
       10n,
     ],
     "balances": Object {
-      "brlc": Object {
+      "BRLC": Object {
+        "BRLC": 0n,
         "LP": 10000n,
         "account": 10010n,
         "assetDesk": 0n,
-        "brlc": 0n,
         "deployer": 0n,
         "manager": 0n,
         "pauser": 0n,
@@ -116,7 +788,7 @@ Array [
           "assetDesk",
           100n,
         ],
-        "contract": "brlc",
+        "contract": "BRLC",
         "name": "Transfer",
       },
       Object {
@@ -133,7 +805,7 @@ Array [
           "assetDesk",
           10n,
         ],
-        "contract": "brlc",
+        "contract": "BRLC",
         "name": "Transfer",
       },
       Object {
@@ -142,7 +814,7 @@ Array [
           "account",
           110n,
         ],
-        "contract": "brlc",
+        "contract": "BRLC",
         "name": "Transfer",
       },
       Object {

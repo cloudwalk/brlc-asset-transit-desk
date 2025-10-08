@@ -507,15 +507,30 @@ describe("Contract 'AssetTransitDesk'", () => {
   });
 
   describe("Snapshot scenarios", () => {
-    it("simple scenario", async () => {
+    it("Simple usage scenario", async () => {
       await expect.startChainshot({
         name: "simple scenario",
         accounts: { deployer, manager, account, surplusTreasury, pauser, stranger },
         contracts: { assetDesk, LP: liquidityPool },
-        tokens: { brlc: tokenMock },
+        tokens: { BRLC: tokenMock },
       });
       await assetDesk.connect(manager).issueAsset(account.address, 100n);
       await assetDesk.connect(manager).redeemAsset(account.address, 100n, 10n);
+      await expect.stopChainshot();
+    });
+
+    it("Configuration scenario", async () => {
+      const contracts = await deployContracts();
+
+      await expect.startChainshot({
+        name: "configuration scenario",
+        accounts: { deployer, manager, account, surplusTreasury },
+        contracts: { assetDesk: contracts.assetDesk, LP: contracts.liquidityPool, BRLC: contracts.tokenMock },
+        tokens: { BRLC: contracts.tokenMock },
+      });
+
+      await configureContracts(contracts.assetDesk, contracts.tokenMock, contracts.liquidityPool);
+
       await expect.stopChainshot();
     });
   });
