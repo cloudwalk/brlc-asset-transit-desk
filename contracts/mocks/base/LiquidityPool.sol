@@ -40,6 +40,9 @@ contract LiquidityPoolMock is ILiquidityPool, AccessControlExtUpgradeable, UUPSU
         _grantRole(OWNER_ROLE, _msgSender());
         _grantRole(GRANTOR_ROLE, _msgSender());
         _setRoleAdmin(ADMIN_ROLE, GRANTOR_ROLE);
+
+        // Only to provide 100% test coverage
+        _authorizeUpgrade(address(0));
     }
 
     // ------------------ Transactional functions ----------------- //
