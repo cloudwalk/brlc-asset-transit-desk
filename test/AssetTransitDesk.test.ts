@@ -520,16 +520,19 @@ describe("Contract 'AssetTransitDesk'", () => {
     });
 
     it("Configuration scenario", async () => {
-      const contracts = await deployContracts();
+      const { assetDesk, tokenMock, liquidityPool } = await deployContracts();
 
       await expect.startChainshot({
         name: "configuration scenario",
         accounts: { deployer, manager, account, surplusTreasury },
-        contracts: { assetDesk: contracts.assetDesk, LP: contracts.liquidityPool, BRLC: contracts.tokenMock },
-        tokens: { BRLC: contracts.tokenMock },
+        contracts: { assetDesk: assetDesk, LP: liquidityPool },
+        tokens: { BRLC: tokenMock },
       });
 
-      await configureContracts(contracts.assetDesk, contracts.tokenMock, contracts.liquidityPool);
+      await liquidityPool.connect(deployer).grantRole(ADMIN_ROLE, assetDesk);
+      await tokenMock.connect(surplusTreasury).approve(assetDesk, BALANCE_INITIAL);
+      await assetDesk.setLiquidityPool(liquidityPool);
+      await assetDesk.setSurplusTreasury(surplusTreasury);
 
       await expect.stopChainshot();
     });
