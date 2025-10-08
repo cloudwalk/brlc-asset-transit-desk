@@ -509,7 +509,7 @@ describe("Contract 'AssetTransitDesk'", () => {
   describe("Snapshot scenarios", () => {
     it("Simple usage scenario", async () => {
       await expect.startChainshot({
-        name: "simple scenario",
+        name: "Usage example",
         accounts: { deployer, manager, account, surplusTreasury, pauser, stranger },
         contracts: { assetDesk, LP: liquidityPool },
         tokens: { BRLC: tokenMock },
@@ -523,7 +523,7 @@ describe("Contract 'AssetTransitDesk'", () => {
       const { assetDesk, tokenMock, liquidityPool } = await deployContracts();
 
       await expect.startChainshot({
-        name: "configuration scenario",
+        name: "Configuration",
         accounts: { deployer, manager, account, surplusTreasury },
         contracts: { assetDesk: assetDesk, LP: liquidityPool },
         tokens: { BRLC: tokenMock },

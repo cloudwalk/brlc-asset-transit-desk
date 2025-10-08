@@ -1,6 +1,6 @@
 # AssetTransitDesk.test
 
-## simple scenario
+## Usage example
 
 | Idx | Caller | Contract | Name | Args |
 | --- | ------ | -------- | ---- | ---- |
@@ -108,7 +108,7 @@ sequenceDiagram
 
 </details>
 
-## configuration scenario
+## Configuration
 
 | Idx | Caller | Contract | Name | Args |
 | --- | ------ | -------- | ---- | ---- |
