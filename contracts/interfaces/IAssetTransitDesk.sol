@@ -133,6 +133,18 @@ interface IAssetTransitDeskErrors {
     /// @dev Thrown if the provided new implementation address is not an AssetTransitDesk contract.
     error AssetTransitDesk_ImplementationAddressInvalid();
 
+    /// @dev Thrown if the provided liquidity pool address is not an LiquidityPool contract.
+    error AssetTransitDesk_LiquidityPoolAddressInvalid();
+
+    /// @dev Thrown if the current contract is not an admin of the provided liquidity pool.
+    error AssetTransitDesk_LiquidityPoolNotAdmin();
+
+    /// @dev Thrown if the provided liquidity pool is not registered as a working treasury.
+    error AssetTransitDesk_LiquidityPoolNotRegisteredAsWorkingTreasury();
+
+    /// @dev Thrown if the provided liquidity pool token does not match the underlying token.
+    error AssetTransitDesk_LiquidityPoolTokenMismatch();
+
     /// @dev Thrown if the provided net yield amount is zero.
     error AssetTransitDesk_NetYieldAmountZero();
 
