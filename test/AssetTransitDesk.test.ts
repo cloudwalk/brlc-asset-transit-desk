@@ -341,7 +341,7 @@ describe("Contract 'AssetTransitDesk'", () => {
         await expect(tx).to.emit(assetDesk, "LiquidityPoolChanged").withArgs(newLpTreasury, liquidityPool.address);
       });
 
-      it("should update the LP treasury address", async () => {
+      it("should update the liquidity pool address", async () => {
         expect(await assetDesk.getLiquidityPool()).to.equal(newLpTreasury);
       });
     });
@@ -357,21 +357,21 @@ describe("Contract 'AssetTransitDesk'", () => {
           .withArgs(stranger.address, OWNER_ROLE);
       });
 
-      it("the new LP treasury address is zero", async () => {
+      it("the new liquidity pool address is zero", async () => {
         await expect(
           assetDesk.setLiquidityPool(ADDRESS_ZERO),
         )
           .to.be.revertedWithCustomError(assetDesk, "AssetTransitDesk_TreasuryZero");
       });
 
-      it("the new LP treasury address is the same as the current LP treasury address", async () => {
+      it("the new liquidity poo address is the same as the current liquidity poo address", async () => {
         await expect(
           assetDesk.setLiquidityPool(liquidityPool.address),
         )
           .to.be.revertedWithCustomError(assetDesk, "AssetTransitDesk_TreasuryAlreadyConfigured");
       });
 
-      it("the new LP treasury address has not granted the contract allowance to spend tokens", async () => {
+      it("the new liquidity poo address has not granted the contract allowance to spend tokens", async () => {
         await expect(
           assetDesk.setLiquidityPool(stranger.address),
         )
@@ -396,7 +396,7 @@ describe("Contract 'AssetTransitDesk'", () => {
           .withArgs(newSurplusTreasury, surplusTreasury.address);
       });
 
-      it("should update the LP treasury address", async () => {
+      it("should update the liquidity pool address", async () => {
         expect(await assetDesk.getSurplusTreasury()).to.equal(newSurplusTreasury);
       });
     });

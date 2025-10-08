@@ -26,11 +26,11 @@ abstract contract AssetTransitDeskStorageLayout {
      *
      * - token ---------------- The address of the underlying token.
      * - surplusTreasury ------- The address of the surplus treasury.
-     * - liquidityPool ------------ The address of the LP treasury.
+     * - liquidityPool ------------ The address of the liquidity pool.
      *
      * Notes:
      * 1. The surplus treasury is used to withdraw the yield.
-     * 2. The LP treasury is used to withdraw and deposit the principal.
+     * 2. The liquidity pool is used to withdraw and deposit the principal.
      *
      * @custom:storage-location erc7201:cloudwalk.storage.AssetTransitDesk
      */

@@ -105,9 +105,9 @@ interface IAssetTransitDeskConfiguration {
     function getSurplusTreasury() external view returns (address);
 
     /**
-     * @dev Returns the address of the LP treasury.
+     * @dev Returns the address of the liquidity pool.
      *
-     * @return The address of the LP treasury.
+     * @return The address of the liquidity pool.
      */
     function getLiquidityPool() external view returns (address);
 
