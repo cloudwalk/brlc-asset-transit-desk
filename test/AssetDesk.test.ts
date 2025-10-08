@@ -1,0 +1,493 @@
+/* eslint @typescript-eslint/no-unused-expressions: "off" */
+import { ethers, upgrades } from "hardhat";
+import { expect } from "chai";
+import { TransactionResponse } from "ethers";
+import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
+import { setUpFixture } from "../test-utils/common";
+import * as Contracts from "../typechain-types";
+import { checkTokenPath } from "../test-utils/eth";
+
+const ADDRESS_ZERO = ethers.ZeroAddress;
+const BALANCE_INITIAL = 10000n;
+
+const OWNER_ROLE = ethers.id("OWNER_ROLE");
+const GRANTOR_ROLE = ethers.id("GRANTOR_ROLE");
+const MANAGER_ROLE = ethers.id("MANAGER_ROLE");
+const CASHBACK_OPERATOR_ROLE = ethers.id("CASHBACK_OPERATOR_ROLE");
+const PAUSER_ROLE = ethers.id("PAUSER_ROLE");
+const RESCUER_ROLE = ethers.id("RESCUER_ROLE");
+
+let assetDeskFactory: Contracts.AssetDesk__factory;
+let tokenMockFactory: Contracts.ERC20TokenMock__factory;
+
+let deployer: HardhatEthersSigner; // has GRANTOR_ROLE AND OWNER_ROLE
+let manager: HardhatEthersSigner; // has MANAGER_ROLE
+let account: HardhatEthersSigner; // has no roles
+let pauser: HardhatEthersSigner; // has PAUSER_ROLE
+let lpTreasury: HardhatEthersSigner; // has no roles
+let surplusTreasury: HardhatEthersSigner; // has no roles
+let taxTreasury: HardhatEthersSigner; // has no roles
+let stranger: HardhatEthersSigner; // has no roles
+
+async function deployContracts() {
+  const name = "ERC20 Test";
+  const symbol = "TEST";
+
+  const tokenMockDeployment = await tokenMockFactory.deploy(name, symbol);
+  await tokenMockDeployment.waitForDeployment();
+
+  const tokenMock = tokenMockDeployment.connect(deployer);
+  const assetDesk = await upgrades.deployProxy(assetDeskFactory, [await tokenMock.getAddress()]);
+  await assetDesk.waitForDeployment();
+
+  return { assetDesk, tokenMock };
+}
+
+async function configureContracts(assetDesk: Contracts.AssetDesk, tokenMock: Contracts.ERC20TokenMock) {
+  await assetDesk.grantRole(GRANTOR_ROLE, deployer.address);
+  await assetDesk.grantRole(MANAGER_ROLE, manager.address);
+  await assetDesk.grantRole(PAUSER_ROLE, pauser.address);
+
+  await tokenMock.mint(account, BALANCE_INITIAL);
+  await tokenMock.mint(lpTreasury, BALANCE_INITIAL);
+  await tokenMock.mint(surplusTreasury, BALANCE_INITIAL);
+  await tokenMock.connect(lpTreasury).approve(assetDesk.getAddress(), BALANCE_INITIAL);
+  await tokenMock.connect(surplusTreasury).approve(assetDesk.getAddress(), BALANCE_INITIAL);
+  await tokenMock.connect(account).approve(assetDesk.getAddress(), BALANCE_INITIAL);
+
+  await assetDesk.setLPTreasury(lpTreasury);
+  await assetDesk.setSurplusTreasury(surplusTreasury);
+  await assetDesk.setTaxTreasury(taxTreasury);
+}
+
+async function deployAndConfigureContracts() {
+  const contracts = await deployContracts();
+  await configureContracts(contracts.assetDesk, contracts.tokenMock);
+  return contracts;
+}
+
+describe("Contract 'AssetDesk'", () => {
+  before(async () => {
+    [deployer, manager, account, lpTreasury, surplusTreasury, taxTreasury, pauser, stranger] =
+     await ethers.getSigners();
+
+    assetDeskFactory = await ethers.getContractFactory("AssetDesk");
+    assetDeskFactory = assetDeskFactory.connect(deployer);
+    tokenMockFactory = await ethers.getContractFactory("ERC20TokenMock");
+    tokenMockFactory = tokenMockFactory.connect(deployer);
+  });
+
+  let assetDesk: Contracts.AssetDesk;
+  let tokenMock: Contracts.ERC20TokenMock;
+
+  beforeEach(async () => {
+    ({ assetDesk, tokenMock } = await setUpFixture(deployAndConfigureContracts));
+  });
+
+  describe("Method 'initialize()'", () => {
+    let deployedContract: Contracts.AssetDesk;
+
+    beforeEach(async () => {
+      // deploying contract without configuration to test the default state
+      const contracts = await setUpFixture(deployContracts);
+      deployedContract = contracts.assetDesk;
+    });
+
+    it("should expose correct role hashes", async () => {
+      expect(await deployedContract.OWNER_ROLE()).to.equal(OWNER_ROLE);
+      expect(await deployedContract.GRANTOR_ROLE()).to.equal(GRANTOR_ROLE);
+      expect(await deployedContract.PAUSER_ROLE()).to.equal(PAUSER_ROLE);
+      expect(await deployedContract.RESCUER_ROLE()).to.equal(RESCUER_ROLE);
+      expect(await deployedContract.MANAGER_ROLE()).to.equal(MANAGER_ROLE);
+    });
+
+    it("should set correct role admins", async () => {
+      expect(await deployedContract.getRoleAdmin(OWNER_ROLE)).to.equal(OWNER_ROLE);
+      expect(await deployedContract.getRoleAdmin(GRANTOR_ROLE)).to.equal(OWNER_ROLE);
+      expect(await deployedContract.getRoleAdmin(PAUSER_ROLE)).to.equal(GRANTOR_ROLE);
+      expect(await deployedContract.getRoleAdmin(RESCUER_ROLE)).to.equal(GRANTOR_ROLE);
+      expect(await deployedContract.getRoleAdmin(MANAGER_ROLE)).to.equal(GRANTOR_ROLE);
+    });
+
+    it("should set correct roles for the deployer", async () => {
+      expect(await deployedContract.hasRole(OWNER_ROLE, deployer.address)).to.be.true;
+      expect(await deployedContract.hasRole(GRANTOR_ROLE, deployer.address)).to.be.false;
+      expect(await deployedContract.hasRole(PAUSER_ROLE, deployer.address)).to.be.false;
+      expect(await deployedContract.hasRole(RESCUER_ROLE, deployer.address)).to.be.false;
+      expect(await deployedContract.hasRole(MANAGER_ROLE, deployer.address)).to.be.false;
+      expect(await deployedContract.hasRole(CASHBACK_OPERATOR_ROLE, deployer.address)).to.be.false;
+    });
+
+    it("should not pause the contract", async () => {
+      expect(await deployedContract.paused()).to.equal(false);
+    });
+
+    it("should set correct underlying token address", async () => {
+      expect(await assetDesk.underlyingToken()).to.equal(await tokenMock.getAddress());
+    });
+
+    describe("Should revert if", () => {
+      it("called a second time", async () => {
+        await expect(deployedContract.initialize(await tokenMock.getAddress()))
+          .to.be.revertedWithCustomError(deployedContract, "InvalidInitialization");
+      });
+
+      it("the provided token address is zero", async () => {
+        const tx = upgrades.deployProxy(assetDeskFactory, [ADDRESS_ZERO]);
+        await expect(tx)
+          .to.be.revertedWithCustomError(assetDeskFactory, "AssetDesk_TokenAddressZero");
+      });
+    });
+  });
+
+  describe("Method 'upgradeToAndCall()'", () => {
+    it("should upgrade the contract to a new implementation", async () => {
+      const newImplementation = await assetDeskFactory.deploy();
+      await newImplementation.waitForDeployment();
+
+      const tx = assetDesk.upgradeToAndCall(await newImplementation.getAddress(), "0x");
+      await expect(tx).to.emit(assetDesk, "Upgraded").withArgs(await newImplementation.getAddress());
+    });
+
+    describe("Should revert if", () => {
+      it("called with the address of an incompatible implementation", async () => {
+        const tx = assetDesk.upgradeToAndCall(await tokenMock.getAddress(), "0x");
+        await expect(tx)
+          .to.be.revertedWithCustomError(assetDesk, "AssetDesk_ImplementationAddressInvalid");
+      });
+
+      it("called by a non-owner", async () => {
+        const tx = assetDesk.connect(stranger).upgradeToAndCall(tokenMock.getAddress(), "0x");
+        await expect(tx)
+          .to.be.revertedWithCustomError(assetDesk, "AccessControlUnauthorizedAccount")
+          .withArgs(stranger.address, OWNER_ROLE);
+      });
+    });
+  });
+
+  describe("Method 'issueAsset()'", () => {
+    describe("Should execute as expected when called properly and", () => {
+      let tx: TransactionResponse;
+      const principalAmount = 100n;
+
+      beforeEach(async () => {
+        tx = await assetDesk.connect(manager).issueAsset(account.address, principalAmount);
+      });
+
+      it("should emit the required event", async () => {
+        await expect(tx).to.emit(assetDesk, "AssetIssued").withArgs(account.address, principalAmount);
+      });
+
+      it("should update token balances correctly", async () => {
+        await expect(tx).to.changeTokenBalances(tokenMock,
+          [lpTreasury, account, taxTreasury, surplusTreasury, assetDesk],
+          [principalAmount, -principalAmount, 0, 0, 0],
+        );
+      });
+
+      it("should transfer tokens correctly", async () => {
+        await checkTokenPath(tx,
+          tokenMock,
+          [account, assetDesk, lpTreasury],
+          principalAmount,
+        );
+      });
+    });
+
+    describe("Should revert if", () => {
+      it("called by a non-manager", async () => {
+        await expect(
+          assetDesk.connect(stranger).issueAsset(account.address, 10n),
+        )
+          .to.be.revertedWithCustomError(assetDesk, "AccessControlUnauthorizedAccount")
+          .withArgs(stranger.address, MANAGER_ROLE);
+      });
+
+      it("the principal amount is zero", async () => {
+        await expect(
+          assetDesk.connect(manager).issueAsset(account.address, 0n),
+        )
+          .to.be.revertedWithCustomError(assetDesk, "AssetDesk_PrincipalAmountZero");
+      });
+
+      it("the buyer address is zero", async () => {
+        await expect(
+          assetDesk.connect(manager).issueAsset(ADDRESS_ZERO, 10n),
+        )
+          .to.be.revertedWithCustomError(assetDesk, "AssetDesk_BuyerAddressZero");
+      });
+
+      it("the contract is paused", async () => {
+        await assetDesk.connect(pauser).pause();
+        await expect(
+          assetDesk.connect(manager).issueAsset(account.address, 10n),
+        )
+          .to.be.revertedWithCustomError(assetDesk, "EnforcedPause");
+      });
+    });
+  });
+
+  describe("Method 'redeemAsset()'", () => {
+    describe("Should execute as expected when called properly and", () => {
+      let tx: TransactionResponse;
+      const principalAmount = 100n;
+      const netYieldAmount = 10n;
+      const taxAmount = 1n;
+
+      beforeEach(async () => {
+        tx = await assetDesk.connect(manager).redeemAsset(account.address, principalAmount, netYieldAmount, taxAmount);
+      });
+
+      it("should emit the required event", async () => {
+        await expect(tx).to.emit(assetDesk, "AssetRedeemed")
+          .withArgs(account.address, principalAmount, netYieldAmount, taxAmount);
+      });
+
+      it("should update token balances correctly", async () => {
+        await expect(tx).to.changeTokenBalances(tokenMock,
+          [lpTreasury, account, taxTreasury, surplusTreasury, assetDesk],
+          [-principalAmount, principalAmount + netYieldAmount, taxAmount, -taxAmount - netYieldAmount, 0],
+        );
+      });
+
+      it("should transfer tokens correctly", async () => {
+        await checkTokenPath(tx,
+          tokenMock,
+          [lpTreasury, assetDesk],
+          principalAmount,
+        );
+        await checkTokenPath(tx,
+          tokenMock,
+          [surplusTreasury, assetDesk],
+          netYieldAmount + taxAmount,
+        );
+        await checkTokenPath(tx,
+          tokenMock,
+          [assetDesk, account],
+          principalAmount + netYieldAmount,
+        );
+        await checkTokenPath(tx,
+          tokenMock,
+          [assetDesk, taxTreasury],
+          taxAmount,
+        );
+      });
+    });
+
+    describe("Should revert if", () => {
+      it("called by a non-manager", async () => {
+        await expect(
+          assetDesk.connect(stranger).redeemAsset(account.address, 10n, 10n, 1n),
+        )
+          .to.be.revertedWithCustomError(assetDesk, "AccessControlUnauthorizedAccount")
+          .withArgs(stranger.address, MANAGER_ROLE);
+      });
+
+      it("the principal amount is zero", async () => {
+        await expect(
+          assetDesk.connect(manager).redeemAsset(account.address, 0n, 10n, 1n),
+        )
+          .to.be.revertedWithCustomError(assetDesk, "AssetDesk_PrincipalAmountZero");
+      });
+
+      it("the net yield amount is zero", async () => {
+        await expect(
+          assetDesk.connect(manager).redeemAsset(account.address, 10n, 0n, 1n),
+        )
+          .to.be.revertedWithCustomError(assetDesk, "AssetDesk_NetYieldAmountZero");
+      });
+
+      it("the tax amount is zero", async () => {
+        await expect(
+          assetDesk.connect(manager).redeemAsset(account.address, 10n, 10n, 0n),
+        )
+          .to.be.revertedWithCustomError(assetDesk, "AssetDesk_TaxAmountZero");
+      });
+
+      it("the buyer address is zero", async () => {
+        await expect(
+          assetDesk.connect(manager).redeemAsset(ADDRESS_ZERO, 10n, 10n, 1n),
+        )
+          .to.be.revertedWithCustomError(assetDesk, "AssetDesk_BuyerAddressZero");
+      });
+
+      it("the contract is paused", async () => {
+        await assetDesk.connect(pauser).pause();
+        await expect(
+          assetDesk.connect(manager).redeemAsset(account.address, 10n, 10n, 1n),
+        )
+          .to.be.revertedWithCustomError(assetDesk, "EnforcedPause");
+      });
+    });
+  });
+
+  describe("Method 'setLPTreasury()'", () => {
+    describe("Should execute as expected when called properly and", () => {
+      let tx: TransactionResponse;
+      let newLpTreasury: HardhatEthersSigner;
+
+      beforeEach(async () => {
+        newLpTreasury = stranger;
+        await tokenMock.connect(newLpTreasury).approve(assetDesk.getAddress(), BALANCE_INITIAL);
+        tx = await assetDesk.setLPTreasury(newLpTreasury);
+      });
+
+      it("should emit the required event", async () => {
+        await expect(tx).to.emit(assetDesk, "LPTreasuryChanged").withArgs(newLpTreasury, lpTreasury.address);
+      });
+
+      it("should update the LP treasury address", async () => {
+        expect(await assetDesk.getLPTreasury()).to.equal(newLpTreasury);
+      });
+    });
+
+    describe("Should revert if", () => {
+      it("called by a non-owner", async () => {
+        const newLpTreasury = stranger;
+        await tokenMock.connect(newLpTreasury).approve(assetDesk.getAddress(), BALANCE_INITIAL);
+        await expect(
+          assetDesk.connect(stranger).setLPTreasury(stranger.address),
+        )
+          .to.be.revertedWithCustomError(assetDesk, "AccessControlUnauthorizedAccount")
+          .withArgs(stranger.address, OWNER_ROLE);
+      });
+
+      it("the new LP treasury address is zero", async () => {
+        await expect(
+          assetDesk.setLPTreasury(ADDRESS_ZERO),
+        )
+          .to.be.revertedWithCustomError(assetDesk, "AssetDesk_TreasuryZero");
+      });
+
+      it("the new LP treasury address is the same as the current LP treasury address", async () => {
+        await expect(
+          assetDesk.setLPTreasury(lpTreasury.address),
+        )
+          .to.be.revertedWithCustomError(assetDesk, "AssetDesk_TreasuryAlreadyConfigured");
+      });
+
+      it("the new LP treasury address has not granted the contract allowance to spend tokens", async () => {
+        await expect(
+          assetDesk.setLPTreasury(stranger.address),
+        )
+          .to.be.revertedWithCustomError(assetDesk, "AssetDesk_TreasuryAllowanceZero");
+      });
+    });
+  });
+
+  describe("Method 'setSurplusTreasury()'", () => {
+    describe("Should execute as expected when called properly and", () => {
+      let tx: TransactionResponse;
+      let newSurplusTreasury: HardhatEthersSigner;
+
+      beforeEach(async () => {
+        newSurplusTreasury = stranger;
+        await tokenMock.connect(newSurplusTreasury).approve(assetDesk.getAddress(), BALANCE_INITIAL);
+        tx = await assetDesk.setSurplusTreasury(newSurplusTreasury);
+      });
+
+      it("should emit the required event", async () => {
+        await expect(tx).to.emit(assetDesk, "SurplusTreasuryChanged")
+          .withArgs(newSurplusTreasury, surplusTreasury.address);
+      });
+
+      it("should update the LP treasury address", async () => {
+        expect(await assetDesk.getSurplusTreasury()).to.equal(newSurplusTreasury);
+      });
+    });
+
+    describe("Should revert if", () => {
+      it("called by a non-owner", async () => {
+        const newSurplusTreasury = stranger;
+        await tokenMock.connect(newSurplusTreasury).approve(assetDesk.getAddress(), BALANCE_INITIAL);
+        await expect(
+          assetDesk.connect(stranger).setSurplusTreasury(stranger.address),
+        )
+          .to.be.revertedWithCustomError(assetDesk, "AccessControlUnauthorizedAccount")
+          .withArgs(stranger.address, OWNER_ROLE);
+      });
+
+      it("the new surplus treasury address is zero", async () => {
+        await expect(
+          assetDesk.setSurplusTreasury(ADDRESS_ZERO),
+        )
+          .to.be.revertedWithCustomError(assetDesk, "AssetDesk_TreasuryZero");
+      });
+
+      it("the new surplus treasury address is the same as the current surplus treasury address", async () => {
+        await expect(
+          assetDesk.setSurplusTreasury(surplusTreasury.address),
+        )
+          .to.be.revertedWithCustomError(assetDesk, "AssetDesk_TreasuryAlreadyConfigured");
+      });
+
+      it("the new surplus treasury address has not granted the contract allowance to spend tokens", async () => {
+        await expect(
+          assetDesk.setSurplusTreasury(stranger.address),
+        )
+          .to.be.revertedWithCustomError(assetDesk, "AssetDesk_TreasuryAllowanceZero");
+      });
+    });
+  });
+
+  describe("Method 'setTaxTreasury()'", () => {
+    describe("Should execute as expected when called properly and", () => {
+      let tx: TransactionResponse;
+      let newTaxTreasury: HardhatEthersSigner;
+
+      beforeEach(async () => {
+        newTaxTreasury = stranger;
+        tx = await assetDesk.setTaxTreasury(newTaxTreasury);
+      });
+
+      it("should emit the required event", async () => {
+        await expect(tx).to.emit(assetDesk, "TaxTreasuryChanged")
+          .withArgs(newTaxTreasury, taxTreasury.address);
+      });
+
+      it("should update the tax treasury address", async () => {
+        expect(await assetDesk.getTaxTreasury()).to.equal(newTaxTreasury);
+      });
+    });
+
+    describe("Should revert if", () => {
+      it("called by a non-owner", async () => {
+        const newSurplusTreasury = stranger;
+        await tokenMock.connect(newSurplusTreasury).approve(assetDesk.getAddress(), BALANCE_INITIAL);
+        await expect(
+          assetDesk.connect(stranger).setTaxTreasury(stranger.address),
+        )
+          .to.be.revertedWithCustomError(assetDesk, "AccessControlUnauthorizedAccount")
+          .withArgs(stranger.address, OWNER_ROLE);
+      });
+
+      it("the new tax treasury address is zero", async () => {
+        await expect(
+          assetDesk.setTaxTreasury(ADDRESS_ZERO),
+        )
+          .to.be.revertedWithCustomError(assetDesk, "AssetDesk_TreasuryZero");
+      });
+
+      it("the new tax treasury address is the same as the current tax treasury address", async () => {
+        await expect(
+          assetDesk.setTaxTreasury(taxTreasury.address),
+        )
+          .to.be.revertedWithCustomError(assetDesk, "AssetDesk_TreasuryAlreadyConfigured");
+      });
+    });
+  });
+
+  describe("Snapshot scenarios", () => {
+    it("simple scenario", async () => {
+      await expect.startChainshot({
+        name: "simple scenario",
+        accounts: { deployer, manager, account, lpTreasury, surplusTreasury, taxTreasury, pauser, stranger },
+        contracts: { assetDesk },
+        tokens: { brlc: tokenMock },
+      });
+      await assetDesk.connect(manager).issueAsset(account.address, 100n);
+      await assetDesk.connect(manager).redeemAsset(account.address, 100n, 10n, 1n);
+      await expect.stopChainshot();
+    });
+  });
+});

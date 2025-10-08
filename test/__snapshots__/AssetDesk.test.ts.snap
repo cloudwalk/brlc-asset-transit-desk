@@ -1,0 +1,206 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Contract 'AssetDesk' Snapshot scenarios simple scenario 1`] = `
+Array [
+  Object {
+    "args": Array [
+      "account",
+      100n,
+    ],
+    "balances": Object {
+      "brlc": Object {
+        "account": 9900n,
+        "assetDesk": 0n,
+        "brlc": 0n,
+        "deployer": 0n,
+        "lpTreasury": 10100n,
+        "manager": 0n,
+        "pauser": 0n,
+        "stranger": 0n,
+        "surplusTreasury": 10000n,
+        "taxTreasury": 0n,
+      },
+    },
+    "caller": "manager",
+    "contract": "assetDesk",
+    "events": Array [
+      Object {
+        "args": Array [
+          "account",
+          "assetDesk",
+          100n,
+        ],
+        "contract": "brlc",
+        "name": "Transfer",
+      },
+      Object {
+        "args": Array [
+          "assetDesk",
+          "lpTreasury",
+          100n,
+        ],
+        "contract": "brlc",
+        "name": "Transfer",
+      },
+      Object {
+        "args": Array [
+          "account",
+          100n,
+        ],
+        "contract": "assetDesk",
+        "name": "AssetIssued",
+      },
+    ],
+    "methodFragment": FunctionFragment {
+      "constant": false,
+      "gas": null,
+      "inputs": Array [
+        ParamType {
+          "arrayChildren": null,
+          "arrayLength": null,
+          "baseType": "address",
+          "components": null,
+          "indexed": undefined,
+          "name": "buyer",
+          "type": "address",
+        },
+        ParamType {
+          "arrayChildren": null,
+          "arrayLength": null,
+          "baseType": "uint64",
+          "components": null,
+          "indexed": undefined,
+          "name": "principalAmount",
+          "type": "uint64",
+        },
+      ],
+      "name": "issueAsset",
+      "outputs": Array [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function",
+    },
+    "type": "methodCall",
+  },
+  Object {
+    "args": Array [
+      "account",
+      100n,
+      10n,
+      1n,
+    ],
+    "balances": Object {
+      "brlc": Object {
+        "account": 10010n,
+        "assetDesk": 0n,
+        "brlc": 0n,
+        "deployer": 0n,
+        "lpTreasury": 10000n,
+        "manager": 0n,
+        "pauser": 0n,
+        "stranger": 0n,
+        "surplusTreasury": 9989n,
+        "taxTreasury": 1n,
+      },
+    },
+    "caller": "manager",
+    "contract": "assetDesk",
+    "events": Array [
+      Object {
+        "args": Array [
+          "lpTreasury",
+          "assetDesk",
+          100n,
+        ],
+        "contract": "brlc",
+        "name": "Transfer",
+      },
+      Object {
+        "args": Array [
+          "surplusTreasury",
+          "assetDesk",
+          11n,
+        ],
+        "contract": "brlc",
+        "name": "Transfer",
+      },
+      Object {
+        "args": Array [
+          "assetDesk",
+          "account",
+          110n,
+        ],
+        "contract": "brlc",
+        "name": "Transfer",
+      },
+      Object {
+        "args": Array [
+          "assetDesk",
+          "taxTreasury",
+          1n,
+        ],
+        "contract": "brlc",
+        "name": "Transfer",
+      },
+      Object {
+        "args": Array [
+          "account",
+          100n,
+          10n,
+          1n,
+        ],
+        "contract": "assetDesk",
+        "name": "AssetRedeemed",
+      },
+    ],
+    "methodFragment": FunctionFragment {
+      "constant": false,
+      "gas": null,
+      "inputs": Array [
+        ParamType {
+          "arrayChildren": null,
+          "arrayLength": null,
+          "baseType": "address",
+          "components": null,
+          "indexed": undefined,
+          "name": "buyer",
+          "type": "address",
+        },
+        ParamType {
+          "arrayChildren": null,
+          "arrayLength": null,
+          "baseType": "uint64",
+          "components": null,
+          "indexed": undefined,
+          "name": "principalAmount",
+          "type": "uint64",
+        },
+        ParamType {
+          "arrayChildren": null,
+          "arrayLength": null,
+          "baseType": "uint64",
+          "components": null,
+          "indexed": undefined,
+          "name": "netYieldAmount",
+          "type": "uint64",
+        },
+        ParamType {
+          "arrayChildren": null,
+          "arrayLength": null,
+          "baseType": "uint64",
+          "components": null,
+          "indexed": undefined,
+          "name": "taxAmount",
+          "type": "uint64",
+        },
+      ],
+      "name": "redeemAsset",
+      "outputs": Array [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function",
+    },
+    "type": "methodCall",
+  },
+]
+`;
