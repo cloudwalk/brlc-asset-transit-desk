@@ -17,7 +17,7 @@ const CASHBACK_OPERATOR_ROLE = ethers.id("CASHBACK_OPERATOR_ROLE");
 const PAUSER_ROLE = ethers.id("PAUSER_ROLE");
 const RESCUER_ROLE = ethers.id("RESCUER_ROLE");
 
-let assetDeskFactory: Contracts.AssetDesk__factory;
+let assetDeskFactory: Contracts.AssetTransitDesk__factory;
 let tokenMockFactory: Contracts.ERC20TokenMock__factory;
 
 let deployer: HardhatEthersSigner; // has GRANTOR_ROLE AND OWNER_ROLE
@@ -48,7 +48,7 @@ async function deployContracts() {
   return { assetDesk, tokenMock };
 }
 
-async function configureContracts(assetDesk: Contracts.AssetDesk, tokenMock: Contracts.ERC20TokenMock) {
+async function configureContracts(assetDesk: Contracts.AssetTransitDesk, tokenMock: Contracts.ERC20TokenMock) {
   await assetDesk.grantRole(GRANTOR_ROLE, deployer.address);
   await assetDesk.grantRole(MANAGER_ROLE, manager.address);
   await assetDesk.grantRole(PAUSER_ROLE, pauser.address);
@@ -70,18 +70,18 @@ async function deployAndConfigureContracts() {
   return contracts;
 }
 
-describe("Contract 'AssetDesk'", () => {
+describe("Contract 'AssetTransitDesk'", () => {
   before(async () => {
     [deployer, manager, account, lpTreasury, surplusTreasury, pauser, stranger] =
      await ethers.getSigners();
 
-    assetDeskFactory = await ethers.getContractFactory("AssetDesk");
+    assetDeskFactory = await ethers.getContractFactory("AssetTransitDesk");
     assetDeskFactory = assetDeskFactory.connect(deployer);
     tokenMockFactory = await ethers.getContractFactory("ERC20TokenMock");
     tokenMockFactory = tokenMockFactory.connect(deployer);
   });
 
-  let assetDesk: Contracts.AssetDesk;
+  let assetDesk: Contracts.AssetTransitDesk;
   let tokenMock: Contracts.ERC20TokenMock;
 
   beforeEach(async () => {
@@ -89,7 +89,7 @@ describe("Contract 'AssetDesk'", () => {
   });
 
   describe("Method 'initialize()'", () => {
-    let deployedContract: Contracts.AssetDesk;
+    let deployedContract: Contracts.AssetTransitDesk;
 
     beforeEach(async () => {
       // deploying contract without configuration to test the default state
@@ -139,7 +139,7 @@ describe("Contract 'AssetDesk'", () => {
       it("the provided token address is zero", async () => {
         const tx = upgrades.deployProxy(assetDeskFactory, [ADDRESS_ZERO]);
         await expect(tx)
-          .to.be.revertedWithCustomError(assetDeskFactory, "AssetDesk_TokenAddressZero");
+          .to.be.revertedWithCustomError(assetDeskFactory, "AssetTransitDesk_TokenAddressZero");
       });
     });
   });
@@ -157,7 +157,7 @@ describe("Contract 'AssetDesk'", () => {
       it("called with the address of an incompatible implementation", async () => {
         const tx = assetDesk.upgradeToAndCall(await tokenMock.getAddress(), "0x");
         await expect(tx)
-          .to.be.revertedWithCustomError(assetDesk, "AssetDesk_ImplementationAddressInvalid");
+          .to.be.revertedWithCustomError(assetDesk, "AssetTransitDesk_ImplementationAddressInvalid");
       });
 
       it("called by a non-owner", async () => {
@@ -221,14 +221,14 @@ describe("Contract 'AssetDesk'", () => {
         await expect(
           assetDesk.connect(manager).issueAsset(account.address, 0n),
         )
-          .to.be.revertedWithCustomError(assetDesk, "AssetDesk_PrincipalAmountZero");
+          .to.be.revertedWithCustomError(assetDesk, "AssetTransitDesk_PrincipalAmountZero");
       });
 
       it("the buyer address is zero", async () => {
         await expect(
           assetDesk.connect(manager).issueAsset(ADDRESS_ZERO, 10n),
         )
-          .to.be.revertedWithCustomError(assetDesk, "AssetDesk_BuyerAddressZero");
+          .to.be.revertedWithCustomError(assetDesk, "AssetTransitDesk_BuyerAddressZero");
       });
 
       it("the contract is paused", async () => {
@@ -295,21 +295,21 @@ describe("Contract 'AssetDesk'", () => {
         await expect(
           assetDesk.connect(manager).redeemAsset(account.address, 0n, 10n),
         )
-          .to.be.revertedWithCustomError(assetDesk, "AssetDesk_PrincipalAmountZero");
+          .to.be.revertedWithCustomError(assetDesk, "AssetTransitDesk_PrincipalAmountZero");
       });
 
       it("the net yield amount is zero", async () => {
         await expect(
           assetDesk.connect(manager).redeemAsset(account.address, 10n, 0n),
         )
-          .to.be.revertedWithCustomError(assetDesk, "AssetDesk_NetYieldAmountZero");
+          .to.be.revertedWithCustomError(assetDesk, "AssetTransitDesk_NetYieldAmountZero");
       });
 
       it("the buyer address is zero", async () => {
         await expect(
           assetDesk.connect(manager).redeemAsset(ADDRESS_ZERO, 10n, 10n),
         )
-          .to.be.revertedWithCustomError(assetDesk, "AssetDesk_BuyerAddressZero");
+          .to.be.revertedWithCustomError(assetDesk, "AssetTransitDesk_BuyerAddressZero");
       });
 
       it("the contract is paused", async () => {
@@ -357,21 +357,21 @@ describe("Contract 'AssetDesk'", () => {
         await expect(
           assetDesk.setLPTreasury(ADDRESS_ZERO),
         )
-          .to.be.revertedWithCustomError(assetDesk, "AssetDesk_TreasuryZero");
+          .to.be.revertedWithCustomError(assetDesk, "AssetTransitDesk_TreasuryZero");
       });
 
       it("the new LP treasury address is the same as the current LP treasury address", async () => {
         await expect(
           assetDesk.setLPTreasury(lpTreasury.address),
         )
-          .to.be.revertedWithCustomError(assetDesk, "AssetDesk_TreasuryAlreadyConfigured");
+          .to.be.revertedWithCustomError(assetDesk, "AssetTransitDesk_TreasuryAlreadyConfigured");
       });
 
       it("the new LP treasury address has not granted the contract allowance to spend tokens", async () => {
         await expect(
           assetDesk.setLPTreasury(stranger.address),
         )
-          .to.be.revertedWithCustomError(assetDesk, "AssetDesk_TreasuryAllowanceZero");
+          .to.be.revertedWithCustomError(assetDesk, "AssetTransitDesk_TreasuryAllowanceZero");
       });
     });
   });
@@ -412,21 +412,21 @@ describe("Contract 'AssetDesk'", () => {
         await expect(
           assetDesk.setSurplusTreasury(ADDRESS_ZERO),
         )
-          .to.be.revertedWithCustomError(assetDesk, "AssetDesk_TreasuryZero");
+          .to.be.revertedWithCustomError(assetDesk, "AssetTransitDesk_TreasuryZero");
       });
 
       it("the new surplus treasury address is the same as the current surplus treasury address", async () => {
         await expect(
           assetDesk.setSurplusTreasury(surplusTreasury.address),
         )
-          .to.be.revertedWithCustomError(assetDesk, "AssetDesk_TreasuryAlreadyConfigured");
+          .to.be.revertedWithCustomError(assetDesk, "AssetTransitDesk_TreasuryAlreadyConfigured");
       });
 
       it("the new surplus treasury address has not granted the contract allowance to spend tokens", async () => {
         await expect(
           assetDesk.setSurplusTreasury(stranger.address),
         )
-          .to.be.revertedWithCustomError(assetDesk, "AssetDesk_TreasuryAllowanceZero");
+          .to.be.revertedWithCustomError(assetDesk, "AssetTransitDesk_TreasuryAllowanceZero");
       });
     });
   });

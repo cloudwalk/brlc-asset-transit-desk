@@ -1,10 +1,10 @@
 apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
-  name: brlc-asset-desk
+  name: brlc-asset-transit-desk
   description: Blueprint smart contracts
   annotations:
-    github.com/project-slug: cloudwalk/brlc-asset-desk
+    github.com/project-slug: cloudwalk/brlc-asset-transit-desk
     backstage.io/techdocs-ref: dir:.
   tags:
     - solidity
@@ -12,7 +12,7 @@ metadata:
     - blockchain
     - smart-contract
   links:
-    - url: https://github.com/cloudwalk/brlc-asset-deck
+    - url: https://github.com/cloudwalk/brlc-asset-transit-desk
       title: Repository
       icon: github
   labels:

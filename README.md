@@ -1,4 +1,4 @@
-# AssetDesk
+# AssetTransitDesk
 
 <p align="center">
   <img src="./docs/media/brlc-cover.png">

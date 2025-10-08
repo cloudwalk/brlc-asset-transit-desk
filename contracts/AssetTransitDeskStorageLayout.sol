@@ -3,18 +3,18 @@
 pragma solidity ^0.8.24;
 
 /**
- * @title AssetDeskStorageLayout contract
+ * @title AssetTransitDeskStorageLayout contract
  * @author CloudWalk Inc. (See https://www.cloudwalk.io)
  * @dev Defines the storage layout for the reference smart-contract.
  *
- * See details about the contract in the comments of the {IAssetDesk} interface.
+ * See details about the contract in the comments of the {IAssetTransitDesk} interface.
  */
-abstract contract AssetDeskStorageLayout {
+abstract contract AssetTransitDeskStorageLayout {
     // ------------------ Storage layout -------------------------- //
 
     /*
      * ERC-7201: Namespaced Storage Layout
-     * keccak256(abi.encode(uint256(keccak256("cloudwalk.storage.AssetDesk")) - 1)) & ~bytes32(uint256(0xff))
+     * keccak256(abi.encode(uint256(keccak256("cloudwalk.storage.AssetTransitDesk")) - 1)) & ~bytes32(uint256(0xff))
      */
     bytes32 private constant ASSET_DESK_STORAGE_LOCATION =
         0x8d78a165cd67802614e6d2e1c779733003e05fa86c86bca1eacf388a6b1ca300;
@@ -32,9 +32,9 @@ abstract contract AssetDeskStorageLayout {
      * 1. The surplus treasury is used to withdraw the yield.
      * 2. The LP treasury is used to withdraw and deposit the principal.
      *
-     * @custom:storage-location erc7201:cloudwalk.storage.AssetDesk
+     * @custom:storage-location erc7201:cloudwalk.storage.AssetTransitDesk
      */
-    struct AssetDeskStorage {
+    struct AssetTransitDeskStorage {
         // Slot 1
         address token;
         // uint96 __reserved1; // Reserved until the end of the storage slot
@@ -51,8 +51,8 @@ abstract contract AssetDeskStorageLayout {
 
     // ------------------ Internal functions ---------------------- //
 
-    /// @dev Returns the storage slot location for the `AssetDeskStorage` struct.
-    function _getAssetDeskStorage() internal pure returns (AssetDeskStorage storage $) {
+    /// @dev Returns the storage slot location for the `AssetTransitDeskStorage` struct.
+    function _getAssetTransitDeskStorage() internal pure returns (AssetTransitDeskStorage storage $) {
         assembly {
             $.slot := ASSET_DESK_STORAGE_LOCATION
         }

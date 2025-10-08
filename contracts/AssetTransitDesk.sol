@@ -11,29 +11,29 @@ import { RescuableUpgradeable } from "./base/RescuableUpgradeable.sol";
 import { Versionable } from "./base/Versionable.sol";
 import { UUPSExtUpgradeable } from "./base/UUPSExtUpgradeable.sol";
 
-import { IAssetDesk } from "./interfaces/IAssetDesk.sol";
-import { IAssetDeskPrimary } from "./interfaces/IAssetDesk.sol";
-import { IAssetDeskConfiguration } from "./interfaces/IAssetDesk.sol";
-import { IAssetDeskErrors } from "./interfaces/IAssetDesk.sol";
+import { IAssetTransitDesk } from "./interfaces/IAssetTransitDesk.sol";
+import { IAssetTransitDeskPrimary } from "./interfaces/IAssetTransitDesk.sol";
+import { IAssetTransitDeskConfiguration } from "./interfaces/IAssetTransitDesk.sol";
+import { IAssetTransitDeskErrors } from "./interfaces/IAssetTransitDesk.sol";
 
-import { AssetDeskStorageLayout } from "./AssetDeskStorageLayout.sol";
+import { AssetTransitDeskStorageLayout } from "./AssetTransitDeskStorageLayout.sol";
 
 /**
- * @title AssetDesk contract
+ * @title AssetTransitDesk contract
  * @author CloudWalk Inc. (See https://www.cloudwalk.io)
  * @dev The smart contract is designed as a reference and template one.
  * It executes issue and redeem CDB operations.
  *
- * See details about the contract in the comments of the {IAssetDesk} interface.
+ * See details about the contract in the comments of the {IAssetTransitDesk} interface.
  */
-contract AssetDesk is
-    AssetDeskStorageLayout,
+contract AssetTransitDesk is
+    AssetTransitDeskStorageLayout,
     AccessControlExtUpgradeable,
     PausableExtUpgradeable,
     RescuableUpgradeable,
     UUPSExtUpgradeable,
     Versionable,
-    IAssetDesk
+    IAssetTransitDesk
 {
     // ------------------ Types ----------------------------------- //
 
@@ -74,10 +74,10 @@ contract AssetDesk is
         __UUPSExt_init_unchained(); // This is needed only to avoid errors during coverage assessment
 
         if (token_ == address(0)) {
-            revert AssetDesk_TokenAddressZero();
+            revert AssetTransitDesk_TokenAddressZero();
         }
 
-        _getAssetDeskStorage().token = token_;
+        _getAssetTransitDeskStorage().token = token_;
 
         _setRoleAdmin(MANAGER_ROLE, GRANTOR_ROLE);
         _grantRole(OWNER_ROLE, _msgSender());
@@ -85,7 +85,7 @@ contract AssetDesk is
 
     // ------------------ Transactional functions ----------------- //
     /**
-     * @inheritdoc IAssetDeskPrimary
+     * @inheritdoc IAssetTransitDeskPrimary
      *
      * @dev Requirements:
      *
@@ -96,13 +96,13 @@ contract AssetDesk is
      */
     function issueAsset(address buyer, uint64 principalAmount) external whenNotPaused onlyRole(MANAGER_ROLE) {
         if (buyer == address(0)) {
-            revert AssetDesk_BuyerAddressZero();
+            revert AssetTransitDesk_BuyerAddressZero();
         }
         if (principalAmount == 0) {
-            revert AssetDesk_PrincipalAmountZero();
+            revert AssetTransitDesk_PrincipalAmountZero();
         }
 
-        AssetDeskStorage storage $ = _getAssetDeskStorage();
+        AssetTransitDeskStorage storage $ = _getAssetTransitDeskStorage();
 
         IERC20($.token).safeTransferFrom(buyer, address(this), principalAmount);
         IERC20($.token).safeTransfer($.lpTreasury, principalAmount);
@@ -111,7 +111,7 @@ contract AssetDesk is
     }
 
     /**
-     * @inheritdoc IAssetDeskPrimary
+     * @inheritdoc IAssetTransitDeskPrimary
      *
      * @dev Requirements:
      *
@@ -128,16 +128,16 @@ contract AssetDesk is
         uint64 netYieldAmount
     ) external whenNotPaused onlyRole(MANAGER_ROLE) {
         if (buyer == address(0)) {
-            revert AssetDesk_BuyerAddressZero();
+            revert AssetTransitDesk_BuyerAddressZero();
         }
         if (principalAmount == 0) {
-            revert AssetDesk_PrincipalAmountZero();
+            revert AssetTransitDesk_PrincipalAmountZero();
         }
         if (netYieldAmount == 0) {
-            revert AssetDesk_NetYieldAmountZero();
+            revert AssetTransitDesk_NetYieldAmountZero();
         }
 
-        AssetDeskStorage storage $ = _getAssetDeskStorage();
+        AssetTransitDeskStorage storage $ = _getAssetTransitDeskStorage();
 
         IERC20($.token).safeTransferFrom($.lpTreasury, address(this), principalAmount);
         IERC20($.token).safeTransferFrom($.surplusTreasury, address(this), netYieldAmount);
@@ -147,7 +147,7 @@ contract AssetDesk is
     }
 
     /**
-     * @inheritdoc IAssetDeskConfiguration
+     * @inheritdoc IAssetTransitDeskConfiguration
      *
      * @dev Requirements:
      *
@@ -157,16 +157,16 @@ contract AssetDesk is
      * - The new surplus treasury address must have granted the contract allowance to spend tokens.
      */
     function setSurplusTreasury(address newSurplusTreasury) external onlyRole(OWNER_ROLE) {
-        AssetDeskStorage storage $ = _getAssetDeskStorage();
+        AssetTransitDeskStorage storage $ = _getAssetTransitDeskStorage();
         address oldTreasury = $.surplusTreasury;
         if (newSurplusTreasury == oldTreasury) {
-            revert AssetDesk_TreasuryAlreadyConfigured();
+            revert AssetTransitDesk_TreasuryAlreadyConfigured();
         }
         if (newSurplusTreasury == address(0)) {
-            revert AssetDesk_TreasuryZero();
+            revert AssetTransitDesk_TreasuryZero();
         }
         if (IERC20($.token).allowance(newSurplusTreasury, address(this)) == 0) {
-            revert AssetDesk_TreasuryAllowanceZero();
+            revert AssetTransitDesk_TreasuryAllowanceZero();
         }
 
         emit SurplusTreasuryChanged(newSurplusTreasury, oldTreasury);
@@ -174,7 +174,7 @@ contract AssetDesk is
     }
 
     /**
-     * @inheritdoc IAssetDeskConfiguration
+     * @inheritdoc IAssetTransitDeskConfiguration
      *
      * @dev Requirements:
      *
@@ -184,16 +184,16 @@ contract AssetDesk is
      * - The new LP treasury address must have granted the contract allowance to spend tokens.
      */
     function setLPTreasury(address newLPTreasury) external onlyRole(OWNER_ROLE) {
-        AssetDeskStorage storage $ = _getAssetDeskStorage();
+        AssetTransitDeskStorage storage $ = _getAssetTransitDeskStorage();
         address oldTreasury = $.lpTreasury;
         if (newLPTreasury == oldTreasury) {
-            revert AssetDesk_TreasuryAlreadyConfigured();
+            revert AssetTransitDesk_TreasuryAlreadyConfigured();
         }
         if (newLPTreasury == address(0)) {
-            revert AssetDesk_TreasuryZero();
+            revert AssetTransitDesk_TreasuryZero();
         }
         if (IERC20($.token).allowance(newLPTreasury, address(this)) == 0) {
-            revert AssetDesk_TreasuryAllowanceZero();
+            revert AssetTransitDesk_TreasuryAllowanceZero();
         }
 
         emit LPTreasuryChanged(newLPTreasury, oldTreasury);
@@ -202,25 +202,25 @@ contract AssetDesk is
 
     // ------------------ View functions -------------------------- //
 
-    /// @inheritdoc IAssetDeskConfiguration
+    /// @inheritdoc IAssetTransitDeskConfiguration
     function getSurplusTreasury() external view returns (address) {
-        return _getAssetDeskStorage().surplusTreasury;
+        return _getAssetTransitDeskStorage().surplusTreasury;
     }
 
-    /// @inheritdoc IAssetDeskConfiguration
+    /// @inheritdoc IAssetTransitDeskConfiguration
     function getLPTreasury() external view returns (address) {
-        return _getAssetDeskStorage().lpTreasury;
+        return _getAssetTransitDeskStorage().lpTreasury;
     }
 
-    /// @inheritdoc IAssetDeskConfiguration
+    /// @inheritdoc IAssetTransitDeskConfiguration
     function underlyingToken() external view returns (address) {
-        return _getAssetDeskStorage().token;
+        return _getAssetTransitDeskStorage().token;
     }
 
     // ------------------ Pure functions -------------------------- //
 
-    /// @inheritdoc IAssetDesk
-    function proveAssetDesk() external pure {}
+    /// @inheritdoc IAssetTransitDesk
+    function proveAssetTransitDesk() external pure {}
 
     // ------------------ Internal functions ---------------------- //
 
@@ -229,8 +229,8 @@ contract AssetDesk is
      * @param newImplementation The address of the new implementation.
      */
     function _validateUpgrade(address newImplementation) internal view override onlyRole(OWNER_ROLE) {
-        try IAssetDesk(newImplementation).proveAssetDesk() {} catch {
-            revert AssetDesk_ImplementationAddressInvalid();
+        try IAssetTransitDesk(newImplementation).proveAssetTransitDesk() {} catch {
+            revert AssetTransitDesk_ImplementationAddressInvalid();
         }
     }
 }

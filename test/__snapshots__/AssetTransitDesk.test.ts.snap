@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Contract 'AssetDesk' Snapshot scenarios simple scenario 1`] = `
+exports[`Contract 'AssetTransitDesk' Snapshot scenarios simple scenario 1`] = `
 Array [
   Object {
     "args": Array [

@@ -1,4 +1,4 @@
-# AssetDesk.test
+# AssetTransitDesk.test
 
 ## simple scenario
 
