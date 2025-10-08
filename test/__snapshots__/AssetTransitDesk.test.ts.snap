@@ -13,7 +13,7 @@ Array [
         "assetDesk": 0n,
         "brlc": 0n,
         "deployer": 0n,
-        "lpTreasury": 10100n,
+        "liquidityPool": 10100n,
         "manager": 0n,
         "pauser": 0n,
         "stranger": 0n,
@@ -35,7 +35,7 @@ Array [
       Object {
         "args": Array [
           "assetDesk",
-          "lpTreasury",
+          "liquidityPool",
           100n,
         ],
         "contract": "brlc",
@@ -93,7 +93,7 @@ Array [
         "assetDesk": 0n,
         "brlc": 0n,
         "deployer": 0n,
-        "lpTreasury": 10000n,
+        "liquidityPool": 10000n,
         "manager": 0n,
         "pauser": 0n,
         "stranger": 0n,
@@ -105,7 +105,7 @@ Array [
     "events": Array [
       Object {
         "args": Array [
-          "lpTreasury",
+          "liquidityPool",
           "assetDesk",
           100n,
         ],

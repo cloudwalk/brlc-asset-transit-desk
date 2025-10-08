@@ -26,7 +26,7 @@ abstract contract AssetTransitDeskStorageLayout {
      *
      * - token ---------------- The address of the underlying token.
      * - surplusTreasury ------- The address of the surplus treasury.
-     * - lpTreasury ------------ The address of the LP treasury.
+     * - liquidityPool ------------ The address of the LP treasury.
      *
      * Notes:
      * 1. The surplus treasury is used to withdraw the yield.
@@ -44,9 +44,8 @@ abstract contract AssetTransitDeskStorageLayout {
         // uint96 __reserved1; // Reserved until the end of the storage slot
 
         // Slot 3
-        address lpTreasury;
+        address liquidityPool;
         // uint96 __reserved2;
-        // No reserve until the end of the storage slot
     }
 
     // ------------------ Internal functions ---------------------- //

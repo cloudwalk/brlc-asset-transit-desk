@@ -105,7 +105,7 @@ contract AssetTransitDesk is
         AssetTransitDeskStorage storage $ = _getAssetTransitDeskStorage();
 
         IERC20($.token).safeTransferFrom(buyer, address(this), principalAmount);
-        IERC20($.token).safeTransfer($.lpTreasury, principalAmount);
+        IERC20($.token).safeTransfer($.liquidityPool, principalAmount);
 
         emit AssetIssued(buyer, principalAmount);
     }
@@ -139,7 +139,7 @@ contract AssetTransitDesk is
 
         AssetTransitDeskStorage storage $ = _getAssetTransitDeskStorage();
 
-        IERC20($.token).safeTransferFrom($.lpTreasury, address(this), principalAmount);
+        IERC20($.token).safeTransferFrom($.liquidityPool, address(this), principalAmount);
         IERC20($.token).safeTransferFrom($.surplusTreasury, address(this), netYieldAmount);
         IERC20($.token).safeTransfer(buyer, principalAmount + netYieldAmount);
 
@@ -183,21 +183,21 @@ contract AssetTransitDesk is
      * - The new LP treasury address must not be the same as already configured.
      * - The new LP treasury address must have granted the contract allowance to spend tokens.
      */
-    function setLPTreasury(address newLPTreasury) external onlyRole(OWNER_ROLE) {
+    function setLiquidityPool(address newLiquidityPool) external onlyRole(OWNER_ROLE) {
         AssetTransitDeskStorage storage $ = _getAssetTransitDeskStorage();
-        address oldTreasury = $.lpTreasury;
-        if (newLPTreasury == oldTreasury) {
+        address oldTreasury = $.liquidityPool;
+        if (newLiquidityPool == oldTreasury) {
             revert AssetTransitDesk_TreasuryAlreadyConfigured();
         }
-        if (newLPTreasury == address(0)) {
+        if (newLiquidityPool == address(0)) {
             revert AssetTransitDesk_TreasuryZero();
         }
-        if (IERC20($.token).allowance(newLPTreasury, address(this)) == 0) {
+        if (IERC20($.token).allowance(newLiquidityPool, address(this)) == 0) {
             revert AssetTransitDesk_TreasuryAllowanceZero();
         }
 
-        emit LPTreasuryChanged(newLPTreasury, oldTreasury);
-        $.lpTreasury = newLPTreasury;
+        emit LiquidityPoolChanged(newLiquidityPool, oldTreasury);
+        $.liquidityPool = newLiquidityPool;
     }
 
     // ------------------ View functions -------------------------- //
@@ -208,8 +208,8 @@ contract AssetTransitDesk is
     }
 
     /// @inheritdoc IAssetTransitDeskConfiguration
-    function getLPTreasury() external view returns (address) {
-        return _getAssetTransitDeskStorage().lpTreasury;
+    function getLiquidityPool() external view returns (address) {
+        return _getAssetTransitDeskStorage().liquidityPool;
     }
 
     /// @inheritdoc IAssetTransitDeskConfiguration

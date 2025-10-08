@@ -2,10 +2,29 @@
 
 pragma solidity ^0.8.24;
 
+/**
+ * @title IAssetTransitDeskPrimary interface
+ * @author CloudWalk Inc. (See https://www.cloudwalk.io)
+ * @dev The primary part of the asset desk smart contract interface.
+ */
 interface IAssetTransitDeskPrimary {
     // ------------------ Events ---------------------------------- //
 
+    /**
+     * @dev Emitted when an asset is issued.
+     *
+     * @param buyer The address of the buyer.
+     * @param principalAmount The amount of the principal.
+     */
     event AssetIssued(address buyer, uint64 principalAmount);
+
+    /**
+     * @dev Emitted when an asset is redeemed.
+     *
+     * @param buyer The address of the buyer.
+     * @param principalAmount The amount of the principal.
+     * @param netYieldAmount The amount of the net yield.
+     */
     event AssetRedeemed(address buyer, uint64 principalAmount, uint64 netYieldAmount);
 
     // ------------------ Transactional functions ----------------- //
@@ -40,8 +59,21 @@ interface IAssetTransitDeskPrimary {
 interface IAssetTransitDeskConfiguration {
     // ------------------ Events ---------------------------------- //
 
+    /**
+     * @dev Emitted when the surplus treasury address is changed.
+     *
+     * @param newSurplusTreasury The new address of the surplus treasury.
+     * @param oldSurplusTreasury The old address of the surplus treasury.
+     */
     event SurplusTreasuryChanged(address newSurplusTreasury, address oldSurplusTreasury);
-    event LPTreasuryChanged(address newLPTreasury, address oldLPTreasury);
+
+    /**
+     * @dev Emitted when the liquidity pool address is changed.
+     *
+     * @param newLiquidityPool The new address of the liquidity pool.
+     * @param oldLiquidityPool The old address of the liquidity pool.
+     */
+    event LiquidityPoolChanged(address newLiquidityPool, address oldLiquidityPool);
 
     // ------------------ Transactional functions ----------------- //
 
@@ -55,13 +87,13 @@ interface IAssetTransitDeskConfiguration {
     function setSurplusTreasury(address newSurplusTreasury) external;
 
     /**
-     * @dev Sets the LP treasury address.
+     * @dev Sets the liquidity pool address.
      *
-     * Emits an {LPTreasuryChanged} event.
+     * Emits an {LiquidityPoolChanged} event.
      *
-     * @param newLPTreasury The new address of the LP treasury to set.
+     * @param newLiquidityPool The new address of the liquidity pool to set.
      */
-    function setLPTreasury(address newLPTreasury) external;
+    function setLiquidityPool(address newLiquidityPool) external;
 
     // ------------------ View functions -------------------------- //
 
@@ -77,7 +109,7 @@ interface IAssetTransitDeskConfiguration {
      *
      * @return The address of the LP treasury.
      */
-    function getLPTreasury() external view returns (address);
+    function getLiquidityPool() external view returns (address);
 
     /**
      * @dev Returns the address of the underlying token.

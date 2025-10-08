@@ -12,17 +12,17 @@ sequenceDiagram
   actor manager
   participant account
   participant assetDesk
-  participant lpTreasury
+  participant liquidityPool
   participant surplusTreasury
   rect rgb(230,255,230)
     manager->>assetDesk: manager calls assetDesk.issueAsset
     account-->>assetDesk: brlc.Transfer: account -> assetDesk (100)
-    assetDesk-->>lpTreasury: brlc.Transfer: assetDesk -> lpTreasury (100)
+    assetDesk-->>liquidityPool: brlc.Transfer: assetDesk -> liquidityPool (100)
     Note over assetDesk: assetDesk.AssetIssued
   end
   rect rgb(230,255,230)
     manager->>assetDesk: manager calls assetDesk.redeemAsset
-    lpTreasury-->>assetDesk: brlc.Transfer: lpTreasury -> assetDesk (100)
+    liquidityPool-->>assetDesk: brlc.Transfer: liquidityPool -> assetDesk (100)
     surplusTreasury-->>assetDesk: brlc.Transfer: surplusTreasury -> assetDesk (10)
     assetDesk-->>account: brlc.Transfer: assetDesk -> account (110)
     Note over assetDesk: assetDesk.AssetRedeemed
@@ -44,7 +44,7 @@ sequenceDiagram
 | # | Contract | Event | Args |
 | - | -------- | ----- | ---- |
 | 1 | brlc | Transfer | `[account, assetDesk, 100]` |
-| 2 | brlc | Transfer | `[assetDesk, lpTreasury, 100]` |
+| 2 | brlc | Transfer | `[assetDesk, liquidityPool, 100]` |
 | 3 | assetDesk | AssetIssued | `[account, 100]` |
 
 **Balances**
@@ -57,7 +57,7 @@ sequenceDiagram
 | deployer | 0 |
 | manager | 0 |
 | account | 9900 |
-| lpTreasury | 10100 |
+| liquidityPool | 10100 |
 | surplusTreasury | 10000 |
 | pauser | 0 |
 | stranger | 0 |
@@ -80,7 +80,7 @@ sequenceDiagram
 
 | # | Contract | Event | Args |
 | - | -------- | ----- | ---- |
-| 1 | brlc | Transfer | `[lpTreasury, assetDesk, 100]` |
+| 1 | brlc | Transfer | `[liquidityPool, assetDesk, 100]` |
 | 2 | brlc | Transfer | `[surplusTreasury, assetDesk, 10]` |
 | 3 | brlc | Transfer | `[assetDesk, account, 110]` |
 | 4 | assetDesk | AssetRedeemed | `[account, 100, 10]` |
@@ -95,7 +95,7 @@ sequenceDiagram
 | deployer | 0 |
 | manager | 0 |
 | account | 10010 |
-| lpTreasury | 10000 |
+| liquidityPool | 10000 |
 | surplusTreasury | 9990 |
 | pauser | 0 |
 | stranger | 0 |

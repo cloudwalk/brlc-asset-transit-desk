@@ -24,7 +24,7 @@ let deployer: HardhatEthersSigner; // has GRANTOR_ROLE AND OWNER_ROLE
 let manager: HardhatEthersSigner; // has MANAGER_ROLE
 let account: HardhatEthersSigner; // has no roles
 let pauser: HardhatEthersSigner; // has PAUSER_ROLE
-let lpTreasury: HardhatEthersSigner; // has no roles
+let liquidityPool: HardhatEthersSigner; // has no roles
 let surplusTreasury: HardhatEthersSigner; // has no roles
 let stranger: HardhatEthersSigner; // has no roles
 
@@ -54,13 +54,13 @@ async function configureContracts(assetDesk: Contracts.AssetTransitDesk, tokenMo
   await assetDesk.grantRole(PAUSER_ROLE, pauser.address);
 
   await tokenMock.mint(account, BALANCE_INITIAL);
-  await tokenMock.mint(lpTreasury, BALANCE_INITIAL);
+  await tokenMock.mint(liquidityPool, BALANCE_INITIAL);
   await tokenMock.mint(surplusTreasury, BALANCE_INITIAL);
-  await tokenMock.connect(lpTreasury).approve(assetDesk.getAddress(), BALANCE_INITIAL);
+  await tokenMock.connect(liquidityPool).approve(assetDesk.getAddress(), BALANCE_INITIAL);
   await tokenMock.connect(surplusTreasury).approve(assetDesk.getAddress(), BALANCE_INITIAL);
   await tokenMock.connect(account).approve(assetDesk.getAddress(), BALANCE_INITIAL);
 
-  await assetDesk.setLPTreasury(lpTreasury);
+  await assetDesk.setLiquidityPool(liquidityPool);
   await assetDesk.setSurplusTreasury(surplusTreasury);
 }
 
@@ -72,7 +72,7 @@ async function deployAndConfigureContracts() {
 
 describe("Contract 'AssetTransitDesk'", () => {
   before(async () => {
-    [deployer, manager, account, lpTreasury, surplusTreasury, pauser, stranger] =
+    [deployer, manager, account, liquidityPool, surplusTreasury, pauser, stranger] =
      await ethers.getSigners();
 
     assetDeskFactory = await ethers.getContractFactory("AssetTransitDesk");
@@ -198,7 +198,7 @@ describe("Contract 'AssetTransitDesk'", () => {
 
       it("should update token balances correctly", async () => {
         await expect(tx).to.changeTokenBalances(tokenMock,
-          [lpTreasury, account, surplusTreasury, assetDesk],
+          [liquidityPool, account, surplusTreasury, assetDesk],
           [principalAmount, -principalAmount, 0, 0],
         );
       });
@@ -206,7 +206,7 @@ describe("Contract 'AssetTransitDesk'", () => {
       it("should transfer tokens correctly", async () => {
         await checkTokenPath(tx,
           tokenMock,
-          [account, assetDesk, lpTreasury],
+          [account, assetDesk, liquidityPool],
           principalAmount,
         );
       });
@@ -262,7 +262,7 @@ describe("Contract 'AssetTransitDesk'", () => {
 
       it("should update token balances correctly", async () => {
         await expect(tx).to.changeTokenBalances(tokenMock,
-          [lpTreasury, account, surplusTreasury, assetDesk],
+          [liquidityPool, account, surplusTreasury, assetDesk],
           [-principalAmount, principalAmount + netYieldAmount, -netYieldAmount, 0],
         );
       });
@@ -270,7 +270,7 @@ describe("Contract 'AssetTransitDesk'", () => {
       it("should transfer tokens correctly", async () => {
         await checkTokenPath(tx,
           tokenMock,
-          [lpTreasury, assetDesk],
+          [liquidityPool, assetDesk],
           principalAmount,
         );
         await checkTokenPath(tx,
@@ -326,7 +326,7 @@ describe("Contract 'AssetTransitDesk'", () => {
     });
   });
 
-  describe("Method 'setLPTreasury()'", () => {
+  describe("Method 'setLiquidityPool()'", () => {
     describe("Should execute as expected when called properly and", () => {
       let tx: TransactionResponse;
       let newLpTreasury: HardhatEthersSigner;
@@ -334,15 +334,15 @@ describe("Contract 'AssetTransitDesk'", () => {
       beforeEach(async () => {
         newLpTreasury = stranger;
         await tokenMock.connect(newLpTreasury).approve(assetDesk.getAddress(), BALANCE_INITIAL);
-        tx = await assetDesk.setLPTreasury(newLpTreasury);
+        tx = await assetDesk.setLiquidityPool(newLpTreasury);
       });
 
       it("should emit the required event", async () => {
-        await expect(tx).to.emit(assetDesk, "LPTreasuryChanged").withArgs(newLpTreasury, lpTreasury.address);
+        await expect(tx).to.emit(assetDesk, "LiquidityPoolChanged").withArgs(newLpTreasury, liquidityPool.address);
       });
 
       it("should update the LP treasury address", async () => {
-        expect(await assetDesk.getLPTreasury()).to.equal(newLpTreasury);
+        expect(await assetDesk.getLiquidityPool()).to.equal(newLpTreasury);
       });
     });
 
@@ -351,7 +351,7 @@ describe("Contract 'AssetTransitDesk'", () => {
         const newLpTreasury = stranger;
         await tokenMock.connect(newLpTreasury).approve(assetDesk.getAddress(), BALANCE_INITIAL);
         await expect(
-          assetDesk.connect(stranger).setLPTreasury(stranger.address),
+          assetDesk.connect(stranger).setLiquidityPool(stranger.address),
         )
           .to.be.revertedWithCustomError(assetDesk, "AccessControlUnauthorizedAccount")
           .withArgs(stranger.address, OWNER_ROLE);
@@ -359,21 +359,21 @@ describe("Contract 'AssetTransitDesk'", () => {
 
       it("the new LP treasury address is zero", async () => {
         await expect(
-          assetDesk.setLPTreasury(ADDRESS_ZERO),
+          assetDesk.setLiquidityPool(ADDRESS_ZERO),
         )
           .to.be.revertedWithCustomError(assetDesk, "AssetTransitDesk_TreasuryZero");
       });
 
       it("the new LP treasury address is the same as the current LP treasury address", async () => {
         await expect(
-          assetDesk.setLPTreasury(lpTreasury.address),
+          assetDesk.setLiquidityPool(liquidityPool.address),
         )
           .to.be.revertedWithCustomError(assetDesk, "AssetTransitDesk_TreasuryAlreadyConfigured");
       });
 
       it("the new LP treasury address has not granted the contract allowance to spend tokens", async () => {
         await expect(
-          assetDesk.setLPTreasury(stranger.address),
+          assetDesk.setLiquidityPool(stranger.address),
         )
           .to.be.revertedWithCustomError(assetDesk, "AssetTransitDesk_TreasuryAllowanceZero");
       });
@@ -439,7 +439,7 @@ describe("Contract 'AssetTransitDesk'", () => {
     it("simple scenario", async () => {
       await expect.startChainshot({
         name: "simple scenario",
-        accounts: { deployer, manager, account, lpTreasury, surplusTreasury, pauser, stranger },
+        accounts: { deployer, manager, account, liquidityPool, surplusTreasury, pauser, stranger },
         contracts: { assetDesk },
         tokens: { brlc: tokenMock },
       });
