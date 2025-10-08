@@ -68,14 +68,14 @@ contract AssetTransitDesk is
      * @param token_ The address of the token to set as the underlying one.
      */
     function initialize(address token_) external initializer {
+        if (token_ == address(0)) {
+            revert AssetTransitDesk_TokenAddressZero();
+        }
+
         __AccessControlExt_init_unchained();
         __PausableExt_init_unchained();
         __Rescuable_init_unchained();
         __UUPSExt_init_unchained(); // This is needed only to avoid errors during coverage assessment
-
-        if (token_ == address(0)) {
-            revert AssetTransitDesk_TokenAddressZero();
-        }
 
         _getAssetTransitDeskStorage().token = token_;
 
@@ -98,6 +98,7 @@ contract AssetTransitDesk is
         if (buyer == address(0)) {
             revert AssetTransitDesk_BuyerAddressZero();
         }
+
         if (principalAmount == 0) {
             revert AssetTransitDesk_PrincipalAmountZero();
         }
@@ -130,9 +131,11 @@ contract AssetTransitDesk is
         if (buyer == address(0)) {
             revert AssetTransitDesk_BuyerAddressZero();
         }
+
         if (principalAmount == 0) {
             revert AssetTransitDesk_PrincipalAmountZero();
         }
+
         if (netYieldAmount == 0) {
             revert AssetTransitDesk_NetYieldAmountZero();
         }
@@ -158,18 +161,9 @@ contract AssetTransitDesk is
      */
     function setSurplusTreasury(address newSurplusTreasury) external onlyRole(OWNER_ROLE) {
         AssetTransitDeskStorage storage $ = _getAssetTransitDeskStorage();
-        address oldTreasury = $.surplusTreasury;
-        if (newSurplusTreasury == oldTreasury) {
-            revert AssetTransitDesk_TreasuryAlreadyConfigured();
-        }
-        if (newSurplusTreasury == address(0)) {
-            revert AssetTransitDesk_TreasuryZero();
-        }
-        if (IERC20($.token).allowance(newSurplusTreasury, address(this)) == 0) {
-            revert AssetTransitDesk_TreasuryAllowanceZero();
-        }
+        _validateTreasuryChange(newSurplusTreasury, $.surplusTreasury, $.token);
 
-        emit SurplusTreasuryChanged(newSurplusTreasury, oldTreasury);
+        emit SurplusTreasuryChanged(newSurplusTreasury, $.surplusTreasury);
         $.surplusTreasury = newSurplusTreasury;
     }
 
@@ -179,24 +173,15 @@ contract AssetTransitDesk is
      * @dev Requirements:
      *
      * - The caller must have the {OWNER_ROLE} role.
-     * - The new LP treasury address must not be zero.
-     * - The new LP treasury address must not be the same as already configured.
-     * - The new LP treasury address must have granted the contract allowance to spend tokens.
+     * - The new liquidity pool address must not be zero.
+     * - The new liquidity pool address must not be the same as already configured.
+     * - The new liquidity pool address must have granted the contract allowance to spend tokens.
      */
     function setLiquidityPool(address newLiquidityPool) external onlyRole(OWNER_ROLE) {
         AssetTransitDeskStorage storage $ = _getAssetTransitDeskStorage();
-        address oldTreasury = $.liquidityPool;
-        if (newLiquidityPool == oldTreasury) {
-            revert AssetTransitDesk_TreasuryAlreadyConfigured();
-        }
-        if (newLiquidityPool == address(0)) {
-            revert AssetTransitDesk_TreasuryZero();
-        }
-        if (IERC20($.token).allowance(newLiquidityPool, address(this)) == 0) {
-            revert AssetTransitDesk_TreasuryAllowanceZero();
-        }
+        _validateTreasuryChange(newLiquidityPool, $.liquidityPool, $.token);
 
-        emit LiquidityPoolChanged(newLiquidityPool, oldTreasury);
+        emit LiquidityPoolChanged(newLiquidityPool, $.liquidityPool);
         $.liquidityPool = newLiquidityPool;
     }
 
@@ -223,6 +208,18 @@ contract AssetTransitDesk is
     function proveAssetTransitDesk() external pure {}
 
     // ------------------ Internal functions ---------------------- //
+
+    function _validateTreasuryChange(address newTreasury, address oldTreasury, address token) internal view {
+        if (newTreasury == oldTreasury) {
+            revert AssetTransitDesk_TreasuryAlreadyConfigured();
+        }
+        if (newTreasury == address(0)) {
+            revert AssetTransitDesk_TreasuryZero();
+        }
+        if (IERC20(token).allowance(newTreasury, address(this)) == 0) {
+            revert AssetTransitDesk_TreasuryAllowanceZero();
+        }
+    }
 
     /**
      * @dev The upgrade validation function for the UUPSExtUpgradeable contract.
