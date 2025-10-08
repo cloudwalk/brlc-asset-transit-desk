@@ -97,37 +97,39 @@ describe("Contract 'AssetTransitDesk'", () => {
       deployedContract = contracts.assetDesk;
     });
 
-    it("should expose correct role hashes", async () => {
-      expect(await deployedContract.OWNER_ROLE()).to.equal(OWNER_ROLE);
-      expect(await deployedContract.GRANTOR_ROLE()).to.equal(GRANTOR_ROLE);
-      expect(await deployedContract.PAUSER_ROLE()).to.equal(PAUSER_ROLE);
-      expect(await deployedContract.RESCUER_ROLE()).to.equal(RESCUER_ROLE);
-      expect(await deployedContract.MANAGER_ROLE()).to.equal(MANAGER_ROLE);
-    });
+    describe("Should execute as expected when called properly and", () => {
+      it("should expose correct role hashes", async () => {
+        expect(await deployedContract.OWNER_ROLE()).to.equal(OWNER_ROLE);
+        expect(await deployedContract.GRANTOR_ROLE()).to.equal(GRANTOR_ROLE);
+        expect(await deployedContract.PAUSER_ROLE()).to.equal(PAUSER_ROLE);
+        expect(await deployedContract.RESCUER_ROLE()).to.equal(RESCUER_ROLE);
+        expect(await deployedContract.MANAGER_ROLE()).to.equal(MANAGER_ROLE);
+      });
 
-    it("should set correct role admins", async () => {
-      expect(await deployedContract.getRoleAdmin(OWNER_ROLE)).to.equal(OWNER_ROLE);
-      expect(await deployedContract.getRoleAdmin(GRANTOR_ROLE)).to.equal(OWNER_ROLE);
-      expect(await deployedContract.getRoleAdmin(PAUSER_ROLE)).to.equal(GRANTOR_ROLE);
-      expect(await deployedContract.getRoleAdmin(RESCUER_ROLE)).to.equal(GRANTOR_ROLE);
-      expect(await deployedContract.getRoleAdmin(MANAGER_ROLE)).to.equal(GRANTOR_ROLE);
-    });
+      it("should set correct role admins", async () => {
+        expect(await deployedContract.getRoleAdmin(OWNER_ROLE)).to.equal(OWNER_ROLE);
+        expect(await deployedContract.getRoleAdmin(GRANTOR_ROLE)).to.equal(OWNER_ROLE);
+        expect(await deployedContract.getRoleAdmin(PAUSER_ROLE)).to.equal(GRANTOR_ROLE);
+        expect(await deployedContract.getRoleAdmin(RESCUER_ROLE)).to.equal(GRANTOR_ROLE);
+        expect(await deployedContract.getRoleAdmin(MANAGER_ROLE)).to.equal(GRANTOR_ROLE);
+      });
 
-    it("should set correct roles for the deployer", async () => {
-      expect(await deployedContract.hasRole(OWNER_ROLE, deployer.address)).to.be.true;
-      expect(await deployedContract.hasRole(GRANTOR_ROLE, deployer.address)).to.be.false;
-      expect(await deployedContract.hasRole(PAUSER_ROLE, deployer.address)).to.be.false;
-      expect(await deployedContract.hasRole(RESCUER_ROLE, deployer.address)).to.be.false;
-      expect(await deployedContract.hasRole(MANAGER_ROLE, deployer.address)).to.be.false;
-      expect(await deployedContract.hasRole(CASHBACK_OPERATOR_ROLE, deployer.address)).to.be.false;
-    });
+      it("should set correct roles for the deployer", async () => {
+        expect(await deployedContract.hasRole(OWNER_ROLE, deployer.address)).to.be.true;
+        expect(await deployedContract.hasRole(GRANTOR_ROLE, deployer.address)).to.be.false;
+        expect(await deployedContract.hasRole(PAUSER_ROLE, deployer.address)).to.be.false;
+        expect(await deployedContract.hasRole(RESCUER_ROLE, deployer.address)).to.be.false;
+        expect(await deployedContract.hasRole(MANAGER_ROLE, deployer.address)).to.be.false;
+        expect(await deployedContract.hasRole(CASHBACK_OPERATOR_ROLE, deployer.address)).to.be.false;
+      });
 
-    it("should not pause the contract", async () => {
-      expect(await deployedContract.paused()).to.equal(false);
-    });
+      it("should not pause the contract", async () => {
+        expect(await deployedContract.paused()).to.equal(false);
+      });
 
-    it("should set correct underlying token address", async () => {
-      expect(await assetDesk.underlyingToken()).to.equal(await tokenMock.getAddress());
+      it("should set correct underlying token address", async () => {
+        expect(await assetDesk.underlyingToken()).to.equal(await tokenMock.getAddress());
+      });
     });
 
     describe("Should revert if", () => {
@@ -145,12 +147,14 @@ describe("Contract 'AssetTransitDesk'", () => {
   });
 
   describe("Method 'upgradeToAndCall()'", () => {
-    it("should upgrade the contract to a new implementation", async () => {
-      const newImplementation = await assetDeskFactory.deploy();
-      await newImplementation.waitForDeployment();
+    describe("Should execute as expected when called properly and", () => {
+      it("should upgrade the contract to a new implementation", async () => {
+        const newImplementation = await assetDeskFactory.deploy();
+        await newImplementation.waitForDeployment();
 
-      const tx = assetDesk.upgradeToAndCall(await newImplementation.getAddress(), "0x");
-      await expect(tx).to.emit(assetDesk, "Upgraded").withArgs(await newImplementation.getAddress());
+        const tx = assetDesk.upgradeToAndCall(await newImplementation.getAddress(), "0x");
+        await expect(tx).to.emit(assetDesk, "Upgraded").withArgs(await newImplementation.getAddress());
+      });
     });
 
     describe("Should revert if", () => {
