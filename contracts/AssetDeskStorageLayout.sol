@@ -27,12 +27,10 @@ abstract contract AssetDeskStorageLayout {
      * - token ---------------- The address of the underlying token.
      * - surplusTreasury ------- The address of the surplus treasury.
      * - lpTreasury ------------ The address of the LP treasury.
-     * - taxTreasury ------------ The address of the tax treasury.
      *
      * Notes:
      * 1. The surplus treasury is used to withdraw the yield.
      * 2. The LP treasury is used to withdraw and deposit the principal.
-     * 3. The tax treasury is used to deposit the tax.
      *
      * @custom:storage-location erc7201:cloudwalk.storage.AssetDesk
      */
@@ -47,10 +45,7 @@ abstract contract AssetDeskStorageLayout {
 
         // Slot 3
         address lpTreasury;
-        // uint96 __reserved2; // Reserved until the end of the storage slot
-
-        // Slot 4
-        address taxTreasury;
+        // uint96 __reserved2;
         // No reserve until the end of the storage slot
     }
 

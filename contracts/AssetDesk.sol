@@ -125,8 +125,7 @@ contract AssetDesk is
     function redeemAsset(
         address buyer,
         uint64 principalAmount,
-        uint64 netYieldAmount,
-        uint64 taxAmount
+        uint64 netYieldAmount
     ) external whenNotPaused onlyRole(MANAGER_ROLE) {
         if (buyer == address(0)) {
             revert AssetDesk_BuyerAddressZero();
@@ -137,18 +136,14 @@ contract AssetDesk is
         if (netYieldAmount == 0) {
             revert AssetDesk_NetYieldAmountZero();
         }
-        if (taxAmount == 0) {
-            revert AssetDesk_TaxAmountZero();
-        }
 
         AssetDeskStorage storage $ = _getAssetDeskStorage();
 
         IERC20($.token).safeTransferFrom($.lpTreasury, address(this), principalAmount);
-        IERC20($.token).safeTransferFrom($.surplusTreasury, address(this), netYieldAmount + taxAmount);
+        IERC20($.token).safeTransferFrom($.surplusTreasury, address(this), netYieldAmount);
         IERC20($.token).safeTransfer(buyer, principalAmount + netYieldAmount);
-        IERC20($.token).safeTransfer($.taxTreasury, taxAmount);
 
-        emit AssetRedeemed(buyer, principalAmount, netYieldAmount, taxAmount);
+        emit AssetRedeemed(buyer, principalAmount, netYieldAmount);
     }
 
     /**
@@ -205,29 +200,6 @@ contract AssetDesk is
         $.lpTreasury = newLPTreasury;
     }
 
-    /**
-     * @inheritdoc IAssetDeskConfiguration
-     *
-     * @dev Requirements:
-     *
-     * - The caller must have the {OWNER_ROLE} role.
-     * - The new tax treasury address must not be zero.
-     * - The new tax treasury address must not be the same as already configured.
-     */
-    function setTaxTreasury(address newTaxTreasury) external onlyRole(OWNER_ROLE) {
-        AssetDeskStorage storage $ = _getAssetDeskStorage();
-        address oldTreasury = $.taxTreasury;
-        if (newTaxTreasury == oldTreasury) {
-            revert AssetDesk_TreasuryAlreadyConfigured();
-        }
-        if (newTaxTreasury == address(0)) {
-            revert AssetDesk_TreasuryZero();
-        }
-
-        emit TaxTreasuryChanged(newTaxTreasury, oldTreasury);
-        $.taxTreasury = newTaxTreasury;
-    }
-
     // ------------------ View functions -------------------------- //
 
     /// @inheritdoc IAssetDeskConfiguration
@@ -238,11 +210,6 @@ contract AssetDesk is
     /// @inheritdoc IAssetDeskConfiguration
     function getLPTreasury() external view returns (address) {
         return _getAssetDeskStorage().lpTreasury;
-    }
-
-    /// @inheritdoc IAssetDeskConfiguration
-    function getTaxTreasury() external view returns (address) {
-        return _getAssetDeskStorage().taxTreasury;
     }
 
     /// @inheritdoc IAssetDeskConfiguration

@@ -6,7 +6,7 @@ interface IAssetDeskPrimary {
     // ------------------ Events ---------------------------------- //
 
     event AssetIssued(address buyer, uint64 principalAmount);
-    event AssetRedeemed(address buyer, uint64 principalAmount, uint64 netYieldAmount, uint64 taxAmount);
+    event AssetRedeemed(address buyer, uint64 principalAmount, uint64 netYieldAmount);
 
     // ------------------ Transactional functions ----------------- //
 
@@ -28,9 +28,8 @@ interface IAssetDeskPrimary {
      * @param buyer The address of the buyer.
      * @param principalAmount The amount of the principal.
      * @param netYieldAmount The amount of the net yield.
-     * @param taxAmount The amount of the tax.
      */
-    function redeemAsset(address buyer, uint64 principalAmount, uint64 netYieldAmount, uint64 taxAmount) external;
+    function redeemAsset(address buyer, uint64 principalAmount, uint64 netYieldAmount) external;
 }
 
 /**
@@ -43,7 +42,6 @@ interface IAssetDeskConfiguration {
 
     event SurplusTreasuryChanged(address newSurplusTreasury, address oldSurplusTreasury);
     event LPTreasuryChanged(address newLPTreasury, address oldLPTreasury);
-    event TaxTreasuryChanged(address newTaxTreasury, address oldTaxTreasury);
 
     // ------------------ Transactional functions ----------------- //
 
@@ -65,15 +63,6 @@ interface IAssetDeskConfiguration {
      */
     function setLPTreasury(address newLPTreasury) external;
 
-    /**
-     * @dev Sets the tax treasury address.
-     *
-     * Emits an {TaxTreasuryChanged} event.
-     *
-     * @param newTaxTreasury The new address of the tax treasury to set.
-     */
-    function setTaxTreasury(address newTaxTreasury) external;
-
     // ------------------ View functions -------------------------- //
 
     /**
@@ -89,13 +78,6 @@ interface IAssetDeskConfiguration {
      * @return The address of the LP treasury.
      */
     function getLPTreasury() external view returns (address);
-
-    /**
-     * @dev Returns the address of the tax treasury.
-     *
-     * @return The address of the tax treasury.
-     */
-    function getTaxTreasury() external view returns (address);
 
     /**
      * @dev Returns the address of the underlying token.
@@ -136,9 +118,6 @@ interface IAssetDeskErrors {
 
     /// @dev Thrown if the provided treasury address is zero.
     error AssetDesk_TreasuryZero();
-
-    /// @dev Thrown if the provided tax amount is zero.
-    error AssetDesk_TaxAmountZero();
 }
 
 /**

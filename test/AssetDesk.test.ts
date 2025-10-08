@@ -26,7 +26,6 @@ let account: HardhatEthersSigner; // has no roles
 let pauser: HardhatEthersSigner; // has PAUSER_ROLE
 let lpTreasury: HardhatEthersSigner; // has no roles
 let surplusTreasury: HardhatEthersSigner; // has no roles
-let taxTreasury: HardhatEthersSigner; // has no roles
 let stranger: HardhatEthersSigner; // has no roles
 
 async function deployContracts() {
@@ -57,7 +56,6 @@ async function configureContracts(assetDesk: Contracts.AssetDesk, tokenMock: Con
 
   await assetDesk.setLPTreasury(lpTreasury);
   await assetDesk.setSurplusTreasury(surplusTreasury);
-  await assetDesk.setTaxTreasury(taxTreasury);
 }
 
 async function deployAndConfigureContracts() {
@@ -68,7 +66,7 @@ async function deployAndConfigureContracts() {
 
 describe("Contract 'AssetDesk'", () => {
   before(async () => {
-    [deployer, manager, account, lpTreasury, surplusTreasury, taxTreasury, pauser, stranger] =
+    [deployer, manager, account, lpTreasury, surplusTreasury, pauser, stranger] =
      await ethers.getSigners();
 
     assetDeskFactory = await ethers.getContractFactory("AssetDesk");
@@ -180,8 +178,8 @@ describe("Contract 'AssetDesk'", () => {
 
       it("should update token balances correctly", async () => {
         await expect(tx).to.changeTokenBalances(tokenMock,
-          [lpTreasury, account, taxTreasury, surplusTreasury, assetDesk],
-          [principalAmount, -principalAmount, 0, 0, 0],
+          [lpTreasury, account, surplusTreasury, assetDesk],
+          [principalAmount, -principalAmount, 0, 0],
         );
       });
 
@@ -232,21 +230,20 @@ describe("Contract 'AssetDesk'", () => {
       let tx: TransactionResponse;
       const principalAmount = 100n;
       const netYieldAmount = 10n;
-      const taxAmount = 1n;
 
       beforeEach(async () => {
-        tx = await assetDesk.connect(manager).redeemAsset(account.address, principalAmount, netYieldAmount, taxAmount);
+        tx = await assetDesk.connect(manager).redeemAsset(account.address, principalAmount, netYieldAmount);
       });
 
       it("should emit the required event", async () => {
         await expect(tx).to.emit(assetDesk, "AssetRedeemed")
-          .withArgs(account.address, principalAmount, netYieldAmount, taxAmount);
+          .withArgs(account.address, principalAmount, netYieldAmount);
       });
 
       it("should update token balances correctly", async () => {
         await expect(tx).to.changeTokenBalances(tokenMock,
-          [lpTreasury, account, taxTreasury, surplusTreasury, assetDesk],
-          [-principalAmount, principalAmount + netYieldAmount, taxAmount, -taxAmount - netYieldAmount, 0],
+          [lpTreasury, account, surplusTreasury, assetDesk],
+          [-principalAmount, principalAmount + netYieldAmount, -netYieldAmount, 0],
         );
       });
 
@@ -259,17 +256,12 @@ describe("Contract 'AssetDesk'", () => {
         await checkTokenPath(tx,
           tokenMock,
           [surplusTreasury, assetDesk],
-          netYieldAmount + taxAmount,
+          netYieldAmount,
         );
         await checkTokenPath(tx,
           tokenMock,
           [assetDesk, account],
           principalAmount + netYieldAmount,
-        );
-        await checkTokenPath(tx,
-          tokenMock,
-          [assetDesk, taxTreasury],
-          taxAmount,
         );
       });
     });
@@ -277,7 +269,7 @@ describe("Contract 'AssetDesk'", () => {
     describe("Should revert if", () => {
       it("called by a non-manager", async () => {
         await expect(
-          assetDesk.connect(stranger).redeemAsset(account.address, 10n, 10n, 1n),
+          assetDesk.connect(stranger).redeemAsset(account.address, 10n, 10n),
         )
           .to.be.revertedWithCustomError(assetDesk, "AccessControlUnauthorizedAccount")
           .withArgs(stranger.address, MANAGER_ROLE);
@@ -285,28 +277,21 @@ describe("Contract 'AssetDesk'", () => {
 
       it("the principal amount is zero", async () => {
         await expect(
-          assetDesk.connect(manager).redeemAsset(account.address, 0n, 10n, 1n),
+          assetDesk.connect(manager).redeemAsset(account.address, 0n, 10n),
         )
           .to.be.revertedWithCustomError(assetDesk, "AssetDesk_PrincipalAmountZero");
       });
 
       it("the net yield amount is zero", async () => {
         await expect(
-          assetDesk.connect(manager).redeemAsset(account.address, 10n, 0n, 1n),
+          assetDesk.connect(manager).redeemAsset(account.address, 10n, 0n),
         )
           .to.be.revertedWithCustomError(assetDesk, "AssetDesk_NetYieldAmountZero");
       });
 
-      it("the tax amount is zero", async () => {
-        await expect(
-          assetDesk.connect(manager).redeemAsset(account.address, 10n, 10n, 0n),
-        )
-          .to.be.revertedWithCustomError(assetDesk, "AssetDesk_TaxAmountZero");
-      });
-
       it("the buyer address is zero", async () => {
         await expect(
-          assetDesk.connect(manager).redeemAsset(ADDRESS_ZERO, 10n, 10n, 1n),
+          assetDesk.connect(manager).redeemAsset(ADDRESS_ZERO, 10n, 10n),
         )
           .to.be.revertedWithCustomError(assetDesk, "AssetDesk_BuyerAddressZero");
       });
@@ -314,7 +299,7 @@ describe("Contract 'AssetDesk'", () => {
       it("the contract is paused", async () => {
         await assetDesk.connect(pauser).pause();
         await expect(
-          assetDesk.connect(manager).redeemAsset(account.address, 10n, 10n, 1n),
+          assetDesk.connect(manager).redeemAsset(account.address, 10n, 10n),
         )
           .to.be.revertedWithCustomError(assetDesk, "EnforcedPause");
       });
@@ -430,63 +415,16 @@ describe("Contract 'AssetDesk'", () => {
     });
   });
 
-  describe("Method 'setTaxTreasury()'", () => {
-    describe("Should execute as expected when called properly and", () => {
-      let tx: TransactionResponse;
-      let newTaxTreasury: HardhatEthersSigner;
-
-      beforeEach(async () => {
-        newTaxTreasury = stranger;
-        tx = await assetDesk.setTaxTreasury(newTaxTreasury);
-      });
-
-      it("should emit the required event", async () => {
-        await expect(tx).to.emit(assetDesk, "TaxTreasuryChanged")
-          .withArgs(newTaxTreasury, taxTreasury.address);
-      });
-
-      it("should update the tax treasury address", async () => {
-        expect(await assetDesk.getTaxTreasury()).to.equal(newTaxTreasury);
-      });
-    });
-
-    describe("Should revert if", () => {
-      it("called by a non-owner", async () => {
-        const newSurplusTreasury = stranger;
-        await tokenMock.connect(newSurplusTreasury).approve(assetDesk.getAddress(), BALANCE_INITIAL);
-        await expect(
-          assetDesk.connect(stranger).setTaxTreasury(stranger.address),
-        )
-          .to.be.revertedWithCustomError(assetDesk, "AccessControlUnauthorizedAccount")
-          .withArgs(stranger.address, OWNER_ROLE);
-      });
-
-      it("the new tax treasury address is zero", async () => {
-        await expect(
-          assetDesk.setTaxTreasury(ADDRESS_ZERO),
-        )
-          .to.be.revertedWithCustomError(assetDesk, "AssetDesk_TreasuryZero");
-      });
-
-      it("the new tax treasury address is the same as the current tax treasury address", async () => {
-        await expect(
-          assetDesk.setTaxTreasury(taxTreasury.address),
-        )
-          .to.be.revertedWithCustomError(assetDesk, "AssetDesk_TreasuryAlreadyConfigured");
-      });
-    });
-  });
-
   describe("Snapshot scenarios", () => {
     it("simple scenario", async () => {
       await expect.startChainshot({
         name: "simple scenario",
-        accounts: { deployer, manager, account, lpTreasury, surplusTreasury, taxTreasury, pauser, stranger },
+        accounts: { deployer, manager, account, lpTreasury, surplusTreasury, pauser, stranger },
         contracts: { assetDesk },
         tokens: { brlc: tokenMock },
       });
       await assetDesk.connect(manager).issueAsset(account.address, 100n);
-      await assetDesk.connect(manager).redeemAsset(account.address, 100n, 10n, 1n);
+      await assetDesk.connect(manager).redeemAsset(account.address, 100n, 10n);
       await expect.stopChainshot();
     });
   });

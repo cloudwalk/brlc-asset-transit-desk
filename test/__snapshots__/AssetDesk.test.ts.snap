@@ -18,7 +18,6 @@ Array [
         "pauser": 0n,
         "stranger": 0n,
         "surplusTreasury": 10000n,
-        "taxTreasury": 0n,
       },
     },
     "caller": "manager",
@@ -87,7 +86,6 @@ Array [
       "account",
       100n,
       10n,
-      1n,
     ],
     "balances": Object {
       "brlc": Object {
@@ -99,8 +97,7 @@ Array [
         "manager": 0n,
         "pauser": 0n,
         "stranger": 0n,
-        "surplusTreasury": 9989n,
-        "taxTreasury": 1n,
+        "surplusTreasury": 9990n,
       },
     },
     "caller": "manager",
@@ -119,7 +116,7 @@ Array [
         "args": Array [
           "surplusTreasury",
           "assetDesk",
-          11n,
+          10n,
         ],
         "contract": "brlc",
         "name": "Transfer",
@@ -135,19 +132,9 @@ Array [
       },
       Object {
         "args": Array [
-          "assetDesk",
-          "taxTreasury",
-          1n,
-        ],
-        "contract": "brlc",
-        "name": "Transfer",
-      },
-      Object {
-        "args": Array [
           "account",
           100n,
           10n,
-          1n,
         ],
         "contract": "assetDesk",
         "name": "AssetRedeemed",
@@ -182,15 +169,6 @@ Array [
           "components": null,
           "indexed": undefined,
           "name": "netYieldAmount",
-          "type": "uint64",
-        },
-        ParamType {
-          "arrayChildren": null,
-          "arrayLength": null,
-          "baseType": "uint64",
-          "components": null,
-          "indexed": undefined,
-          "name": "taxAmount",
           "type": "uint64",
         },
       ],

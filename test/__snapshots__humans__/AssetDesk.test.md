@@ -5,7 +5,7 @@
 | Idx | Caller | Contract | Name | Args |
 | --- | ------ | -------- | ---- | ---- |
 | 1 | manager | assetDesk | issueAsset | [account, 100] |
-| 2 | manager | assetDesk | redeemAsset | [account, 100, 10, 1] |
+| 2 | manager | assetDesk | redeemAsset | [account, 100, 10] |
 
 ```mermaid
 sequenceDiagram
@@ -14,7 +14,6 @@ sequenceDiagram
   participant assetDesk
   participant lpTreasury
   participant surplusTreasury
-  participant taxTreasury
   rect rgb(230,255,230)
     manager->>assetDesk: manager calls assetDesk.issueAsset
     account-->>assetDesk: brlc.Transfer: account -> assetDesk (100)
@@ -24,9 +23,8 @@ sequenceDiagram
   rect rgb(230,255,230)
     manager->>assetDesk: manager calls assetDesk.redeemAsset
     lpTreasury-->>assetDesk: brlc.Transfer: lpTreasury -> assetDesk (100)
-    surplusTreasury-->>assetDesk: brlc.Transfer: surplusTreasury -> assetDesk (11)
+    surplusTreasury-->>assetDesk: brlc.Transfer: surplusTreasury -> assetDesk (10)
     assetDesk-->>account: brlc.Transfer: assetDesk -> account (110)
-    assetDesk-->>taxTreasury: brlc.Transfer: assetDesk -> taxTreasury (1)
     Note over assetDesk: assetDesk.AssetRedeemed
   end
 ```
@@ -61,7 +59,6 @@ sequenceDiagram
 | account | 9900 |
 | lpTreasury | 10100 |
 | surplusTreasury | 10000 |
-| taxTreasury | 0 |
 | pauser | 0 |
 | stranger | 0 |
 
@@ -76,8 +73,7 @@ sequenceDiagram
 - **args**: `{
   "buyer": "account",
   "principalAmount": "100",
-  "netYieldAmount": "10",
-  "taxAmount": "1"
+  "netYieldAmount": "10"
 }`
 
 **Events**
@@ -85,10 +81,9 @@ sequenceDiagram
 | # | Contract | Event | Args |
 | - | -------- | ----- | ---- |
 | 1 | brlc | Transfer | `[lpTreasury, assetDesk, 100]` |
-| 2 | brlc | Transfer | `[surplusTreasury, assetDesk, 11]` |
+| 2 | brlc | Transfer | `[surplusTreasury, assetDesk, 10]` |
 | 3 | brlc | Transfer | `[assetDesk, account, 110]` |
-| 4 | brlc | Transfer | `[assetDesk, taxTreasury, 1]` |
-| 5 | assetDesk | AssetRedeemed | `[account, 100, 10, 1]` |
+| 4 | assetDesk | AssetRedeemed | `[account, 100, 10]` |
 
 **Balances**
 
@@ -101,8 +96,7 @@ sequenceDiagram
 | manager | 0 |
 | account | 10010 |
 | lpTreasury | 10000 |
-| surplusTreasury | 9989 |
-| taxTreasury | 1 |
+| surplusTreasury | 9990 |
 | pauser | 0 |
 | stranger | 0 |
 
