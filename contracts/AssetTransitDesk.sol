@@ -157,14 +157,17 @@ contract AssetTransitDesk is
      */
     function setSurplusTreasury(address newSurplusTreasury) external onlyRole(OWNER_ROLE) {
         AssetTransitDeskStorage storage $ = _getAssetTransitDeskStorage();
-        _validateTreasuryChange(newSurplusTreasury, $.surplusTreasury);
+        address oldSurplusTreasury = $.surplusTreasury;
+
+        _validateTreasuryChange(newSurplusTreasury, oldSurplusTreasury);
 
         if (IERC20($.token).allowance(newSurplusTreasury, address(this)) == 0) {
             revert AssetTransitDesk_TreasuryAllowanceZero();
         }
 
-        emit SurplusTreasuryChanged(newSurplusTreasury, $.surplusTreasury);
         $.surplusTreasury = newSurplusTreasury;
+
+        emit SurplusTreasuryChanged(newSurplusTreasury, oldSurplusTreasury);
     }
 
     /**
@@ -179,6 +182,7 @@ contract AssetTransitDesk is
     function setLiquidityPool(address newLiquidityPool) external onlyRole(OWNER_ROLE) {
         AssetTransitDeskStorage storage $ = _getAssetTransitDeskStorage();
         address oldLiquidityPool = $.liquidityPool;
+
         _validateTreasuryChange(newLiquidityPool, oldLiquidityPool);
         _validateLiquidityPool(newLiquidityPool);
 
@@ -188,8 +192,9 @@ contract AssetTransitDesk is
 
         IERC20($.token).approve(newLiquidityPool, type(uint256).max);
 
-        emit LiquidityPoolChanged(newLiquidityPool, oldLiquidityPool);
         $.liquidityPool = newLiquidityPool;
+
+        emit LiquidityPoolChanged(newLiquidityPool, oldLiquidityPool);
     }
 
     // ------------------ View functions -------------------------- //
