@@ -113,9 +113,10 @@ sequenceDiagram
 | Idx | Caller | Contract | Name | Args |
 | --- | ------ | -------- | ---- | ---- |
 | 1 | deployer | LP | grantRole | [0xa4980720..5693c21775, assetDesk] |
-| 2 | surplusTreasury | BRLC | approve | [assetDesk, 10000] |
-| 3 | deployer | assetDesk | setLiquidityPool | [LP] |
-| 4 | deployer | assetDesk | setSurplusTreasury | [surplusTreasury] |
+| 2 | deployer | LP | setWorkingTreasuries | [[assetDesk]] |
+| 3 | surplusTreasury | BRLC | approve | [assetDesk, 10000] |
+| 4 | deployer | assetDesk | setLiquidityPool | [LP] |
+| 5 | deployer | assetDesk | setSurplusTreasury | [surplusTreasury] |
 
 ```mermaid
 sequenceDiagram
@@ -127,6 +128,9 @@ sequenceDiagram
   rect rgb(230,255,230)
     deployer->>LP: deployer calls LP.grantRole
     Note over assetDesk: assetDesk.RoleGranted
+  end
+  rect rgb(230,255,230)
+    deployer->>LP: deployer calls LP.setWorkingTreasuries
   end
   rect rgb(230,255,230)
     surplusTreasury->>BRLC: surplusTreasury calls BRLC.approve
@@ -176,7 +180,36 @@ sequenceDiagram
 
 </details>
 <details>
-<summary>Step 1: BRLC.approve</summary>
+<summary>Step 1: LP.setWorkingTreasuries</summary>
+
+- **type**: methodCall
+- **caller**: deployer
+- **args**: `{
+  "newWorkingTreasuries": "[assetDesk]"
+}`
+
+**Events**
+
+_No events_
+
+**Balances**
+
+**Token:** BRLC
+| Holder | Balance |
+| ------ | ------- |
+| assetDesk | 0 |
+| LP | 0 |
+| BRLC | 0 |
+| deployer | 0 |
+| manager | 0 |
+| account | 0 |
+| surplusTreasury | 0 |
+
+
+
+</details>
+<details>
+<summary>Step 2: BRLC.approve</summary>
 
 - **type**: methodCall
 - **caller**: surplusTreasury
@@ -208,7 +241,7 @@ sequenceDiagram
 
 </details>
 <details>
-<summary>Step 2: assetDesk.setLiquidityPool</summary>
+<summary>Step 3: assetDesk.setLiquidityPool</summary>
 
 - **type**: methodCall
 - **caller**: deployer
@@ -240,7 +273,7 @@ sequenceDiagram
 
 </details>
 <details>
-<summary>Step 3: assetDesk.setSurplusTreasury</summary>
+<summary>Step 4: assetDesk.setSurplusTreasury</summary>
 
 - **type**: methodCall
 - **caller**: deployer

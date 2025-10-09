@@ -64,6 +64,56 @@ Array [
   },
   Object {
     "args": Array [
+      Array [
+        "assetDesk",
+      ],
+    ],
+    "balances": Object {
+      "BRLC": Object {
+        "BRLC": 0n,
+        "LP": 0n,
+        "account": 0n,
+        "assetDesk": 0n,
+        "deployer": 0n,
+        "manager": 0n,
+        "surplusTreasury": 0n,
+      },
+    },
+    "caller": "deployer",
+    "contract": "LP",
+    "events": Array [],
+    "methodFragment": FunctionFragment {
+      "constant": false,
+      "gas": null,
+      "inputs": Array [
+        ParamType {
+          "arrayChildren": ParamType {
+            "arrayChildren": null,
+            "arrayLength": null,
+            "baseType": "address",
+            "components": null,
+            "indexed": undefined,
+            "name": "",
+            "type": "address",
+          },
+          "arrayLength": -1,
+          "baseType": "array",
+          "components": null,
+          "indexed": undefined,
+          "name": "newWorkingTreasuries",
+          "type": "address[]",
+        },
+      ],
+      "name": "setWorkingTreasuries",
+      "outputs": Array [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function",
+    },
+    "type": "methodCall",
+  },
+  Object {
+    "args": Array [
       "assetDesk",
       10000n,
     ],

@@ -530,6 +530,7 @@ describe("Contract 'AssetTransitDesk'", () => {
       });
 
       await liquidityPool.connect(deployer).grantRole(ADMIN_ROLE, assetDesk);
+      await liquidityPool.connect(deployer).setWorkingTreasuries([assetDesk]);
       await tokenMock.connect(surplusTreasury).approve(assetDesk, BALANCE_INITIAL);
       await assetDesk.setLiquidityPool(liquidityPool);
       await assetDesk.setSurplusTreasury(surplusTreasury);
