@@ -130,6 +130,9 @@ interface IAssetTransitDeskErrors {
     /// @dev Thrown if the provided buyer address is zero.
     error AssetTransitDesk_BuyerAddressZero();
 
+    /// @dev Thrown if the provided liquidity pool is not registered as a working treasury.
+    error AssetTransitDesk_ContractNotRegisteredAsWorkingTreasury();
+
     /// @dev Thrown if the provided new implementation address is not an AssetTransitDesk contract.
     error AssetTransitDesk_ImplementationAddressInvalid();
 
@@ -138,9 +141,6 @@ interface IAssetTransitDeskErrors {
 
     /// @dev Thrown if the current contract is not an admin of the provided liquidity pool.
     error AssetTransitDesk_LiquidityPoolNotAdmin();
-
-    /// @dev Thrown if the provided liquidity pool is not registered as a working treasury.
-    error AssetTransitDesk_LiquidityPoolNotRegisteredAsWorkingTreasury();
 
     /// @dev Thrown if the provided liquidity pool token does not match the underlying token.
     error AssetTransitDesk_LiquidityPoolTokenMismatch();
@@ -154,14 +154,14 @@ interface IAssetTransitDeskErrors {
     /// @dev Thrown if the provided token address is zero.
     error AssetTransitDesk_TokenAddressZero();
 
+    /// @dev Thrown if the provided treasury address is zero.
+    error AssetTransitDesk_TreasuryAddressZero();
+
     /// @dev Thrown if the provided treasury has not granted the contract allowance to spend tokens.
     error AssetTransitDesk_TreasuryAllowanceZero();
 
     /// @dev Thrown if the provided treasury address is already configured.
     error AssetTransitDesk_TreasuryAlreadyConfigured();
-
-    /// @dev Thrown if the provided treasury address is zero.
-    error AssetTransitDesk_TreasuryZero();
 }
 
 /**

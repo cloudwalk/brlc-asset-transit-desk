@@ -22,7 +22,6 @@ import { AssetTransitDeskStorageLayout } from "./AssetTransitDeskStorageLayout.s
 /**
  * @title AssetTransitDesk contract
  * @author CloudWalk Inc. (See https://www.cloudwalk.io)
- * @dev Manages CDB issue and redeem operations.
  *
  * See details about the contract in the comments of the {IAssetTransitDesk} interface.
  */
@@ -84,6 +83,7 @@ contract AssetTransitDesk is
     }
 
     // ------------------ Transactional functions ----------------- //
+
     /**
      * @inheritdoc IAssetTransitDeskPrimary
      *
@@ -221,7 +221,7 @@ contract AssetTransitDesk is
             revert AssetTransitDesk_TreasuryAlreadyConfigured();
         }
         if (newTreasury == address(0)) {
-            revert AssetTransitDesk_TreasuryZero();
+            revert AssetTransitDesk_TreasuryAddressZero();
         }
     }
 
@@ -248,7 +248,7 @@ contract AssetTransitDesk is
             }
         }
 
-        revert AssetTransitDesk_LiquidityPoolNotRegisteredAsWorkingTreasury();
+        revert AssetTransitDesk_ContractNotRegisteredAsWorkingTreasury();
     }
 
     /**

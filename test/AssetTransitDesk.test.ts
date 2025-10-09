@@ -398,7 +398,7 @@ describe("Contract 'AssetTransitDesk'", () => {
         await expect(
           assetTransitDesk.setLiquidityPool(ADDRESS_ZERO),
         )
-          .to.be.revertedWithCustomError(assetTransitDesk, "AssetTransitDesk_TreasuryZero");
+          .to.be.revertedWithCustomError(assetTransitDesk, "AssetTransitDesk_TreasuryAddressZero");
       });
 
       it("the new liquidity pool address is the same as the current liquidity pool address", async () => {
@@ -448,7 +448,7 @@ describe("Contract 'AssetTransitDesk'", () => {
         )
           .to.be.revertedWithCustomError(
             assetTransitDesk,
-            "AssetTransitDesk_LiquidityPoolNotRegisteredAsWorkingTreasury",
+            "AssetTransitDesk_ContractNotRegisteredAsWorkingTreasury",
           );
       });
     });
@@ -490,7 +490,7 @@ describe("Contract 'AssetTransitDesk'", () => {
         await expect(
           assetTransitDesk.setSurplusTreasury(ADDRESS_ZERO),
         )
-          .to.be.revertedWithCustomError(assetTransitDesk, "AssetTransitDesk_TreasuryZero");
+          .to.be.revertedWithCustomError(assetTransitDesk, "AssetTransitDesk_TreasuryAddressZero");
       });
 
       it("the new surplus treasury address is the same as the current surplus treasury address", async () => {
