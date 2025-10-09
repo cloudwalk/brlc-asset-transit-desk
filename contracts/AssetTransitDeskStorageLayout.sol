@@ -16,7 +16,7 @@ abstract contract AssetTransitDeskStorageLayout {
      * ERC-7201: Namespaced Storage Layout
      * keccak256(abi.encode(uint256(keccak256("cloudwalk.storage.AssetTransitDesk")) - 1)) & ~bytes32(uint256(0xff))
      */
-    bytes32 private constant ASSET_DESK_STORAGE_LOCATION =
+    bytes32 private constant ASSET_TRANSIT_DESK_STORAGE_LOCATION =
         0x27f7e363d656435411c0d572d62984de181fb65d332e8e701d94a91bd5969800;
 
     /**
@@ -53,7 +53,7 @@ abstract contract AssetTransitDeskStorageLayout {
     /// @dev Returns the storage slot location for the `AssetTransitDeskStorage` struct.
     function _getAssetTransitDeskStorage() internal pure returns (AssetTransitDeskStorage storage $) {
         assembly {
-            $.slot := ASSET_DESK_STORAGE_LOCATION
+            $.slot := ASSET_TRANSIT_DESK_STORAGE_LOCATION
         }
     }
 }
