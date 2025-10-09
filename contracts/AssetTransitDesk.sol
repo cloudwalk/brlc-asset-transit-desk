@@ -14,7 +14,6 @@ import { UUPSExtUpgradeable } from "./base/UUPSExtUpgradeable.sol";
 import { IAssetTransitDesk } from "./interfaces/IAssetTransitDesk.sol";
 import { IAssetTransitDeskPrimary } from "./interfaces/IAssetTransitDesk.sol";
 import { IAssetTransitDeskConfiguration } from "./interfaces/IAssetTransitDesk.sol";
-import { IAssetTransitDeskErrors } from "./interfaces/IAssetTransitDesk.sol";
 import { ILiquidityPool } from "./interfaces/ILiquidityPool.sol";
 
 import { AssetTransitDeskStorageLayout } from "./AssetTransitDeskStorageLayout.sol";
