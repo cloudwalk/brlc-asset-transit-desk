@@ -27,7 +27,7 @@ Array [
           "assetDesk",
           "deployer",
         ],
-        "contract": "assetDesk",
+        "contract": "LP",
         "name": "RoleGranted",
       },
     ],

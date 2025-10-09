@@ -127,7 +127,7 @@ sequenceDiagram
   participant assetDesk
   rect rgb(230,255,230)
     deployer->>LP: deployer calls LP.grantRole
-    Note over assetDesk: assetDesk.RoleGranted
+    Note over LP: LP.RoleGranted
   end
   rect rgb(230,255,230)
     deployer->>LP: deployer calls LP.setWorkingTreasuries
@@ -161,7 +161,7 @@ sequenceDiagram
 
 | # | Contract | Event | Args |
 | - | -------- | ----- | ---- |
-| 1 | assetDesk | RoleGranted | `[0xa4980720..5693c21775, assetDesk, deployer]` |
+| 1 | LP | RoleGranted | `[0xa4980720..5693c21775, assetDesk, deployer]` |
 
 **Balances**
 
