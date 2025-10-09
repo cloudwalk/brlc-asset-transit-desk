@@ -17,7 +17,7 @@ abstract contract AssetTransitDeskStorageLayout {
      * keccak256(abi.encode(uint256(keccak256("cloudwalk.storage.AssetTransitDesk")) - 1)) & ~bytes32(uint256(0xff))
      */
     bytes32 private constant ASSET_DESK_STORAGE_LOCATION =
-        0x8d78a165cd67802614e6d2e1c779733003e05fa86c86bca1eacf388a6b1ca300;
+        0x27f7e363d656435411c0d572d62984de181fb65d332e8e701d94a91bd5969800;
 
     /**
      * @dev Defines the contract storage structure.
