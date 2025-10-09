@@ -4,35 +4,35 @@
 
 | Idx | Caller | Contract | Name | Args |
 | --- | ------ | -------- | ---- | ---- |
-| 1 | manager | assetDesk | issueAsset | [account, 100] |
-| 2 | manager | assetDesk | redeemAsset | [account, 100, 10] |
+| 1 | manager | assetTransitDesk | issueAsset | [account, 100] |
+| 2 | manager | assetTransitDesk | redeemAsset | [account, 100, 10] |
 
 ```mermaid
 sequenceDiagram
   actor manager
   participant LP
   participant account
-  participant assetDesk
+  participant assetTransitDesk
   participant surplusTreasury
   rect rgb(230,255,230)
-    manager->>assetDesk: manager calls assetDesk.issueAsset
-    account-->>assetDesk: BRLC.Transfer: account -> assetDesk (100)
-    assetDesk-->>LP: BRLC.Transfer: assetDesk -> LP (100)
+    manager->>assetTransitDesk: manager calls assetTransitDesk.issueAsset
+    account-->>assetTransitDesk: BRLC.Transfer: account -> assetTransitDesk (100)
+    assetTransitDesk-->>LP: BRLC.Transfer: assetTransitDesk -> LP (100)
     Note over LP: LP.Deposit
-    Note over assetDesk: assetDesk.AssetIssued
+    Note over assetTransitDesk: assetTransitDesk.AssetIssued
   end
   rect rgb(230,255,230)
-    manager->>assetDesk: manager calls assetDesk.redeemAsset
-    LP-->>assetDesk: BRLC.Transfer: LP -> assetDesk (100)
+    manager->>assetTransitDesk: manager calls assetTransitDesk.redeemAsset
+    LP-->>assetTransitDesk: BRLC.Transfer: LP -> assetTransitDesk (100)
     Note over LP: LP.Withdrawal
-    surplusTreasury-->>assetDesk: BRLC.Transfer: surplusTreasury -> assetDesk (10)
-    assetDesk-->>account: BRLC.Transfer: assetDesk -> account (110)
-    Note over assetDesk: assetDesk.AssetRedeemed
+    surplusTreasury-->>assetTransitDesk: BRLC.Transfer: surplusTreasury -> assetTransitDesk (10)
+    assetTransitDesk-->>account: BRLC.Transfer: assetTransitDesk -> account (110)
+    Note over assetTransitDesk: assetTransitDesk.AssetRedeemed
   end
 ```
 
 <details>
-<summary>Step 0: assetDesk.issueAsset</summary>
+<summary>Step 0: assetTransitDesk.issueAsset</summary>
 
 - **type**: methodCall
 - **caller**: manager
@@ -45,17 +45,17 @@ sequenceDiagram
 
 | # | Contract | Event | Args |
 | - | -------- | ----- | ---- |
-| 1 | BRLC | Transfer | `[account, assetDesk, 100]` |
-| 2 | BRLC | Transfer | `[assetDesk, LP, 100]` |
+| 1 | BRLC | Transfer | `[account, assetTransitDesk, 100]` |
+| 2 | BRLC | Transfer | `[assetTransitDesk, LP, 100]` |
 | 3 | LP | Deposit | `[100]` |
-| 4 | assetDesk | AssetIssued | `[account, 100]` |
+| 4 | assetTransitDesk | AssetIssued | `[account, 100]` |
 
 **Balances**
 
 **Token:** BRLC
 | Holder | Balance |
 | ------ | ------- |
-| assetDesk | 0 |
+| assetTransitDesk | 0 |
 | LP | 10100 |
 | BRLC | 0 |
 | deployer | 0 |
@@ -69,7 +69,7 @@ sequenceDiagram
 
 </details>
 <details>
-<summary>Step 1: assetDesk.redeemAsset</summary>
+<summary>Step 1: assetTransitDesk.redeemAsset</summary>
 
 - **type**: methodCall
 - **caller**: manager
@@ -83,18 +83,18 @@ sequenceDiagram
 
 | # | Contract | Event | Args |
 | - | -------- | ----- | ---- |
-| 1 | BRLC | Transfer | `[LP, assetDesk, 100]` |
+| 1 | BRLC | Transfer | `[LP, assetTransitDesk, 100]` |
 | 2 | LP | Withdrawal | `[100, 0]` |
-| 3 | BRLC | Transfer | `[surplusTreasury, assetDesk, 10]` |
-| 4 | BRLC | Transfer | `[assetDesk, account, 110]` |
-| 5 | assetDesk | AssetRedeemed | `[account, 100, 10]` |
+| 3 | BRLC | Transfer | `[surplusTreasury, assetTransitDesk, 10]` |
+| 4 | BRLC | Transfer | `[assetTransitDesk, account, 110]` |
+| 5 | assetTransitDesk | AssetRedeemed | `[account, 100, 10]` |
 
 **Balances**
 
 **Token:** BRLC
 | Holder | Balance |
 | ------ | ------- |
-| assetDesk | 0 |
+| assetTransitDesk | 0 |
 | LP | 10000 |
 | BRLC | 0 |
 | deployer | 0 |
@@ -112,11 +112,11 @@ sequenceDiagram
 
 | Idx | Caller | Contract | Name | Args |
 | --- | ------ | -------- | ---- | ---- |
-| 1 | deployer | LP | grantRole | [0xa4980720..5693c21775, assetDesk] |
-| 2 | deployer | LP | setWorkingTreasuries | [[assetDesk]] |
-| 3 | surplusTreasury | BRLC | approve | [assetDesk, 10000] |
-| 4 | deployer | assetDesk | setLiquidityPool | [LP] |
-| 5 | deployer | assetDesk | setSurplusTreasury | [surplusTreasury] |
+| 1 | deployer | LP | grantRole | [0xa4980720..5693c21775, assetTransitDesk] |
+| 2 | deployer | LP | setWorkingTreasuries | [[assetTransitDesk]] |
+| 3 | surplusTreasury | BRLC | approve | [assetTransitDesk, 10000] |
+| 4 | deployer | assetTransitDesk | setLiquidityPool | [LP] |
+| 5 | deployer | assetTransitDesk | setSurplusTreasury | [surplusTreasury] |
 
 ```mermaid
 sequenceDiagram
@@ -124,7 +124,7 @@ sequenceDiagram
   actor surplusTreasury
   participant BRLC
   participant LP
-  participant assetDesk
+  participant assetTransitDesk
   rect rgb(230,255,230)
     deployer->>LP: deployer calls LP.grantRole
     Note over LP: LP.RoleGranted
@@ -137,13 +137,13 @@ sequenceDiagram
     Note over BRLC: BRLC.Approval
   end
   rect rgb(230,255,230)
-    deployer->>assetDesk: deployer calls assetDesk.setLiquidityPool
+    deployer->>assetTransitDesk: deployer calls assetTransitDesk.setLiquidityPool
     Note over BRLC: BRLC.Approval
-    Note over assetDesk: assetDesk.LiquidityPoolChanged
+    Note over assetTransitDesk: assetTransitDesk.LiquidityPoolChanged
   end
   rect rgb(230,255,230)
-    deployer->>assetDesk: deployer calls assetDesk.setSurplusTreasury
-    Note over assetDesk: assetDesk.SurplusTreasuryChanged
+    deployer->>assetTransitDesk: deployer calls assetTransitDesk.setSurplusTreasury
+    Note over assetTransitDesk: assetTransitDesk.SurplusTreasuryChanged
   end
 ```
 
@@ -154,21 +154,21 @@ sequenceDiagram
 - **caller**: deployer
 - **args**: `{
   "role": "0xa4980720..5693c21775",
-  "account": "assetDesk"
+  "account": "assetTransitDesk"
 }`
 
 **Events**
 
 | # | Contract | Event | Args |
 | - | -------- | ----- | ---- |
-| 1 | LP | RoleGranted | `[0xa4980720..5693c21775, assetDesk, deployer]` |
+| 1 | LP | RoleGranted | `[0xa4980720..5693c21775, assetTransitDesk, deployer]` |
 
 **Balances**
 
 **Token:** BRLC
 | Holder | Balance |
 | ------ | ------- |
-| assetDesk | 0 |
+| assetTransitDesk | 0 |
 | LP | 0 |
 | BRLC | 0 |
 | deployer | 0 |
@@ -185,7 +185,7 @@ sequenceDiagram
 - **type**: methodCall
 - **caller**: deployer
 - **args**: `{
-  "newWorkingTreasuries": "[assetDesk]"
+  "newWorkingTreasuries": "[assetTransitDesk]"
 }`
 
 **Events**
@@ -197,7 +197,7 @@ _No events_
 **Token:** BRLC
 | Holder | Balance |
 | ------ | ------- |
-| assetDesk | 0 |
+| assetTransitDesk | 0 |
 | LP | 0 |
 | BRLC | 0 |
 | deployer | 0 |
@@ -214,7 +214,7 @@ _No events_
 - **type**: methodCall
 - **caller**: surplusTreasury
 - **args**: `{
-  "spender": "assetDesk",
+  "spender": "assetTransitDesk",
   "value": "10000"
 }`
 
@@ -222,14 +222,14 @@ _No events_
 
 | # | Contract | Event | Args |
 | - | -------- | ----- | ---- |
-| 1 | BRLC | Approval | `[surplusTreasury, assetDesk, 10000]` |
+| 1 | BRLC | Approval | `[surplusTreasury, assetTransitDesk, 10000]` |
 
 **Balances**
 
 **Token:** BRLC
 | Holder | Balance |
 | ------ | ------- |
-| assetDesk | 0 |
+| assetTransitDesk | 0 |
 | LP | 0 |
 | BRLC | 0 |
 | deployer | 0 |
@@ -241,7 +241,7 @@ _No events_
 
 </details>
 <details>
-<summary>Step 3: assetDesk.setLiquidityPool</summary>
+<summary>Step 3: assetTransitDesk.setLiquidityPool</summary>
 
 - **type**: methodCall
 - **caller**: deployer
@@ -253,15 +253,15 @@ _No events_
 
 | # | Contract | Event | Args |
 | - | -------- | ----- | ---- |
-| 1 | BRLC | Approval | `[assetDesk, LP, 1157920892..3129639935]` |
-| 2 | assetDesk | LiquidityPoolChanged | `[LP, ZERO_ADDR]` |
+| 1 | BRLC | Approval | `[assetTransitDesk, LP, 1157920892..3129639935]` |
+| 2 | assetTransitDesk | LiquidityPoolChanged | `[LP, ZERO_ADDR]` |
 
 **Balances**
 
 **Token:** BRLC
 | Holder | Balance |
 | ------ | ------- |
-| assetDesk | 0 |
+| assetTransitDesk | 0 |
 | LP | 0 |
 | BRLC | 0 |
 | deployer | 0 |
@@ -273,7 +273,7 @@ _No events_
 
 </details>
 <details>
-<summary>Step 4: assetDesk.setSurplusTreasury</summary>
+<summary>Step 4: assetTransitDesk.setSurplusTreasury</summary>
 
 - **type**: methodCall
 - **caller**: deployer
@@ -285,14 +285,14 @@ _No events_
 
 | # | Contract | Event | Args |
 | - | -------- | ----- | ---- |
-| 1 | assetDesk | SurplusTreasuryChanged | `[surplusTreasury, ZERO_ADDR]` |
+| 1 | assetTransitDesk | SurplusTreasuryChanged | `[surplusTreasury, ZERO_ADDR]` |
 
 **Balances**
 
 **Token:** BRLC
 | Holder | Balance |
 | ------ | ------- |
-| assetDesk | 0 |
+| assetTransitDesk | 0 |
 | LP | 0 |
 | BRLC | 0 |
 | deployer | 0 |

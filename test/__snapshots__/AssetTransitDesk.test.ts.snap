@@ -5,14 +5,14 @@ Array [
   Object {
     "args": Array [
       "0xa49807205ce4d355092ef5a8a18f56e8913cf4a201fbe287825b095693c21775",
-      "assetDesk",
+      "assetTransitDesk",
     ],
     "balances": Object {
       "BRLC": Object {
         "BRLC": 0n,
         "LP": 0n,
         "account": 0n,
-        "assetDesk": 0n,
+        "assetTransitDesk": 0n,
         "deployer": 0n,
         "manager": 0n,
         "surplusTreasury": 0n,
@@ -24,7 +24,7 @@ Array [
       Object {
         "args": Array [
           "0xa49807205ce4d355092ef5a8a18f56e8913cf4a201fbe287825b095693c21775",
-          "assetDesk",
+          "assetTransitDesk",
           "deployer",
         ],
         "contract": "LP",
@@ -65,7 +65,7 @@ Array [
   Object {
     "args": Array [
       Array [
-        "assetDesk",
+        "assetTransitDesk",
       ],
     ],
     "balances": Object {
@@ -73,7 +73,7 @@ Array [
         "BRLC": 0n,
         "LP": 0n,
         "account": 0n,
-        "assetDesk": 0n,
+        "assetTransitDesk": 0n,
         "deployer": 0n,
         "manager": 0n,
         "surplusTreasury": 0n,
@@ -114,7 +114,7 @@ Array [
   },
   Object {
     "args": Array [
-      "assetDesk",
+      "assetTransitDesk",
       10000n,
     ],
     "balances": Object {
@@ -122,7 +122,7 @@ Array [
         "BRLC": 0n,
         "LP": 0n,
         "account": 0n,
-        "assetDesk": 0n,
+        "assetTransitDesk": 0n,
         "deployer": 0n,
         "manager": 0n,
         "surplusTreasury": 0n,
@@ -134,7 +134,7 @@ Array [
       Object {
         "args": Array [
           "surplusTreasury",
-          "assetDesk",
+          "assetTransitDesk",
           10000n,
         ],
         "contract": "BRLC",
@@ -191,18 +191,18 @@ Array [
         "BRLC": 0n,
         "LP": 0n,
         "account": 0n,
-        "assetDesk": 0n,
+        "assetTransitDesk": 0n,
         "deployer": 0n,
         "manager": 0n,
         "surplusTreasury": 0n,
       },
     },
     "caller": "deployer",
-    "contract": "assetDesk",
+    "contract": "assetTransitDesk",
     "events": Array [
       Object {
         "args": Array [
-          "assetDesk",
+          "assetTransitDesk",
           "LP",
           115792089237316195423570985008687907853269984665640564039457584007913129639935n,
         ],
@@ -214,7 +214,7 @@ Array [
           "LP",
           "0x0000000000000000000000000000000000000000",
         ],
-        "contract": "assetDesk",
+        "contract": "assetTransitDesk",
         "name": "LiquidityPoolChanged",
       },
     ],
@@ -249,21 +249,21 @@ Array [
         "BRLC": 0n,
         "LP": 0n,
         "account": 0n,
-        "assetDesk": 0n,
+        "assetTransitDesk": 0n,
         "deployer": 0n,
         "manager": 0n,
         "surplusTreasury": 0n,
       },
     },
     "caller": "deployer",
-    "contract": "assetDesk",
+    "contract": "assetTransitDesk",
     "events": Array [
       Object {
         "args": Array [
           "surplusTreasury",
           "0x0000000000000000000000000000000000000000",
         ],
-        "contract": "assetDesk",
+        "contract": "assetTransitDesk",
         "name": "SurplusTreasuryChanged",
       },
     ],
@@ -304,7 +304,7 @@ Array [
         "BRLC": 0n,
         "LP": 10100n,
         "account": 9900n,
-        "assetDesk": 0n,
+        "assetTransitDesk": 0n,
         "deployer": 0n,
         "manager": 0n,
         "pauser": 0n,
@@ -313,12 +313,12 @@ Array [
       },
     },
     "caller": "manager",
-    "contract": "assetDesk",
+    "contract": "assetTransitDesk",
     "events": Array [
       Object {
         "args": Array [
           "account",
-          "assetDesk",
+          "assetTransitDesk",
           100n,
         ],
         "contract": "BRLC",
@@ -326,7 +326,7 @@ Array [
       },
       Object {
         "args": Array [
-          "assetDesk",
+          "assetTransitDesk",
           "LP",
           100n,
         ],
@@ -345,7 +345,7 @@ Array [
           "account",
           100n,
         ],
-        "contract": "assetDesk",
+        "contract": "assetTransitDesk",
         "name": "AssetIssued",
       },
     ],
@@ -391,7 +391,7 @@ Array [
         "BRLC": 0n,
         "LP": 10000n,
         "account": 10010n,
-        "assetDesk": 0n,
+        "assetTransitDesk": 0n,
         "deployer": 0n,
         "manager": 0n,
         "pauser": 0n,
@@ -400,12 +400,12 @@ Array [
       },
     },
     "caller": "manager",
-    "contract": "assetDesk",
+    "contract": "assetTransitDesk",
     "events": Array [
       Object {
         "args": Array [
           "LP",
-          "assetDesk",
+          "assetTransitDesk",
           100n,
         ],
         "contract": "BRLC",
@@ -422,7 +422,7 @@ Array [
       Object {
         "args": Array [
           "surplusTreasury",
-          "assetDesk",
+          "assetTransitDesk",
           10n,
         ],
         "contract": "BRLC",
@@ -430,7 +430,7 @@ Array [
       },
       Object {
         "args": Array [
-          "assetDesk",
+          "assetTransitDesk",
           "account",
           110n,
         ],
@@ -443,7 +443,7 @@ Array [
           100n,
           10n,
         ],
-        "contract": "assetDesk",
+        "contract": "assetTransitDesk",
         "name": "AssetRedeemed",
       },
     ],
