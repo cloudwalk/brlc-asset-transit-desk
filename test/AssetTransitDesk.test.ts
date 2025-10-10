@@ -74,6 +74,7 @@ async function configureContracts(
 
   await liquidityPool.connect(deployer).grantRole(ADMIN_ROLE, assetTransitDesk);
 
+  await assetTransitDesk.approve(liquidityPool, BALANCE_INITIAL);
   await assetTransitDesk.setLiquidityPool(liquidityPool);
   await assetTransitDesk.setSurplusTreasury(surplusTreasury);
 }
@@ -376,10 +377,6 @@ describe("Contract 'AssetTransitDesk'", () => {
         expect(await assetTransitDesk.getLiquidityPool()).to.equal(newLiquidityPool);
       });
 
-      it("should grant allowance to the new liquidity pool", async () => {
-        expect(await tokenMock.allowance(assetTransitDesk, newLiquidityPool)).to.equal(ethers.MaxUint256);
-      });
-
       it("should revoke allowance from the old liquidity pool", async () => {
         expect(await tokenMock.allowance(assetTransitDesk, liquidityPool)).to.equal(0);
       });
@@ -509,6 +506,32 @@ describe("Contract 'AssetTransitDesk'", () => {
     });
   });
 
+  describe("Method 'approve()'", () => {
+    describe("Should execute as expected when called properly and", () => {
+      let tx: TransactionResponse;
+
+      beforeEach(async () => {
+        tx = await assetTransitDesk.approve(liquidityPool, BALANCE_INITIAL);
+      });
+
+      it("should emit the required event", async () => {
+        await expect(tx).to.emit(tokenMock, "Approval").withArgs(assetTransitDesk, liquidityPool, BALANCE_INITIAL);
+      });
+
+      it("should update the allowance", async () => {
+        expect(await tokenMock.allowance(assetTransitDesk, liquidityPool)).to.equal(BALANCE_INITIAL);
+      });
+    });
+
+    describe("Should revert if", () => {
+      it("called by a non-owner", async () => {
+        await expect(assetTransitDesk.connect(stranger).approve(liquidityPool, BALANCE_INITIAL))
+          .to.be.revertedWithCustomError(assetTransitDesk, "AccessControlUnauthorizedAccount")
+          .withArgs(stranger.address, OWNER_ROLE);
+      });
+    });
+  });
+
   describe("Snapshot scenarios", () => {
     it("Simple usage scenario", async () => {
       await expect.startChainshot({
@@ -532,9 +555,10 @@ describe("Contract 'AssetTransitDesk'", () => {
         tokens: { BRLC: tokenMock },
       });
 
-      await liquidityPool.connect(deployer).grantRole(ADMIN_ROLE, assetTransitDesk);
-      await liquidityPool.connect(deployer).setWorkingTreasuries([assetTransitDesk]);
+      await liquidityPool.grantRole(ADMIN_ROLE, assetTransitDesk);
+      await liquidityPool.setWorkingTreasuries([assetTransitDesk]);
       await tokenMock.connect(surplusTreasury).approve(assetTransitDesk, BALANCE_INITIAL);
+      await assetTransitDesk.approve(liquidityPool, BALANCE_INITIAL);
       await assetTransitDesk.setLiquidityPool(liquidityPool);
       await assetTransitDesk.setSurplusTreasury(surplusTreasury);
 

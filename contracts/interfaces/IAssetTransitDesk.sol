@@ -117,6 +117,16 @@ interface IAssetTransitDeskConfiguration {
      * @return The address of the underlying token.
      */
     function underlyingToken() external view returns (address);
+
+    /**
+     * @dev Approves the provided spender to spend the provided amount of the underlying token.
+     *
+     * See {IERC20-approve}.
+     *
+     * @param spender The address of the spender.
+     * @param amount The amount of the underlying token to approve.
+     */
+    function approve(address spender, uint256 amount) external;
 }
 
 /**
