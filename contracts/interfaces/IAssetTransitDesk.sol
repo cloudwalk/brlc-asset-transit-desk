@@ -146,7 +146,7 @@ interface IAssetTransitDeskErrors {
     /// @dev Thrown if the provided new implementation address is not an AssetTransitDesk contract.
     error AssetTransitDesk_ImplementationAddressInvalid();
 
-    /// @dev Thrown if the provided liquidity pool address is not an LiquidityPool contract.
+    /// @dev Thrown if the provided liquidity pool address is not a LiquidityPool contract.
     error AssetTransitDesk_LiquidityPoolAddressInvalid();
 
     /// @dev Thrown if the current contract is not an admin of the provided liquidity pool.

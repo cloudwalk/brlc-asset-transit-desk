@@ -39,7 +39,7 @@ contract AssetTransitDesk is
 
     // ------------------ Constants ------------------------------- //
 
-    /// @dev The role of manager that is allowed to issue and redeem assets.
+    /// @dev The role of a manager that is allowed to issue and redeem assets.
     bytes32 public constant MANAGER_ROLE = keccak256("MANAGER_ROLE");
 
     // ------------------ Constructor ----------------------------- //
@@ -176,7 +176,6 @@ contract AssetTransitDesk is
      * - Caller must have the {OWNER_ROLE} role.
      * - `newLiquidityPool` must not be the zero address.
      * - `newLiquidityPool` must differ from the current value.
-     * - `newLiquidityPool` must grant allowance to this contract for the underlying token.
      */
     function setLiquidityPool(address newLiquidityPool) external onlyRole(OWNER_ROLE) {
         AssetTransitDeskStorage storage $ = _getAssetTransitDeskStorage();
