@@ -20,6 +20,7 @@
 - `redeemAsset(address buyer, uint64 principalAmount, uint64 netYieldAmount)` — manager-only, when not paused.
 - `setSurplusTreasury(address newSurplusTreasury)` — owner-only.
 - `setLiquidityPool(address newLiquidityPool)` — owner-only.
+- `approve(address spender, uint256 amount)` — owner-only.
 - `getSurplusTreasury() → address` — view.
 - `getLiquidityPool() → address` — view.
 - `underlyingToken() → address` — view.
@@ -65,4 +66,4 @@
 ### Security Notes
 - All state changes are role-gated; issuance/redemption guarded by `whenNotPaused`.
 - Pool address is strictly validated to prevent misconfiguration or token mismatch.
-- Unlimited allowance is given to the active pool; owner must trust the pool implementation and admin model.
+- No automatic allowance is granted on pool change; approvals are explicit and owner-controlled via `approve`.
