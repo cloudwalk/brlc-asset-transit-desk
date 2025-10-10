@@ -376,10 +376,6 @@ describe("Contract 'AssetTransitDesk'", () => {
       it("should update the liquidity pool address", async () => {
         expect(await assetTransitDesk.getLiquidityPool()).to.equal(newLiquidityPool);
       });
-
-      it("should revoke allowance from the old liquidity pool", async () => {
-        expect(await tokenMock.allowance(assetTransitDesk, liquidityPool)).to.equal(0);
-      });
     });
 
     describe("Should revert if", () => {

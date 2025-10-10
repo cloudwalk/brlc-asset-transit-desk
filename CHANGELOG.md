@@ -60,6 +60,7 @@
 - Ensure `surplusTreasury` approves this contract for the underlying token (non-zero allowance required).
 - Ensure the chosen `liquidityPool` uses the same underlying token, this contract holds pool `ADMIN_ROLE`, and it’s registered as a working treasury in the pool.
 - Grant `MANAGER_ROLE`, `PAUSER_ROLE`, and `RESCUER_ROLE` to operational accounts via owner/grantor as appropriate.
+- Buyer must approve this contract to spend their tokens.
 
 ### Security Notes
 - All state changes are role-gated; issuance/redemption guarded by `whenNotPaused`.

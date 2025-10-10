@@ -185,10 +185,6 @@ contract AssetTransitDesk is
         _validateTreasuryChange(newLiquidityPool, oldLiquidityPool);
         _validateLiquidityPool(newLiquidityPool);
 
-        if (oldLiquidityPool != address(0)) {
-            IERC20($.token).approve(oldLiquidityPool, 0);
-        }
-
         $.liquidityPool = newLiquidityPool;
 
         emit LiquidityPoolChanged(newLiquidityPool, oldLiquidityPool);
