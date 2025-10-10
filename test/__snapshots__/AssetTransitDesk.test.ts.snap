@@ -185,6 +185,7 @@ Array [
   Object {
     "args": Array [
       "LP",
+      10000n,
     ],
     "balances": Object {
       "BRLC": Object {
@@ -204,11 +205,61 @@ Array [
         "args": Array [
           "assetTransitDesk",
           "LP",
-          115792089237316195423570985008687907853269984665640564039457584007913129639935n,
+          10000n,
         ],
         "contract": "BRLC",
         "name": "Approval",
       },
+    ],
+    "methodFragment": FunctionFragment {
+      "constant": false,
+      "gas": null,
+      "inputs": Array [
+        ParamType {
+          "arrayChildren": null,
+          "arrayLength": null,
+          "baseType": "address",
+          "components": null,
+          "indexed": undefined,
+          "name": "spender",
+          "type": "address",
+        },
+        ParamType {
+          "arrayChildren": null,
+          "arrayLength": null,
+          "baseType": "uint256",
+          "components": null,
+          "indexed": undefined,
+          "name": "amount",
+          "type": "uint256",
+        },
+      ],
+      "name": "approve",
+      "outputs": Array [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function",
+    },
+    "type": "methodCall",
+  },
+  Object {
+    "args": Array [
+      "LP",
+    ],
+    "balances": Object {
+      "BRLC": Object {
+        "BRLC": 0n,
+        "LP": 0n,
+        "account": 0n,
+        "assetTransitDesk": 0n,
+        "deployer": 0n,
+        "manager": 0n,
+        "surplusTreasury": 0n,
+      },
+    },
+    "caller": "deployer",
+    "contract": "assetTransitDesk",
+    "events": Array [
       Object {
         "args": Array [
           "LP",

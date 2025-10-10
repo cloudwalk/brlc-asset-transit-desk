@@ -41,11 +41,11 @@ abstract contract AssetTransitDeskStorageLayout {
 
         // Slot 2
         address surplusTreasury;
-        // uint96 __reserved1; // Reserved until the end of the storage slot
+        // uint96 __reserved2; // Reserved until the end of the storage slot
 
         // Slot 3
         address liquidityPool;
-        // uint96 __reserved2; // Reserved until the end of the storage slot
+        // uint96 __reserved3; // Reserved until the end of the storage slot
     }
 
     // ------------------ Internal functions ---------------------- //

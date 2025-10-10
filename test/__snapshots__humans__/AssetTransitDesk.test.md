@@ -115,8 +115,9 @@ sequenceDiagram
 | 1 | deployer | LP | grantRole | [0xa4980720..5693c21775, assetTransitDesk] |
 | 2 | deployer | LP | setWorkingTreasuries | [[assetTransitDesk]] |
 | 3 | surplusTreasury | BRLC | approve | [assetTransitDesk, 10000] |
-| 4 | deployer | assetTransitDesk | setLiquidityPool | [LP] |
-| 5 | deployer | assetTransitDesk | setSurplusTreasury | [surplusTreasury] |
+| 4 | deployer | assetTransitDesk | approve | [LP, 10000] |
+| 5 | deployer | assetTransitDesk | setLiquidityPool | [LP] |
+| 6 | deployer | assetTransitDesk | setSurplusTreasury | [surplusTreasury] |
 
 ```mermaid
 sequenceDiagram
@@ -137,8 +138,11 @@ sequenceDiagram
     Note over BRLC: BRLC.Approval
   end
   rect rgb(230,255,230)
-    deployer->>assetTransitDesk: deployer calls assetTransitDesk.setLiquidityPool
+    deployer->>assetTransitDesk: deployer calls assetTransitDesk.approve
     Note over BRLC: BRLC.Approval
+  end
+  rect rgb(230,255,230)
+    deployer->>assetTransitDesk: deployer calls assetTransitDesk.setLiquidityPool
     Note over assetTransitDesk: assetTransitDesk.LiquidityPoolChanged
   end
   rect rgb(230,255,230)
@@ -241,20 +245,20 @@ _No events_
 
 </details>
 <details>
-<summary>Step 3: assetTransitDesk.setLiquidityPool</summary>
+<summary>Step 3: assetTransitDesk.approve</summary>
 
 - **type**: methodCall
 - **caller**: deployer
 - **args**: `{
-  "newLiquidityPool": "LP"
+  "spender": "LP",
+  "amount": "10000"
 }`
 
 **Events**
 
 | # | Contract | Event | Args |
 | - | -------- | ----- | ---- |
-| 1 | BRLC | Approval | `[assetTransitDesk, LP, 1157920892..3129639935]` |
-| 2 | assetTransitDesk | LiquidityPoolChanged | `[LP, ZERO_ADDR]` |
+| 1 | BRLC | Approval | `[assetTransitDesk, LP, 10000]` |
 
 **Balances**
 
@@ -273,7 +277,38 @@ _No events_
 
 </details>
 <details>
-<summary>Step 4: assetTransitDesk.setSurplusTreasury</summary>
+<summary>Step 4: assetTransitDesk.setLiquidityPool</summary>
+
+- **type**: methodCall
+- **caller**: deployer
+- **args**: `{
+  "newLiquidityPool": "LP"
+}`
+
+**Events**
+
+| # | Contract | Event | Args |
+| - | -------- | ----- | ---- |
+| 1 | assetTransitDesk | LiquidityPoolChanged | `[LP, ZERO_ADDR]` |
+
+**Balances**
+
+**Token:** BRLC
+| Holder | Balance |
+| ------ | ------- |
+| assetTransitDesk | 0 |
+| LP | 0 |
+| BRLC | 0 |
+| deployer | 0 |
+| manager | 0 |
+| account | 0 |
+| surplusTreasury | 0 |
+
+
+
+</details>
+<details>
+<summary>Step 5: assetTransitDesk.setSurplusTreasury</summary>
 
 - **type**: methodCall
 - **caller**: deployer

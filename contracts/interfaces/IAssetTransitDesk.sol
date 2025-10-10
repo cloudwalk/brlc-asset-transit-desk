@@ -117,6 +117,16 @@ interface IAssetTransitDeskConfiguration {
      * @return The address of the underlying token.
      */
     function underlyingToken() external view returns (address);
+
+    /**
+     * @dev Approves the provided spender to spend the provided amount of the underlying token.
+     *
+     * See {IERC20-approve}.
+     *
+     * @param spender The address of the spender.
+     * @param amount The amount of the underlying token to approve.
+     */
+    function approve(address spender, uint256 amount) external;
 }
 
 /**
@@ -136,7 +146,7 @@ interface IAssetTransitDeskErrors {
     /// @dev Thrown if the provided new implementation address is not an AssetTransitDesk contract.
     error AssetTransitDesk_ImplementationAddressInvalid();
 
-    /// @dev Thrown if the provided liquidity pool address is not an LiquidityPool contract.
+    /// @dev Thrown if the provided liquidity pool address is not a LiquidityPool contract.
     error AssetTransitDesk_LiquidityPoolAddressInvalid();
 
     /// @dev Thrown if the current contract is not an admin of the provided liquidity pool.
