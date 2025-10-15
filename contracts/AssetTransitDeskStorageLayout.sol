@@ -43,11 +43,11 @@ abstract contract AssetTransitDeskStorageLayout is IAssetTransitDeskTypes {
 
         // Slot 2
         address surplusTreasury;
-        // uint96 __reserved1; // Reserved until the end of the storage slot
+        // uint96 __reserved2; // Reserved until the end of the storage slot
 
         // Slot 3
         address liquidityPool;
-        // uint96 __reserved2; // Reserved until the end of the storage slot
+        // uint96 __reserved3; // Reserved until the end of the storage slot
 
         // Slot 4
         mapping(bytes32 opId => IssueOperation operation) issueOperations;
