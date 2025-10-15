@@ -17,7 +17,6 @@ interface IAssetTransitDeskTypes {
      * - Successful = 1 --- The operation has been executed successfully.
      */
     enum OperationStatus {
-        // 8 bits
         Nonexistent,
         Successful
     }
