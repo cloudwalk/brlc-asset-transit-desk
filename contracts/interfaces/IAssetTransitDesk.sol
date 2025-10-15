@@ -62,6 +62,38 @@ interface IAssetTransitDeskTypes {
         uint64 netYieldAmount;
         // uint96 __reserved; // Reserved until the end of the storage slot
     }
+
+    /**
+     * @dev The view of an issue operation.
+     *
+     * Fields:
+     *
+     * - status -------------- The status of the operation according to the {OperationStatus} enum.
+     * - buyer --------------- The address of the buyer.
+     * - principalAmount ----- The amount of the principal.
+     */
+    struct IssueOperationView {
+        OperationStatus status;
+        address buyer;
+        uint256 principalAmount;
+    }
+
+    /**
+     * @dev The view of a redeem operation.
+     *
+     * Fields:
+     *
+     * - status -------------- The status of the operation according to the {OperationStatus} enum.
+     * - buyer --------------- The address of the buyer.
+     * - principalAmount ----- The amount of the principal.
+     * - netYieldAmount ------ The amount of the net yield.
+     */
+    struct RedeemOperationView {
+        OperationStatus status;
+        address buyer;
+        uint256 principalAmount;
+        uint256 netYieldAmount;
+    }
 }
 
 /**
@@ -125,6 +157,24 @@ interface IAssetTransitDeskPrimary is IAssetTransitDeskTypes {
         uint64 principalAmount,
         uint64 netYieldAmount
     ) external;
+
+    // ------------------ View functions -------------------------- //
+
+    /**
+     * @dev Returns the data of an issue operation.
+     *
+     * @param assetDepositId The ID of the asset deposit operation.
+     * @return The data of the issue operation.
+     */
+    function getIssueOperation(bytes32 assetDepositId) external view returns (IssueOperationView memory);
+
+    /**
+     * @dev Returns the data of a redeem operation.
+     *
+     * @param assetRedemptionId The ID of the asset redemption operation.
+     * @return The data of the redeem operation.
+     */
+    function getRedeemOperation(bytes32 assetRedemptionId) external view returns (RedeemOperationView memory);
 }
 
 /**

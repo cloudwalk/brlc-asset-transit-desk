@@ -229,6 +229,31 @@ contract AssetTransitDesk is
 
     // ------------------ View functions -------------------------- //
 
+    /// @inheritdoc IAssetTransitDeskPrimary
+    function getIssueOperation(bytes32 assetDepositId) external view returns (IssueOperationView memory) {
+        IssueOperation storage operation = _getAssetTransitDeskStorage().issueOperations[assetDepositId];
+
+        return
+            IssueOperationView({
+                status: operation.status,
+                buyer: operation.buyer,
+                principalAmount: operation.principalAmount
+            });
+    }
+
+    /// @inheritdoc IAssetTransitDeskPrimary
+    function getRedeemOperation(bytes32 assetRedemptionId) external view returns (RedeemOperationView memory) {
+        RedeemOperation storage operation = _getAssetTransitDeskStorage().redeemOperations[assetRedemptionId];
+
+        return
+            RedeemOperationView({
+                status: operation.status,
+                buyer: operation.buyer,
+                principalAmount: operation.principalAmount,
+                netYieldAmount: operation.netYieldAmount
+            });
+    }
+
     /// @inheritdoc IAssetTransitDeskConfiguration
     function getSurplusTreasury() external view returns (address) {
         return _getAssetTransitDeskStorage().surplusTreasury;
