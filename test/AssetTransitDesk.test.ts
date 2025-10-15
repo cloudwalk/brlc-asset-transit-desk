@@ -3,7 +3,7 @@ import { ethers, upgrades } from "hardhat";
 import { expect } from "chai";
 import { TransactionResponse } from "ethers";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
-import { setUpFixture } from "../test-utils/common";
+import { setUpFixture, checkEquality, resultToObject } from "../test-utils/common";
 import * as Contracts from "../typechain-types";
 import { checkTokenPath } from "../test-utils/eth";
 
@@ -35,6 +35,11 @@ const EXPECTED_VERSION = {
   minor: 0,
   patch: 0,
 };
+
+enum OperationStatus {
+  Nonexistent = 0,
+  Successful = 1,
+}
 
 async function deployContracts() {
   const name = "ERC20 Test";
@@ -237,6 +242,16 @@ describe("Contract 'AssetTransitDesk'", () => {
           principalAmount,
         );
       });
+
+      it("should store the issue operation correctly", async () => {
+        checkEquality(
+          resultToObject(await assetTransitDesk.getIssueOperation(assetDepositId)),
+          {
+            status: OperationStatus.Successful,
+            buyer: account.address,
+            principalAmount: principalAmount,
+          });
+      });
     });
 
     describe("Should revert if", () => {
@@ -269,6 +284,16 @@ describe("Contract 'AssetTransitDesk'", () => {
           assetTransitDesk.connect(manager).issueAsset(assetDepositId, account.address, 10n),
         )
           .to.be.revertedWithCustomError(assetTransitDesk, "EnforcedPause");
+      });
+
+      it("the operation already exists", async () => {
+        const someAmount = 10n;
+        await assetTransitDesk.connect(manager).issueAsset(assetDepositId, account.address, someAmount),
+
+        await expect(
+          assetTransitDesk.connect(manager).issueAsset(assetDepositId, account.address, someAmount),
+        )
+          .to.be.revertedWithCustomError(assetTransitDesk, "AssetTransitDesk_OperationAlreadyExists");
       });
     });
   });
@@ -318,6 +343,17 @@ describe("Contract 'AssetTransitDesk'", () => {
           principalAmount + netYieldAmount,
         );
       });
+
+      it("should store the issue operation correctly", async () => {
+        checkEquality(
+          resultToObject(await assetTransitDesk.getRedeemOperation(assetRedemptionId)),
+          {
+            status: OperationStatus.Successful,
+            buyer: account.address,
+            principalAmount: principalAmount,
+            netYieldAmount: netYieldAmount,
+          });
+      });
     });
 
     describe("Should revert if", () => {
@@ -357,6 +393,27 @@ describe("Contract 'AssetTransitDesk'", () => {
           assetTransitDesk.connect(manager).redeemAsset(assetRedemptionId, account.address, 10n, 10n),
         )
           .to.be.revertedWithCustomError(assetTransitDesk, "EnforcedPause");
+      });
+
+      it("the operation already exists", async () => {
+        const someAmount = 10n;
+        const someNetYieldAmount = 10n;
+        await assetTransitDesk.connect(manager).redeemAsset(
+          assetRedemptionId,
+          account.address,
+          someAmount,
+          someNetYieldAmount,
+        ),
+
+        await expect(
+          assetTransitDesk.connect(manager).redeemAsset(
+            assetRedemptionId,
+            account.address,
+            someAmount,
+            someNetYieldAmount,
+          ),
+        )
+          .to.be.revertedWithCustomError(assetTransitDesk, "AssetTransitDesk_OperationAlreadyExists");
       });
     });
   });
@@ -548,6 +605,7 @@ describe("Contract 'AssetTransitDesk'", () => {
     it("Simple usage scenario", async () => {
       const issueId = ethers.encodeBytes32String("issue-id");
       const redeemId = ethers.encodeBytes32String("redeem-id");
+
       await expect.startChainshot({
         name: "Usage example",
         accounts: { deployer, manager, account, surplusTreasury, pauser, stranger },
@@ -574,6 +632,7 @@ describe("Contract 'AssetTransitDesk'", () => {
         100n,
         10n,
       );
+
       await expect.stopChainshot();
     });
 
