@@ -371,7 +371,7 @@ exports[`Contract 'AssetTransitDesk' Snapshot scenarios Simple usage scenario 1`
 Array [
   Object {
     "args": Array [
-      "0x69737375652d6964000000000000000000000000000000000000000000000000",
+      "0x6465706f7369742d696400000000000000000000000000000000000000000000",
       "account",
       100n,
     ],
@@ -431,12 +431,12 @@ Array [
       },
       Object {
         "args": Array [
-          "0x69737375652d6964000000000000000000000000000000000000000000000000",
+          "0x6465706f7369742d696400000000000000000000000000000000000000000000",
           "account",
           100n,
         ],
         "contract": "assetTransitDesk",
-        "name": "AssetIssued",
+        "name": "AssetDeposited",
       },
     ],
     "methodFragment": FunctionFragment {
@@ -449,7 +449,7 @@ Array [
           "baseType": "bytes32",
           "components": null,
           "indexed": undefined,
-          "name": "assetIssuanceId",
+          "name": "assetDepositId",
           "type": "bytes32",
         },
         ParamType {
@@ -471,7 +471,7 @@ Array [
           "type": "uint64",
         },
       ],
-      "name": "issueAsset",
+      "name": "depositAsset",
       "outputs": Array [],
       "payable": false,
       "stateMutability": "nonpayable",

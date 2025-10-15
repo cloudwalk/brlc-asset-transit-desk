@@ -11,6 +11,10 @@
 
 This repository contains Asset Transit Desk smart contracts.
 
+Primary flows:
+- depositAsset(assetDepositId, buyer, principalAmount)
+- redeemAsset(assetRedemptionId, buyer, principalAmount, netYieldAmount)
+
 
 ## Project Setup
 

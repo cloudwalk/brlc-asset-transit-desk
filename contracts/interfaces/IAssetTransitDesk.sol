@@ -61,7 +61,7 @@ interface IAssetTransitDeskTypes {
     }
 
     /**
-     * @dev The view of an issue operation.
+     * @dev The view of a deposit operation.
      *
      * Fields:
      *
@@ -69,7 +69,7 @@ interface IAssetTransitDeskTypes {
      * - buyer --------------- The address of the buyer.
      * - principalAmount ----- The amount of the principal.
      */
-    struct IssuanceOperationView {
+    struct DepositOperationView {
         OperationStatus status;
         address buyer;
         uint256 principalAmount;
@@ -102,13 +102,13 @@ interface IAssetTransitDeskPrimary is IAssetTransitDeskTypes {
     // ------------------ Events ---------------------------------- //
 
     /**
-     * @dev Emitted when an asset is issued.
+     * @dev Emitted when an asset is deposited.
      *
-     * @param assetIssuanceId The ID of the asset issuance operation.
+     * @param assetDepositId The ID of the asset deposit operation.
      * @param buyer The address of the buyer.
      * @param principalAmount The amount of the principal.
      */
-    event AssetIssued(bytes32 indexed assetIssuanceId, address indexed buyer, uint64 principalAmount);
+    event AssetDeposited(bytes32 indexed assetDepositId, address indexed buyer, uint64 principalAmount);
 
     /**
      * @dev Emitted when an asset is redeemed.
@@ -128,15 +128,15 @@ interface IAssetTransitDeskPrimary is IAssetTransitDeskTypes {
     // ------------------ Transactional functions ----------------- //
 
     /**
-     * @dev Issues an asset.
+     * @dev Deposits an asset.
      *
-     * Emits an {AssetIssued} event.
+     * Emits an {AssetDeposited} event.
      *
-     * @param assetIssuanceId The ID of the asset issuance operation.
+     * @param assetDepositId The ID of the asset deposit operation.
      * @param buyer The address of the buyer.
      * @param principalAmount The amount of the principal.
      */
-    function issueAsset(bytes32 assetIssuanceId, address buyer, uint64 principalAmount) external;
+    function depositAsset(bytes32 assetDepositId, address buyer, uint64 principalAmount) external;
 
     /**
      * @dev Redeems an asset.
@@ -158,12 +158,12 @@ interface IAssetTransitDeskPrimary is IAssetTransitDeskTypes {
     // ------------------ View functions -------------------------- //
 
     /**
-     * @dev Returns the data of an issue operation.
+     * @dev Returns the data of a deposit operation.
      *
-     * @param assetIssuanceId The ID of the asset issuance operation.
-     * @return The data of the issue operation.
+     * @param assetDepositId The ID of the asset deposit operation.
+     * @return The data of the deposit operation.
      */
-    function getIssuanceOperation(bytes32 assetIssuanceId) external view returns (IssuanceOperationView memory);
+    function getDepositOperation(bytes32 assetDepositId) external view returns (DepositOperationView memory);
 
     /**
      * @dev Returns the data of a redemption operation.

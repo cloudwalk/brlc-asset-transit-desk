@@ -29,7 +29,7 @@ abstract contract AssetTransitDeskStorageLayout is IAssetTransitDeskTypes {
      * - token ---------------- The address of the underlying token.
      * - surplusTreasury ------ The address of the surplus treasury.
      * - liquidityPool -------- The address of the liquidity pool.
-     * - issuanceOperations --- Mapping of asset issuance IDs to issuance operations.
+     * - issuanceOperations --- Mapping of asset deposit IDs to issuance operations.
      * - redemptionOperations - Mapping of asset redemption IDs to redemption operations.
      *
      * Notes:
