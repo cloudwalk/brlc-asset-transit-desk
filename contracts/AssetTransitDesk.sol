@@ -88,6 +88,7 @@ contract AssetTransitDesk is
      *
      * @dev Requirements:
      * - Caller must have the {MANAGER_ROLE} role.
+     * - `assetDepositId` must not be zero.
      * - `buyer` must not be the zero address.
      * - `principalAmount` must be greater than zero.
      * - Contract must not be paused.
@@ -97,6 +98,10 @@ contract AssetTransitDesk is
         address buyer,
         uint64 principalAmount
     ) external whenNotPaused onlyRole(MANAGER_ROLE) {
+        if (assetDepositId == bytes32(0)) {
+            revert AssetTransitDesk_OperationIdZero();
+        }
+
         if (buyer == address(0)) {
             revert AssetTransitDesk_BuyerAddressZero();
         }
@@ -128,6 +133,7 @@ contract AssetTransitDesk is
      *
      * @dev Requirements:
      * - Caller must have the {MANAGER_ROLE} role.
+     * - `assetRedemptionId` must not be zero.
      * - `buyer` must not be the zero address.
      * - `principalAmount` must be greater than zero.
      * - `netYieldAmount` must be greater than zero.
@@ -139,6 +145,10 @@ contract AssetTransitDesk is
         uint64 principalAmount,
         uint64 netYieldAmount
     ) external whenNotPaused onlyRole(MANAGER_ROLE) {
+        if (assetRedemptionId == bytes32(0)) {
+            revert AssetTransitDesk_OperationIdZero();
+        }
+
         if (buyer == address(0)) {
             revert AssetTransitDesk_BuyerAddressZero();
         }

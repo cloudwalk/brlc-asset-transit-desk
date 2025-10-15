@@ -271,6 +271,13 @@ describe("Contract 'AssetTransitDesk'", () => {
           .to.be.revertedWithCustomError(assetTransitDesk, "AssetTransitDesk_PrincipalAmountZero");
       });
 
+      it("the asset deposit ID is zero", async () => {
+        await expect(
+          assetTransitDesk.connect(manager).issueAsset(ethers.ZeroHash, account.address, 10n),
+        )
+          .to.be.revertedWithCustomError(assetTransitDesk, "AssetTransitDesk_OperationIdZero");
+      });
+
       it("the buyer address is zero", async () => {
         await expect(
           assetTransitDesk.connect(manager).issueAsset(assetDepositId, ADDRESS_ZERO, 10n),
@@ -288,7 +295,7 @@ describe("Contract 'AssetTransitDesk'", () => {
 
       it("the operation already exists", async () => {
         const someAmount = 10n;
-        await assetTransitDesk.connect(manager).issueAsset(assetDepositId, account.address, someAmount),
+        await assetTransitDesk.connect(manager).issueAsset(assetDepositId, account.address, someAmount);
 
         await expect(
           assetTransitDesk.connect(manager).issueAsset(assetDepositId, account.address, someAmount),
@@ -380,6 +387,13 @@ describe("Contract 'AssetTransitDesk'", () => {
           .to.be.revertedWithCustomError(assetTransitDesk, "AssetTransitDesk_NetYieldAmountZero");
       });
 
+      it("the asset redemption ID is zero", async () => {
+        await expect(
+          assetTransitDesk.connect(manager).redeemAsset(ethers.ZeroHash, account.address, 10n, 10n),
+        )
+          .to.be.revertedWithCustomError(assetTransitDesk, "AssetTransitDesk_OperationIdZero");
+      });
+
       it("the buyer address is zero", async () => {
         await expect(
           assetTransitDesk.connect(manager).redeemAsset(assetRedemptionId, ADDRESS_ZERO, 10n, 10n),
@@ -403,7 +417,7 @@ describe("Contract 'AssetTransitDesk'", () => {
           account.address,
           someAmount,
           someNetYieldAmount,
-        ),
+        );
 
         await expect(
           assetTransitDesk.connect(manager).redeemAsset(

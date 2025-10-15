@@ -27,12 +27,15 @@ abstract contract AssetTransitDeskStorageLayout is IAssetTransitDeskTypes {
      * Fields:
      *
      * - token ---------------- The address of the underlying token.
-     * - surplusTreasury ------- The address of the surplus treasury.
-     * - liquidityPool ------------ The address of the liquidity pool.
+     * - surplusTreasury ------ The address of the surplus treasury.
+     * - liquidityPool -------- The address of the liquidity pool.
+     * - issueOperations ------ Mapping of asset deposit IDs to issue operations.
+     * - redeemOperations ----- Mapping of asset redemption IDs to redeem operations.
      *
      * Notes:
      * 1. The surplus treasury is used to withdraw the yield.
      * 2. The liquidity pool is used to withdraw and deposit the principal.
+     * 3. Operation mappings store the history and state of all issue and redeem operations.
      *
      * @custom:storage-location erc7201:cloudwalk.storage.AssetTransitDesk
      */

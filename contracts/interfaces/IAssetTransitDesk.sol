@@ -284,6 +284,9 @@ interface IAssetTransitDeskErrors {
     /// @dev Thrown if the provided operation identifier is already used.
     error AssetTransitDesk_OperationAlreadyExists();
 
+    /// @dev Thrown if the provided operation identifier is zero.
+    error AssetTransitDesk_OperationIdZero();
+
     /// @dev Thrown if the provided principal amount is zero.
     error AssetTransitDesk_PrincipalAmountZero();
 
