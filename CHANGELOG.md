@@ -2,16 +2,16 @@
 
 - Added operation identifiers to prevent duplicate execution and improve traceability.
   - Breaking change: function signatures now require IDs as the first argument.
-    - `issueAsset(bytes32 assetDepositId, address buyer, uint64 principalAmount)`
+    - `issueAsset(bytes32 assetIssuanceId, address buyer, uint64 principalAmount)`
     - `redeemAsset(bytes32 assetRedemptionId, address buyer, uint64 principalAmount, uint64 netYieldAmount)`
 
 - Updated events to include and index operation IDs and buyer for efficient querying:
-  - `AssetIssued(bytes32 indexed assetDepositId, address indexed buyer, uint64 principalAmount)`
+  - `AssetIssued(bytes32 indexed assetIssuanceId, address indexed buyer, uint64 principalAmount)`
   - `AssetRedeemed(bytes32 indexed assetRedemptionId, address indexed buyer, uint64 principalAmount, uint64 netYieldAmount)`
 
 - Added view functions to inspect recorded operations:
-  - `getIssueOperation(bytes32 assetDepositId) → (status, buyer, principalAmount)`
-  - `getRedeemOperation(bytes32 assetRedemptionId) → (status, buyer, principalAmount, netYieldAmount)`
+  - `getIssueOperation(bytes32 assetIssuanceId) → (status, buyer, principalAmount)`
+  - `getRedemptionOperation(bytes32 assetRedemptionId) → (status, buyer, principalAmount, netYieldAmount)`
 
 - Added custom error to enforce idempotency:
   - `AssetTransitDesk_OperationAlreadyExists()`

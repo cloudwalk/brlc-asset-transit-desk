@@ -88,17 +88,17 @@ contract AssetTransitDesk is
      *
      * @dev Requirements:
      * - Caller must have the {MANAGER_ROLE} role.
-     * - `assetDepositId` must not be zero.
+     * - `assetIssuanceId` must not be zero.
      * - `buyer` must not be the zero address.
      * - `principalAmount` must be greater than zero.
      * - Contract must not be paused.
      */
     function issueAsset(
-        bytes32 assetDepositId,
+        bytes32 assetIssuanceId,
         address buyer,
         uint64 principalAmount
     ) external whenNotPaused onlyRole(MANAGER_ROLE) {
-        if (assetDepositId == bytes32(0)) {
+        if (assetIssuanceId == bytes32(0)) {
             revert AssetTransitDesk_OperationIdZero();
         }
 
@@ -112,20 +112,20 @@ contract AssetTransitDesk is
 
         AssetTransitDeskStorage storage $ = _getAssetTransitDeskStorage();
 
-        if ($.issueOperations[assetDepositId].status != OperationStatus.Nonexistent) {
+        if ($.issuanceOperations[assetIssuanceId].status != OperationStatus.Nonexistent) {
             revert AssetTransitDesk_OperationAlreadyExists();
         }
 
         IERC20($.token).safeTransferFrom(buyer, address(this), principalAmount);
         ILiquidityPool($.liquidityPool).depositFromWorkingTreasury(address(this), principalAmount);
 
-        $.issueOperations[assetDepositId] = IssueOperation({
+        $.issuanceOperations[assetIssuanceId] = IssuanceOperation({
             status: OperationStatus.Successful,
             buyer: buyer,
             principalAmount: principalAmount
         });
 
-        emit AssetIssued(assetDepositId, buyer, principalAmount);
+        emit AssetIssued(assetIssuanceId, buyer, principalAmount);
     }
 
     /**
@@ -163,7 +163,7 @@ contract AssetTransitDesk is
 
         AssetTransitDeskStorage storage $ = _getAssetTransitDeskStorage();
 
-        if ($.redeemOperations[assetRedemptionId].status != OperationStatus.Nonexistent) {
+        if ($.redemptionOperations[assetRedemptionId].status != OperationStatus.Nonexistent) {
             revert AssetTransitDesk_OperationAlreadyExists();
         }
 
@@ -171,7 +171,7 @@ contract AssetTransitDesk is
         IERC20($.token).safeTransferFrom($.surplusTreasury, address(this), netYieldAmount);
         IERC20($.token).safeTransfer(buyer, principalAmount + netYieldAmount);
 
-        $.redeemOperations[assetRedemptionId] = RedeemOperation({
+        $.redemptionOperations[assetRedemptionId] = RedemptionOperation({
             status: OperationStatus.Successful,
             buyer: buyer,
             principalAmount: principalAmount,
@@ -239,11 +239,11 @@ contract AssetTransitDesk is
     // ------------------ View functions -------------------------- //
 
     /// @inheritdoc IAssetTransitDeskPrimary
-    function getIssueOperation(bytes32 assetDepositId) external view returns (IssueOperationView memory) {
-        IssueOperation storage operation = _getAssetTransitDeskStorage().issueOperations[assetDepositId];
+    function getIssuanceOperation(bytes32 assetIssuanceId) external view returns (IssuanceOperationView memory) {
+        IssuanceOperation storage operation = _getAssetTransitDeskStorage().issuanceOperations[assetIssuanceId];
 
         return
-            IssueOperationView({
+            IssuanceOperationView({
                 status: operation.status,
                 buyer: operation.buyer,
                 principalAmount: operation.principalAmount
@@ -251,11 +251,11 @@ contract AssetTransitDesk is
     }
 
     /// @inheritdoc IAssetTransitDeskPrimary
-    function getRedeemOperation(bytes32 assetRedemptionId) external view returns (RedeemOperationView memory) {
-        RedeemOperation storage operation = _getAssetTransitDeskStorage().redeemOperations[assetRedemptionId];
+    function getRedemptionOperation(bytes32 assetRedemptionId) external view returns (RedemptionOperationView memory) {
+        RedemptionOperation storage operation = _getAssetTransitDeskStorage().redemptionOperations[assetRedemptionId];
 
         return
-            RedeemOperationView({
+            RedemptionOperationView({
                 status: operation.status,
                 buyer: operation.buyer,
                 principalAmount: operation.principalAmount,

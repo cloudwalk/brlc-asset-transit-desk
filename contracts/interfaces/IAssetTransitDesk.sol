@@ -30,7 +30,7 @@ interface IAssetTransitDeskTypes {
      * - buyer --------------- The address of the buyer.
      * - principalAmount ----- The amount of the principal.
      */
-    struct IssueOperation {
+    struct IssuanceOperation {
         // Slot 1
         OperationStatus status;
         address buyer;
@@ -39,7 +39,7 @@ interface IAssetTransitDeskTypes {
     }
 
     /**
-     * @dev The data of a redeem operation.
+     * @dev The data of a redemption operation.
      *
      * Fields:
      *
@@ -48,7 +48,7 @@ interface IAssetTransitDeskTypes {
      * - principalAmount ----- The amount of the principal.
      * - netYieldAmount ------ The amount of the net yield.
      */
-    struct RedeemOperation {
+    struct RedemptionOperation {
         // Slot 1
         OperationStatus status;
         address buyer;
@@ -69,14 +69,14 @@ interface IAssetTransitDeskTypes {
      * - buyer --------------- The address of the buyer.
      * - principalAmount ----- The amount of the principal.
      */
-    struct IssueOperationView {
+    struct IssuanceOperationView {
         OperationStatus status;
         address buyer;
         uint256 principalAmount;
     }
 
     /**
-     * @dev The view of a redeem operation.
+     * @dev The view of a redemption operation.
      *
      * Fields:
      *
@@ -85,7 +85,7 @@ interface IAssetTransitDeskTypes {
      * - principalAmount ----- The amount of the principal.
      * - netYieldAmount ------ The amount of the net yield.
      */
-    struct RedeemOperationView {
+    struct RedemptionOperationView {
         OperationStatus status;
         address buyer;
         uint256 principalAmount;
@@ -104,11 +104,11 @@ interface IAssetTransitDeskPrimary is IAssetTransitDeskTypes {
     /**
      * @dev Emitted when an asset is issued.
      *
-     * @param assetDepositId The ID of the asset deposit operation.
+     * @param assetIssuanceId The ID of the asset issuance operation.
      * @param buyer The address of the buyer.
      * @param principalAmount The amount of the principal.
      */
-    event AssetIssued(bytes32 indexed assetDepositId, address indexed buyer, uint64 principalAmount);
+    event AssetIssued(bytes32 indexed assetIssuanceId, address indexed buyer, uint64 principalAmount);
 
     /**
      * @dev Emitted when an asset is redeemed.
@@ -132,11 +132,11 @@ interface IAssetTransitDeskPrimary is IAssetTransitDeskTypes {
      *
      * Emits an {AssetIssued} event.
      *
-     * @param assetDepositId The ID of the asset deposit operation.
+     * @param assetIssuanceId The ID of the asset issuance operation.
      * @param buyer The address of the buyer.
      * @param principalAmount The amount of the principal.
      */
-    function issueAsset(bytes32 assetDepositId, address buyer, uint64 principalAmount) external;
+    function issueAsset(bytes32 assetIssuanceId, address buyer, uint64 principalAmount) external;
 
     /**
      * @dev Redeems an asset.
@@ -160,18 +160,18 @@ interface IAssetTransitDeskPrimary is IAssetTransitDeskTypes {
     /**
      * @dev Returns the data of an issue operation.
      *
-     * @param assetDepositId The ID of the asset deposit operation.
+     * @param assetIssuanceId The ID of the asset issuance operation.
      * @return The data of the issue operation.
      */
-    function getIssueOperation(bytes32 assetDepositId) external view returns (IssueOperationView memory);
+    function getIssuanceOperation(bytes32 assetIssuanceId) external view returns (IssuanceOperationView memory);
 
     /**
-     * @dev Returns the data of a redeem operation.
+     * @dev Returns the data of a redemption operation.
      *
      * @param assetRedemptionId The ID of the asset redemption operation.
-     * @return The data of the redeem operation.
+     * @return The data of the redemption operation.
      */
-    function getRedeemOperation(bytes32 assetRedemptionId) external view returns (RedeemOperationView memory);
+    function getRedemptionOperation(bytes32 assetRedemptionId) external view returns (RedemptionOperationView memory);
 }
 
 /**

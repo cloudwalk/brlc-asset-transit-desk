@@ -211,18 +211,18 @@ describe("Contract 'AssetTransitDesk'", () => {
     describe("Should execute as expected when called properly and", () => {
       let tx: TransactionResponse;
       const principalAmount = 100n;
-      const assetDepositId = ethers.encodeBytes32String("assetDepositId");
+      const assetIssuanceId = ethers.encodeBytes32String("assetIssuanceId");
 
       beforeEach(async () => {
         tx = await assetTransitDesk.connect(manager).issueAsset(
-          assetDepositId,
+          assetIssuanceId,
           account.address, principalAmount,
         );
       });
 
       it("should emit the required event", async () => {
         await expect(tx).to.emit(assetTransitDesk, "AssetIssued").withArgs(
-          assetDepositId,
+          assetIssuanceId,
           account.address,
           principalAmount,
         );
@@ -245,7 +245,7 @@ describe("Contract 'AssetTransitDesk'", () => {
 
       it("should store the issue operation correctly", async () => {
         checkEquality(
-          resultToObject(await assetTransitDesk.getIssueOperation(assetDepositId)),
+          resultToObject(await assetTransitDesk.getIssuanceOperation(assetIssuanceId)),
           {
             status: OperationStatus.Successful,
             buyer: account.address,
@@ -255,10 +255,10 @@ describe("Contract 'AssetTransitDesk'", () => {
     });
 
     describe("Should revert if", () => {
-      const assetDepositId = ethers.encodeBytes32String("assetDepositId");
+      const assetIssuanceId = ethers.encodeBytes32String("assetIssuanceId");
       it("called by a non-manager", async () => {
         await expect(
-          assetTransitDesk.connect(stranger).issueAsset(assetDepositId, account.address, 10n),
+          assetTransitDesk.connect(stranger).issueAsset(assetIssuanceId, account.address, 10n),
         )
           .to.be.revertedWithCustomError(assetTransitDesk, "AccessControlUnauthorizedAccount")
           .withArgs(stranger.address, MANAGER_ROLE);
@@ -266,12 +266,12 @@ describe("Contract 'AssetTransitDesk'", () => {
 
       it("the principal amount is zero", async () => {
         await expect(
-          assetTransitDesk.connect(manager).issueAsset(assetDepositId, account.address, 0n),
+          assetTransitDesk.connect(manager).issueAsset(assetIssuanceId, account.address, 0n),
         )
           .to.be.revertedWithCustomError(assetTransitDesk, "AssetTransitDesk_PrincipalAmountZero");
       });
 
-      it("the asset deposit ID is zero", async () => {
+      it("the asset issuance ID is zero", async () => {
         await expect(
           assetTransitDesk.connect(manager).issueAsset(ethers.ZeroHash, account.address, 10n),
         )
@@ -280,7 +280,7 @@ describe("Contract 'AssetTransitDesk'", () => {
 
       it("the buyer address is zero", async () => {
         await expect(
-          assetTransitDesk.connect(manager).issueAsset(assetDepositId, ADDRESS_ZERO, 10n),
+          assetTransitDesk.connect(manager).issueAsset(assetIssuanceId, ADDRESS_ZERO, 10n),
         )
           .to.be.revertedWithCustomError(assetTransitDesk, "AssetTransitDesk_BuyerAddressZero");
       });
@@ -288,17 +288,17 @@ describe("Contract 'AssetTransitDesk'", () => {
       it("the contract is paused", async () => {
         await assetTransitDesk.connect(pauser).pause();
         await expect(
-          assetTransitDesk.connect(manager).issueAsset(assetDepositId, account.address, 10n),
+          assetTransitDesk.connect(manager).issueAsset(assetIssuanceId, account.address, 10n),
         )
           .to.be.revertedWithCustomError(assetTransitDesk, "EnforcedPause");
       });
 
       it("the operation already exists", async () => {
         const someAmount = 10n;
-        await assetTransitDesk.connect(manager).issueAsset(assetDepositId, account.address, someAmount);
+        await assetTransitDesk.connect(manager).issueAsset(assetIssuanceId, account.address, someAmount);
 
         await expect(
-          assetTransitDesk.connect(manager).issueAsset(assetDepositId, account.address, someAmount),
+          assetTransitDesk.connect(manager).issueAsset(assetIssuanceId, account.address, someAmount),
         )
           .to.be.revertedWithCustomError(assetTransitDesk, "AssetTransitDesk_OperationAlreadyExists");
       });
@@ -351,9 +351,9 @@ describe("Contract 'AssetTransitDesk'", () => {
         );
       });
 
-      it("should store the issue operation correctly", async () => {
+      it("should store the redemption operation correctly", async () => {
         checkEquality(
-          resultToObject(await assetTransitDesk.getRedeemOperation(assetRedemptionId)),
+          resultToObject(await assetTransitDesk.getRedemptionOperation(assetRedemptionId)),
           {
             status: OperationStatus.Successful,
             buyer: account.address,
@@ -618,7 +618,7 @@ describe("Contract 'AssetTransitDesk'", () => {
   describe("Snapshot scenarios", () => {
     it("Simple usage scenario", async () => {
       const issueId = ethers.encodeBytes32String("issue-id");
-      const redeemId = ethers.encodeBytes32String("redeem-id");
+      const redemptionId = ethers.encodeBytes32String("redemption-id");
 
       await expect.startChainshot({
         name: "Usage example",
@@ -626,11 +626,11 @@ describe("Contract 'AssetTransitDesk'", () => {
         contracts: { assetTransitDesk, LP: liquidityPool },
         tokens: { BRLC: tokenMock },
         customState: {
-          issueOperation() {
-            return assetTransitDesk.getIssueOperation(issueId);
+          issuanceOperation() {
+            return assetTransitDesk.getIssuanceOperation(issueId);
           },
-          redeemOperation() {
-            return assetTransitDesk.getRedeemOperation(redeemId);
+          redemptionOperation() {
+            return assetTransitDesk.getRedemptionOperation(redemptionId);
           },
         },
       });
@@ -641,7 +641,7 @@ describe("Contract 'AssetTransitDesk'", () => {
         100n,
       );
       await assetTransitDesk.connect(manager).redeemAsset(
-        redeemId,
+        redemptionId,
         account.address,
         100n,
         10n,

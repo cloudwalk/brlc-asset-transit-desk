@@ -37,7 +37,7 @@ sequenceDiagram
 - **type**: methodCall
 - **caller**: manager
 - **args**: `{
-  "assetDepositId": "0x69737375..0000000000",
+  "assetIssuanceId": "0x69737375..0000000000",
   "buyer": "account",
   "principalAmount": "100"
 }`
@@ -67,7 +67,7 @@ sequenceDiagram
 | stranger | 0 |
 
 
-**issueOperation**
+**issuanceOperation**
 ```
  [
   1n,
@@ -75,7 +75,7 @@ sequenceDiagram
   100n,
 ]
 ```
-**redeemOperation**
+**redemptionOperation**
 ```
  [
   0n,
@@ -124,7 +124,7 @@ sequenceDiagram
 | stranger | 0 |
 
 
-**issueOperation**
+**issuanceOperation**
 ```
  [
   1n,
@@ -132,7 +132,7 @@ sequenceDiagram
   100n,
 ]
 ```
-**redeemOperation**
+**redemptionOperation**
 ```
  [
   1n,

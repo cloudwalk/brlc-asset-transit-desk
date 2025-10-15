@@ -29,8 +29,8 @@ abstract contract AssetTransitDeskStorageLayout is IAssetTransitDeskTypes {
      * - token ---------------- The address of the underlying token.
      * - surplusTreasury ------ The address of the surplus treasury.
      * - liquidityPool -------- The address of the liquidity pool.
-     * - issueOperations ------ Mapping of asset deposit IDs to issue operations.
-     * - redeemOperations ----- Mapping of asset redemption IDs to redeem operations.
+     * - issuanceOperations --- Mapping of asset issuance IDs to issuance operations.
+     * - redemptionOperations - Mapping of asset redemption IDs to redemption operations.
      *
      * Notes:
      * 1. The surplus treasury is used to withdraw the yield.
@@ -53,11 +53,11 @@ abstract contract AssetTransitDeskStorageLayout is IAssetTransitDeskTypes {
         // uint96 __reserved3; // Reserved until the end of the storage slot
 
         // Slot 4
-        mapping(bytes32 opId => IssueOperation operation) issueOperations;
+        mapping(bytes32 opId => IssuanceOperation operation) issuanceOperations;
         // No reserve until the end of the storage slot
 
         // Slot 5
-        mapping(bytes32 opId => RedeemOperation operation) redeemOperations;
+        mapping(bytes32 opId => RedemptionOperation operation) redemptionOperations;
         // No reserve until the end of the storage slot
     }
 
