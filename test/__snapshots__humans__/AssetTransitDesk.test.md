@@ -67,6 +67,23 @@ sequenceDiagram
 | stranger | 0 |
 
 
+**issueOperation**
+```
+ [
+  1n,
+  "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+  100n,
+]
+```
+**redeemOperation**
+```
+ [
+  0n,
+  "0x0000000000000000000000000000000000000000",
+  0n,
+  0n,
+]
+```
 
 </details>
 <details>
@@ -107,6 +124,23 @@ sequenceDiagram
 | stranger | 0 |
 
 
+**issueOperation**
+```
+ [
+  1n,
+  "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+  100n,
+]
+```
+**redeemOperation**
+```
+ [
+  1n,
+  "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+  100n,
+  10n,
+]
+```
 
 </details>
 
@@ -183,6 +217,14 @@ sequenceDiagram
 | surplusTreasury | 0 |
 
 
+**liquidityPool**
+```
+"0x0000000000000000000000000000000000000000"
+```
+**surplusTreasury**
+```
+"0x0000000000000000000000000000000000000000"
+```
 
 </details>
 <details>
@@ -212,6 +254,14 @@ _No events_
 | surplusTreasury | 0 |
 
 
+**liquidityPool**
+```
+"0x0000000000000000000000000000000000000000"
+```
+**surplusTreasury**
+```
+"0x0000000000000000000000000000000000000000"
+```
 
 </details>
 <details>
@@ -244,6 +294,14 @@ _No events_
 | surplusTreasury | 0 |
 
 
+**liquidityPool**
+```
+"0x0000000000000000000000000000000000000000"
+```
+**surplusTreasury**
+```
+"0x0000000000000000000000000000000000000000"
+```
 
 </details>
 <details>
@@ -276,6 +334,14 @@ _No events_
 | surplusTreasury | 0 |
 
 
+**liquidityPool**
+```
+"0x0000000000000000000000000000000000000000"
+```
+**surplusTreasury**
+```
+"0x0000000000000000000000000000000000000000"
+```
 
 </details>
 <details>
@@ -307,6 +373,14 @@ _No events_
 | surplusTreasury | 0 |
 
 
+**liquidityPool**
+```
+"0x9A9f2CCfdE556A7E9Ff0848998Aa4a0CFD8863AE"
+```
+**surplusTreasury**
+```
+"0x0000000000000000000000000000000000000000"
+```
 
 </details>
 <details>
@@ -338,6 +412,14 @@ _No events_
 | surplusTreasury | 0 |
 
 
+**liquidityPool**
+```
+"0x9A9f2CCfdE556A7E9Ff0848998Aa4a0CFD8863AE"
+```
+**surplusTreasury**
+```
+"0x90F79bf6EB2c4f870365E785982E1f101E93b906"
+```
 
 </details>
 

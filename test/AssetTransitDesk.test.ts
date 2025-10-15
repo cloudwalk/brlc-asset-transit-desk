@@ -546,20 +546,30 @@ describe("Contract 'AssetTransitDesk'", () => {
 
   describe("Snapshot scenarios", () => {
     it("Simple usage scenario", async () => {
+      const issueId = ethers.encodeBytes32String("issue-id");
+      const redeemId = ethers.encodeBytes32String("redeem-id");
       await expect.startChainshot({
         name: "Usage example",
         accounts: { deployer, manager, account, surplusTreasury, pauser, stranger },
         contracts: { assetTransitDesk, LP: liquidityPool },
         tokens: { BRLC: tokenMock },
+        customState: {
+          issueOperation() {
+            return assetTransitDesk.getIssueOperation(issueId);
+          },
+          redeemOperation() {
+            return assetTransitDesk.getRedeemOperation(redeemId);
+          },
+        },
       });
 
       await assetTransitDesk.connect(manager).issueAsset(
-        ethers.encodeBytes32String("issue-id"),
+        issueId,
         account.address,
         100n,
       );
       await assetTransitDesk.connect(manager).redeemAsset(
-        ethers.encodeBytes32String("redeem-id"),
+        redeemId,
         account.address,
         100n,
         10n,
@@ -575,6 +585,14 @@ describe("Contract 'AssetTransitDesk'", () => {
         accounts: { deployer, manager, account, surplusTreasury },
         contracts: { assetTransitDesk: assetTransitDesk, LP: liquidityPool },
         tokens: { BRLC: tokenMock },
+        customState: {
+          liquidityPool() {
+            return assetTransitDesk.getLiquidityPool();
+          },
+          surplusTreasury() {
+            return assetTransitDesk.getSurplusTreasury();
+          },
+        },
       });
 
       await liquidityPool.grantRole(ADMIN_ROLE, assetTransitDesk);

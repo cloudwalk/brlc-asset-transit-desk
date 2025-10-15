@@ -20,6 +20,10 @@ Array [
     },
     "caller": "deployer",
     "contract": "LP",
+    "customState": Object {
+      "liquidityPool": "0x0000000000000000000000000000000000000000",
+      "surplusTreasury": "0x0000000000000000000000000000000000000000",
+    },
     "events": Array [
       Object {
         "args": Array [
@@ -81,6 +85,10 @@ Array [
     },
     "caller": "deployer",
     "contract": "LP",
+    "customState": Object {
+      "liquidityPool": "0x0000000000000000000000000000000000000000",
+      "surplusTreasury": "0x0000000000000000000000000000000000000000",
+    },
     "events": Array [],
     "methodFragment": FunctionFragment {
       "constant": false,
@@ -130,6 +138,10 @@ Array [
     },
     "caller": "surplusTreasury",
     "contract": "BRLC",
+    "customState": Object {
+      "liquidityPool": "0x0000000000000000000000000000000000000000",
+      "surplusTreasury": "0x0000000000000000000000000000000000000000",
+    },
     "events": Array [
       Object {
         "args": Array [
@@ -200,6 +212,10 @@ Array [
     },
     "caller": "deployer",
     "contract": "assetTransitDesk",
+    "customState": Object {
+      "liquidityPool": "0x0000000000000000000000000000000000000000",
+      "surplusTreasury": "0x0000000000000000000000000000000000000000",
+    },
     "events": Array [
       Object {
         "args": Array [
@@ -259,6 +275,10 @@ Array [
     },
     "caller": "deployer",
     "contract": "assetTransitDesk",
+    "customState": Object {
+      "liquidityPool": "0x9A9f2CCfdE556A7E9Ff0848998Aa4a0CFD8863AE",
+      "surplusTreasury": "0x0000000000000000000000000000000000000000",
+    },
     "events": Array [
       Object {
         "args": Array [
@@ -308,6 +328,10 @@ Array [
     },
     "caller": "deployer",
     "contract": "assetTransitDesk",
+    "customState": Object {
+      "liquidityPool": "0x9A9f2CCfdE556A7E9Ff0848998Aa4a0CFD8863AE",
+      "surplusTreasury": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+    },
     "events": Array [
       Object {
         "args": Array [
@@ -366,6 +390,19 @@ Array [
     },
     "caller": "manager",
     "contract": "assetTransitDesk",
+    "customState": Object {
+      "issueOperation":  [
+        1n,
+        "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+        100n,
+      ],
+      "redeemOperation":  [
+        0n,
+        "0x0000000000000000000000000000000000000000",
+        0n,
+        0n,
+      ],
+    },
     "events": Array [
       Object {
         "args": Array [
@@ -464,6 +501,19 @@ Array [
     },
     "caller": "manager",
     "contract": "assetTransitDesk",
+    "customState": Object {
+      "issueOperation":  [
+        1n,
+        "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+        100n,
+      ],
+      "redeemOperation":  [
+        1n,
+        "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+        100n,
+        10n,
+      ],
+    },
     "events": Array [
       Object {
         "args": Array [
