@@ -347,6 +347,7 @@ exports[`Contract 'AssetTransitDesk' Snapshot scenarios Simple usage scenario 1`
 Array [
   Object {
     "args": Array [
+      "0x69737375652d6964000000000000000000000000000000000000000000000000",
       "account",
       100n,
     ],
@@ -393,6 +394,7 @@ Array [
       },
       Object {
         "args": Array [
+          "0x69737375652d6964000000000000000000000000000000000000000000000000",
           "account",
           100n,
         ],
@@ -404,6 +406,15 @@ Array [
       "constant": false,
       "gas": null,
       "inputs": Array [
+        ParamType {
+          "arrayChildren": null,
+          "arrayLength": null,
+          "baseType": "bytes32",
+          "components": null,
+          "indexed": undefined,
+          "name": "assetDepositId",
+          "type": "bytes32",
+        },
         ParamType {
           "arrayChildren": null,
           "arrayLength": null,
@@ -433,6 +444,7 @@ Array [
   },
   Object {
     "args": Array [
+      "0x72656465656d2d69640000000000000000000000000000000000000000000000",
       "account",
       100n,
       10n,
@@ -490,6 +502,7 @@ Array [
       },
       Object {
         "args": Array [
+          "0x72656465656d2d69640000000000000000000000000000000000000000000000",
           "account",
           100n,
           10n,
@@ -502,6 +515,15 @@ Array [
       "constant": false,
       "gas": null,
       "inputs": Array [
+        ParamType {
+          "arrayChildren": null,
+          "arrayLength": null,
+          "baseType": "bytes32",
+          "components": null,
+          "indexed": undefined,
+          "name": "assetRedemptionId",
+          "type": "bytes32",
+        },
         ParamType {
           "arrayChildren": null,
           "arrayLength": null,

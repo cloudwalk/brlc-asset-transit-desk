@@ -206,13 +206,21 @@ describe("Contract 'AssetTransitDesk'", () => {
     describe("Should execute as expected when called properly and", () => {
       let tx: TransactionResponse;
       const principalAmount = 100n;
+      const assetDepositId = ethers.encodeBytes32String("assetDepositId");
 
       beforeEach(async () => {
-        tx = await assetTransitDesk.connect(manager).issueAsset(account.address, principalAmount);
+        tx = await assetTransitDesk.connect(manager).issueAsset(
+          assetDepositId,
+          account.address, principalAmount,
+        );
       });
 
       it("should emit the required event", async () => {
-        await expect(tx).to.emit(assetTransitDesk, "AssetIssued").withArgs(account.address, principalAmount);
+        await expect(tx).to.emit(assetTransitDesk, "AssetIssued").withArgs(
+          assetDepositId,
+          account.address,
+          principalAmount,
+        );
       });
 
       it("should update token balances correctly", async () => {
@@ -232,9 +240,10 @@ describe("Contract 'AssetTransitDesk'", () => {
     });
 
     describe("Should revert if", () => {
+      const assetDepositId = ethers.encodeBytes32String("assetDepositId");
       it("called by a non-manager", async () => {
         await expect(
-          assetTransitDesk.connect(stranger).issueAsset(account.address, 10n),
+          assetTransitDesk.connect(stranger).issueAsset(assetDepositId, account.address, 10n),
         )
           .to.be.revertedWithCustomError(assetTransitDesk, "AccessControlUnauthorizedAccount")
           .withArgs(stranger.address, MANAGER_ROLE);
@@ -242,14 +251,14 @@ describe("Contract 'AssetTransitDesk'", () => {
 
       it("the principal amount is zero", async () => {
         await expect(
-          assetTransitDesk.connect(manager).issueAsset(account.address, 0n),
+          assetTransitDesk.connect(manager).issueAsset(assetDepositId, account.address, 0n),
         )
           .to.be.revertedWithCustomError(assetTransitDesk, "AssetTransitDesk_PrincipalAmountZero");
       });
 
       it("the buyer address is zero", async () => {
         await expect(
-          assetTransitDesk.connect(manager).issueAsset(ADDRESS_ZERO, 10n),
+          assetTransitDesk.connect(manager).issueAsset(assetDepositId, ADDRESS_ZERO, 10n),
         )
           .to.be.revertedWithCustomError(assetTransitDesk, "AssetTransitDesk_BuyerAddressZero");
       });
@@ -257,7 +266,7 @@ describe("Contract 'AssetTransitDesk'", () => {
       it("the contract is paused", async () => {
         await assetTransitDesk.connect(pauser).pause();
         await expect(
-          assetTransitDesk.connect(manager).issueAsset(account.address, 10n),
+          assetTransitDesk.connect(manager).issueAsset(assetDepositId, account.address, 10n),
         )
           .to.be.revertedWithCustomError(assetTransitDesk, "EnforcedPause");
       });
@@ -269,14 +278,20 @@ describe("Contract 'AssetTransitDesk'", () => {
       let tx: TransactionResponse;
       const principalAmount = 100n;
       const netYieldAmount = 10n;
+      const assetRedemptionId = ethers.encodeBytes32String("assetRedemptionId");
 
       beforeEach(async () => {
-        tx = await assetTransitDesk.connect(manager).redeemAsset(account.address, principalAmount, netYieldAmount);
+        tx = await assetTransitDesk.connect(manager).redeemAsset(
+          assetRedemptionId,
+          account.address,
+          principalAmount,
+          netYieldAmount,
+        );
       });
 
       it("should emit the required event", async () => {
         await expect(tx).to.emit(assetTransitDesk, "AssetRedeemed")
-          .withArgs(account.address, principalAmount, netYieldAmount);
+          .withArgs(assetRedemptionId, account.address, principalAmount, netYieldAmount);
       });
 
       it("should update token balances correctly", async () => {
@@ -306,9 +321,10 @@ describe("Contract 'AssetTransitDesk'", () => {
     });
 
     describe("Should revert if", () => {
+      const assetRedemptionId = ethers.encodeBytes32String("assetRedemptionId");
       it("called by a non-manager", async () => {
         await expect(
-          assetTransitDesk.connect(stranger).redeemAsset(account.address, 10n, 10n),
+          assetTransitDesk.connect(stranger).redeemAsset(assetRedemptionId, account.address, 10n, 10n),
         )
           .to.be.revertedWithCustomError(assetTransitDesk, "AccessControlUnauthorizedAccount")
           .withArgs(stranger.address, MANAGER_ROLE);
@@ -316,21 +332,21 @@ describe("Contract 'AssetTransitDesk'", () => {
 
       it("the principal amount is zero", async () => {
         await expect(
-          assetTransitDesk.connect(manager).redeemAsset(account.address, 0n, 10n),
+          assetTransitDesk.connect(manager).redeemAsset(assetRedemptionId, account.address, 0n, 10n),
         )
           .to.be.revertedWithCustomError(assetTransitDesk, "AssetTransitDesk_PrincipalAmountZero");
       });
 
       it("the net yield amount is zero", async () => {
         await expect(
-          assetTransitDesk.connect(manager).redeemAsset(account.address, 10n, 0n),
+          assetTransitDesk.connect(manager).redeemAsset(assetRedemptionId, account.address, 10n, 0n),
         )
           .to.be.revertedWithCustomError(assetTransitDesk, "AssetTransitDesk_NetYieldAmountZero");
       });
 
       it("the buyer address is zero", async () => {
         await expect(
-          assetTransitDesk.connect(manager).redeemAsset(ADDRESS_ZERO, 10n, 10n),
+          assetTransitDesk.connect(manager).redeemAsset(assetRedemptionId, ADDRESS_ZERO, 10n, 10n),
         )
           .to.be.revertedWithCustomError(assetTransitDesk, "AssetTransitDesk_BuyerAddressZero");
       });
@@ -338,7 +354,7 @@ describe("Contract 'AssetTransitDesk'", () => {
       it("the contract is paused", async () => {
         await assetTransitDesk.connect(pauser).pause();
         await expect(
-          assetTransitDesk.connect(manager).redeemAsset(account.address, 10n, 10n),
+          assetTransitDesk.connect(manager).redeemAsset(assetRedemptionId, account.address, 10n, 10n),
         )
           .to.be.revertedWithCustomError(assetTransitDesk, "EnforcedPause");
       });
@@ -536,8 +552,18 @@ describe("Contract 'AssetTransitDesk'", () => {
         contracts: { assetTransitDesk, LP: liquidityPool },
         tokens: { BRLC: tokenMock },
       });
-      await assetTransitDesk.connect(manager).issueAsset(account.address, 100n);
-      await assetTransitDesk.connect(manager).redeemAsset(account.address, 100n, 10n);
+
+      await assetTransitDesk.connect(manager).issueAsset(
+        ethers.encodeBytes32String("issue-id"),
+        account.address,
+        100n,
+      );
+      await assetTransitDesk.connect(manager).redeemAsset(
+        ethers.encodeBytes32String("redeem-id"),
+        account.address,
+        100n,
+        10n,
+      );
       await expect.stopChainshot();
     });
 

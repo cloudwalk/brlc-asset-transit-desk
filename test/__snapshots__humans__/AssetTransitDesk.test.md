@@ -4,8 +4,8 @@
 
 | Idx | Caller | Contract | Name | Args |
 | --- | ------ | -------- | ---- | ---- |
-| 1 | manager | assetTransitDesk | issueAsset | [account, 100] |
-| 2 | manager | assetTransitDesk | redeemAsset | [account, 100, 10] |
+| 1 | manager | assetTransitDesk | issueAsset | [0x69737375..0000000000, account, 100] |
+| 2 | manager | assetTransitDesk | redeemAsset | [0x72656465..0000000000, account, 100, 10] |
 
 ```mermaid
 sequenceDiagram
@@ -37,6 +37,7 @@ sequenceDiagram
 - **type**: methodCall
 - **caller**: manager
 - **args**: `{
+  "assetDepositId": "0x69737375..0000000000",
   "buyer": "account",
   "principalAmount": "100"
 }`
@@ -48,7 +49,7 @@ sequenceDiagram
 | 1 | BRLC | Transfer | `[account, assetTransitDesk, 100]` |
 | 2 | BRLC | Transfer | `[assetTransitDesk, LP, 100]` |
 | 3 | LP | Deposit | `[100]` |
-| 4 | assetTransitDesk | AssetIssued | `[account, 100]` |
+| 4 | assetTransitDesk | AssetIssued | `[0x69737375..0000000000, account, 100]` |
 
 **Balances**
 
@@ -74,6 +75,7 @@ sequenceDiagram
 - **type**: methodCall
 - **caller**: manager
 - **args**: `{
+  "assetRedemptionId": "0x72656465..0000000000",
   "buyer": "account",
   "principalAmount": "100",
   "netYieldAmount": "10"
@@ -87,7 +89,7 @@ sequenceDiagram
 | 2 | LP | Withdrawal | `[100, 0]` |
 | 3 | BRLC | Transfer | `[surplusTreasury, assetTransitDesk, 10]` |
 | 4 | BRLC | Transfer | `[assetTransitDesk, account, 110]` |
-| 5 | assetTransitDesk | AssetRedeemed | `[account, 100, 10]` |
+| 5 | assetTransitDesk | AssetRedeemed | `[0x72656465..0000000000, account, 100, 10]` |
 
 **Balances**
 
