@@ -2,12 +2,74 @@
 
 pragma solidity ^0.8.24;
 
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
+/**
+ * @title IAssetTransitDeskTypes interface
+ * @author CloudWalk Inc. (See https://www.cloudwalk.io)
+ * @dev The types part of the AssetTransitDesk smart contract interface.
+ */
+interface IAssetTransitDeskTypes {
+    /**
+     * @dev Possible statuses of an operation.
+     *
+     * The values:
+     *
+     * - Nonexistent = 0 -- The operation does not exist (the default value).
+     * - Successful = 1 --- The operation has been executed successfully.
+     */
+    enum OperationStatus {
+        // 8 bits
+        Nonexistent,
+        Successful
+    }
+
+    /**
+     * @dev The data of an issue operation.
+     *
+     * Fields:
+     *
+     * - status -------------- The status of the operation according to the {OperationStatus} enum.
+     * - buyer --------------- The address of the buyer.
+     * - principalAmount ----- The amount of the principal.
+     */
+    struct IssueOperation {
+        // Slot 1
+        OperationStatus status;
+        address buyer;
+        uint64 principalAmount;
+        // uint24 __reserved; // Reserved until the end of the storage slot
+    }
+
+    /**
+     * @dev The data of a redeem operation.
+     *
+     * Fields:
+     *
+     * - status -------------- The status of the operation according to the {OperationStatus} enum.
+     * - buyer --------------- The address of the buyer.
+     * - principalAmount ----- The amount of the principal.
+     * - netYieldAmount ------ The amount of the net yield.
+     */
+    struct RedeemOperation {
+        // Slot 1
+        OperationStatus status;
+        address buyer;
+        uint64 principalAmount;
+        // uint24 __reserved; // Reserved until the end of the storage slot
+
+        // Slot 2
+        uint64 netYieldAmount;
+        // uint96 __reserved; // Reserved until the end of the storage slot
+    }
+}
+
 /**
  * @title IAssetTransitDeskPrimary interface
  * @author CloudWalk Inc. (See https://www.cloudwalk.io)
  * @dev The primary part of the AssetTransitDesk smart contract interface.
  */
-interface IAssetTransitDeskPrimary {
+interface IAssetTransitDeskPrimary is IAssetTransitDeskTypes {
     // ------------------ Events ---------------------------------- //
 
     /**
@@ -171,6 +233,9 @@ interface IAssetTransitDeskErrors {
 
     /// @dev Thrown if the provided net yield amount is zero.
     error AssetTransitDesk_NetYieldAmountZero();
+
+    /// @dev Thrown if the provided operation identifier is already used.
+    error AssetTransitDesk_OperationAlreadyExists();
 
     /// @dev Thrown if the provided principal amount is zero.
     error AssetTransitDesk_PrincipalAmountZero();

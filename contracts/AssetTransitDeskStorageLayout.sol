@@ -2,6 +2,8 @@
 
 pragma solidity ^0.8.24;
 
+import { IAssetTransitDeskTypes } from "./interfaces/IAssetTransitDesk.sol";
+
 /**
  * @title AssetTransitDeskStorageLayout contract
  * @author CloudWalk Inc. (See https://www.cloudwalk.io)
@@ -9,7 +11,7 @@ pragma solidity ^0.8.24;
  *
  * See details about the contract in the comments of the {IAssetTransitDesk} interface.
  */
-abstract contract AssetTransitDeskStorageLayout {
+abstract contract AssetTransitDeskStorageLayout is IAssetTransitDeskTypes {
     // ------------------ Storage layout -------------------------- //
 
     /*
@@ -46,6 +48,14 @@ abstract contract AssetTransitDeskStorageLayout {
         // Slot 3
         address liquidityPool;
         // uint96 __reserved2; // Reserved until the end of the storage slot
+
+        // Slot 4
+        mapping(bytes32 opId => IssueOperation operation) issueOperations;
+        // No reserve until the end of the storage slot
+
+        // Slot 5
+        mapping(bytes32 opId => RedeemOperation operation) redeemOperations;
+        // No reserve until the end of the storage slot
     }
 
     // ------------------ Internal functions ---------------------- //

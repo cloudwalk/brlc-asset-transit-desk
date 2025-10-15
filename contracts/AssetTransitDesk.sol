@@ -107,8 +107,18 @@ contract AssetTransitDesk is
 
         AssetTransitDeskStorage storage $ = _getAssetTransitDeskStorage();
 
+        if ($.issueOperations[assetDepositId].status != OperationStatus.Nonexistent) {
+            revert AssetTransitDesk_OperationAlreadyExists();
+        }
+
         IERC20($.token).safeTransferFrom(buyer, address(this), principalAmount);
         ILiquidityPool($.liquidityPool).depositFromWorkingTreasury(address(this), principalAmount);
+
+        $.issueOperations[assetDepositId] = IssueOperation({
+            status: OperationStatus.Successful,
+            buyer: buyer,
+            principalAmount: principalAmount
+        });
 
         emit AssetIssued(assetDepositId, buyer, principalAmount);
     }
@@ -143,9 +153,20 @@ contract AssetTransitDesk is
 
         AssetTransitDeskStorage storage $ = _getAssetTransitDeskStorage();
 
+        if ($.redeemOperations[assetRedemptionId].status != OperationStatus.Nonexistent) {
+            revert AssetTransitDesk_OperationAlreadyExists();
+        }
+
         ILiquidityPool($.liquidityPool).withdrawToWorkingTreasury(address(this), principalAmount);
         IERC20($.token).safeTransferFrom($.surplusTreasury, address(this), netYieldAmount);
         IERC20($.token).safeTransfer(buyer, principalAmount + netYieldAmount);
+
+        $.redeemOperations[assetRedemptionId] = RedeemOperation({
+            status: OperationStatus.Successful,
+            buyer: buyer,
+            principalAmount: principalAmount,
+            netYieldAmount: netYieldAmount
+        });
 
         emit AssetRedeemed(assetRedemptionId, buyer, principalAmount, netYieldAmount);
     }
