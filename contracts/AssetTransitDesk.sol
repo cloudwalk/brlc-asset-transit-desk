@@ -92,7 +92,11 @@ contract AssetTransitDesk is
      * - `principalAmount` must be greater than zero.
      * - Contract must not be paused.
      */
-    function issueAsset(address buyer, uint64 principalAmount) external whenNotPaused onlyRole(MANAGER_ROLE) {
+    function issueAsset(
+        bytes32 assetDepositId,
+        address buyer,
+        uint64 principalAmount
+    ) external whenNotPaused onlyRole(MANAGER_ROLE) {
         if (buyer == address(0)) {
             revert AssetTransitDesk_BuyerAddressZero();
         }
@@ -106,7 +110,7 @@ contract AssetTransitDesk is
         IERC20($.token).safeTransferFrom(buyer, address(this), principalAmount);
         ILiquidityPool($.liquidityPool).depositFromWorkingTreasury(address(this), principalAmount);
 
-        emit AssetIssued(buyer, principalAmount);
+        emit AssetIssued(assetDepositId, buyer, principalAmount);
     }
 
     /**
@@ -120,6 +124,7 @@ contract AssetTransitDesk is
      * - Contract must not be paused.
      */
     function redeemAsset(
+        bytes32 assetRedemptionId,
         address buyer,
         uint64 principalAmount,
         uint64 netYieldAmount
@@ -142,7 +147,7 @@ contract AssetTransitDesk is
         IERC20($.token).safeTransferFrom($.surplusTreasury, address(this), netYieldAmount);
         IERC20($.token).safeTransfer(buyer, principalAmount + netYieldAmount);
 
-        emit AssetRedeemed(buyer, principalAmount, netYieldAmount);
+        emit AssetRedeemed(assetRedemptionId, buyer, principalAmount, netYieldAmount);
     }
 
     /**

@@ -13,19 +13,26 @@ interface IAssetTransitDeskPrimary {
     /**
      * @dev Emitted when an asset is issued.
      *
+     * @param assetDepositId The ID of the asset deposit operation.
      * @param buyer The address of the buyer.
      * @param principalAmount The amount of the principal.
      */
-    event AssetIssued(address buyer, uint64 principalAmount);
+    event AssetIssued(bytes32 indexed assetDepositId, address indexed buyer, uint64 principalAmount);
 
     /**
      * @dev Emitted when an asset is redeemed.
      *
+     * @param assetRedemptionId The ID of the asset redemption operation.
      * @param buyer The address of the buyer.
      * @param principalAmount The amount of the principal.
      * @param netYieldAmount The amount of the net yield.
      */
-    event AssetRedeemed(address buyer, uint64 principalAmount, uint64 netYieldAmount);
+    event AssetRedeemed(
+        bytes32 indexed assetRedemptionId,
+        address indexed buyer,
+        uint64 principalAmount,
+        uint64 netYieldAmount
+    );
 
     // ------------------ Transactional functions ----------------- //
 
@@ -34,21 +41,28 @@ interface IAssetTransitDeskPrimary {
      *
      * Emits an {AssetIssued} event.
      *
+     * @param assetDepositId The ID of the asset deposit operation.
      * @param buyer The address of the buyer.
      * @param principalAmount The amount of the principal.
      */
-    function issueAsset(address buyer, uint64 principalAmount) external;
+    function issueAsset(bytes32 assetDepositId, address buyer, uint64 principalAmount) external;
 
     /**
      * @dev Redeems an asset.
      *
      * Emits an {AssetRedeemed} event.
      *
+     * @param assetRedemptionId The ID of the asset redemption operation.
      * @param buyer The address of the buyer.
      * @param principalAmount The amount of the principal.
      * @param netYieldAmount The amount of the net yield.
      */
-    function redeemAsset(address buyer, uint64 principalAmount, uint64 netYieldAmount) external;
+    function redeemAsset(
+        bytes32 assetRedemptionId,
+        address buyer,
+        uint64 principalAmount,
+        uint64 netYieldAmount
+    ) external;
 }
 
 /**
