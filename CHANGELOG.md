@@ -1,3 +1,5 @@
+# 1.1.0
+
 ## Main Changes
 
 - Added operation identifiers to prevent duplicate execution and improve traceability.
