@@ -22,7 +22,7 @@ interface IAssetTransitDeskTypes {
     }
 
     /**
-     * @dev The data of an issue operation.
+     * @dev The data of an asset issuance operation.
      *
      * Fields:
      *

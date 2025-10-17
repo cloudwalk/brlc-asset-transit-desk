@@ -35,7 +35,7 @@ abstract contract AssetTransitDeskStorageLayout is IAssetTransitDeskTypes {
      * Notes:
      * 1. The surplus treasury is used to withdraw the yield.
      * 2. The liquidity pool is used to withdraw and deposit the principal.
-     * 3. Operation mappings store the history and state of all issue and redeem operations.
+     * 3. Operation mappings store the history and state of all asset issuance and redemption operations.
      *
      * @custom:storage-location erc7201:cloudwalk.storage.AssetTransitDesk
      */

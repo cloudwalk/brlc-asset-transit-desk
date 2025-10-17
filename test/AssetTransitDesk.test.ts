@@ -216,7 +216,8 @@ describe("Contract 'AssetTransitDesk'", () => {
       beforeEach(async () => {
         tx = await assetTransitDesk.connect(manager).issueAsset(
           assetIssuanceId,
-          account.address, principalAmount,
+          account.address,
+          principalAmount,
         );
       });
 
