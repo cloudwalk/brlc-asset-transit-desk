@@ -1,8 +1,26 @@
+## Main Changes
+
+- Added operation identifiers to prevent duplicate execution and improve traceability.
+  - Breaking change: function signatures now require IDs as the first argument.
+    - `issueAsset(bytes32 assetIssuanceId, address buyer, uint64 principalAmount)`
+    - `redeemAsset(bytes32 assetRedemptionId, address buyer, uint64 principalAmount, uint64 netYieldAmount)`
+
+- Updated events to include and index operation IDs and buyer for efficient querying:
+  - `AssetIssued(bytes32 indexed assetIssuanceId, address indexed buyer, uint64 principalAmount)`
+  - `AssetRedeemed(bytes32 indexed assetRedemptionId, address indexed buyer, uint64 principalAmount, uint64 netYieldAmount)`
+
+- Added view functions to inspect recorded operations:
+  - `getIssuanceOperation(bytes32 assetIssuanceId) → (status, buyer, principalAmount)`
+  - `getRedemptionOperation(bytes32 assetRedemptionId) → (status, buyer, principalAmount, netYieldAmount)`
+
+- Added custom error to enforce idempotency:
+  - `AssetTransitDesk_OperationAlreadyExists()`
+
 # 1.0.0
 
 ## Introduced AssetTransitDesk contract
 
-- Orchestrate issuance and redemption of CDBs.
+- Orchestrate issuance and redemptions of CDBs.
 
 ### Behavior
 - **Issue**: `issueAsset(buyer, principal)`

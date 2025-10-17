@@ -2,6 +2,8 @@
 
 pragma solidity ^0.8.24;
 
+import { IAssetTransitDeskTypes } from "./interfaces/IAssetTransitDesk.sol";
+
 /**
  * @title AssetTransitDeskStorageLayout contract
  * @author CloudWalk Inc. (See https://www.cloudwalk.io)
@@ -9,7 +11,7 @@ pragma solidity ^0.8.24;
  *
  * See details about the contract in the comments of the {IAssetTransitDesk} interface.
  */
-abstract contract AssetTransitDeskStorageLayout {
+abstract contract AssetTransitDeskStorageLayout is IAssetTransitDeskTypes {
     // ------------------ Storage layout -------------------------- //
 
     /*
@@ -25,12 +27,15 @@ abstract contract AssetTransitDeskStorageLayout {
      * Fields:
      *
      * - token ---------------- The address of the underlying token.
-     * - surplusTreasury ------- The address of the surplus treasury.
-     * - liquidityPool ------------ The address of the liquidity pool.
+     * - surplusTreasury ------ The address of the surplus treasury.
+     * - liquidityPool -------- The address of the liquidity pool.
+     * - issuanceOperations --- Mapping of asset issuance IDs to issuance operations.
+     * - redemptionOperations - Mapping of asset redemption IDs to redemption operations.
      *
      * Notes:
      * 1. The surplus treasury is used to withdraw the yield.
      * 2. The liquidity pool is used to withdraw and deposit the principal.
+     * 3. Operation mappings store the history and state of all asset issuance and redemption operations.
      *
      * @custom:storage-location erc7201:cloudwalk.storage.AssetTransitDesk
      */
@@ -46,6 +51,14 @@ abstract contract AssetTransitDeskStorageLayout {
         // Slot 3
         address liquidityPool;
         // uint96 __reserved3; // Reserved until the end of the storage slot
+
+        // Slot 4
+        mapping(bytes32 opId => IssuanceOperation operation) issuanceOperations;
+        // No reserve until the end of the storage slot
+
+        // Slot 5
+        mapping(bytes32 opId => RedemptionOperation operation) redemptionOperations;
+        // No reserve until the end of the storage slot
     }
 
     // ------------------ Internal functions ---------------------- //

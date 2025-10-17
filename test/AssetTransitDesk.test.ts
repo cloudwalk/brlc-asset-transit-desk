@@ -3,7 +3,7 @@ import { ethers, upgrades } from "hardhat";
 import { expect } from "chai";
 import { TransactionResponse } from "ethers";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
-import { setUpFixture } from "../test-utils/common";
+import { setUpFixture, checkEquality, resultToObject } from "../test-utils/common";
 import * as Contracts from "../typechain-types";
 import { checkTokenPath } from "../test-utils/eth";
 
@@ -35,6 +35,11 @@ const EXPECTED_VERSION = {
   minor: 0,
   patch: 0,
 };
+
+enum OperationStatus {
+  Nonexistent = 0,
+  Successful = 1,
+}
 
 async function deployContracts() {
   const name = "ERC20 Test";
@@ -206,13 +211,22 @@ describe("Contract 'AssetTransitDesk'", () => {
     describe("Should execute as expected when called properly and", () => {
       let tx: TransactionResponse;
       const principalAmount = 100n;
+      const assetIssuanceId = ethers.encodeBytes32String("assetIssuanceId");
 
       beforeEach(async () => {
-        tx = await assetTransitDesk.connect(manager).issueAsset(account.address, principalAmount);
+        tx = await assetTransitDesk.connect(manager).issueAsset(
+          assetIssuanceId,
+          account.address,
+          principalAmount,
+        );
       });
 
       it("should emit the required event", async () => {
-        await expect(tx).to.emit(assetTransitDesk, "AssetIssued").withArgs(account.address, principalAmount);
+        await expect(tx).to.emit(assetTransitDesk, "AssetIssued").withArgs(
+          assetIssuanceId,
+          account.address,
+          principalAmount,
+        );
       });
 
       it("should update token balances correctly", async () => {
@@ -229,12 +243,23 @@ describe("Contract 'AssetTransitDesk'", () => {
           principalAmount,
         );
       });
+
+      it("should store the issuance operation correctly", async () => {
+        checkEquality(
+          resultToObject(await assetTransitDesk.getIssuanceOperation(assetIssuanceId)),
+          {
+            status: OperationStatus.Successful,
+            buyer: account.address,
+            principalAmount: principalAmount,
+          });
+      });
     });
 
     describe("Should revert if", () => {
+      const assetIssuanceId = ethers.encodeBytes32String("assetIssuanceId");
       it("called by a non-manager", async () => {
         await expect(
-          assetTransitDesk.connect(stranger).issueAsset(account.address, 10n),
+          assetTransitDesk.connect(stranger).issueAsset(assetIssuanceId, account.address, 10n),
         )
           .to.be.revertedWithCustomError(assetTransitDesk, "AccessControlUnauthorizedAccount")
           .withArgs(stranger.address, MANAGER_ROLE);
@@ -242,14 +267,21 @@ describe("Contract 'AssetTransitDesk'", () => {
 
       it("the principal amount is zero", async () => {
         await expect(
-          assetTransitDesk.connect(manager).issueAsset(account.address, 0n),
+          assetTransitDesk.connect(manager).issueAsset(assetIssuanceId, account.address, 0n),
         )
           .to.be.revertedWithCustomError(assetTransitDesk, "AssetTransitDesk_PrincipalAmountZero");
       });
 
+      it("the asset issuance ID is zero", async () => {
+        await expect(
+          assetTransitDesk.connect(manager).issueAsset(ethers.ZeroHash, account.address, 10n),
+        )
+          .to.be.revertedWithCustomError(assetTransitDesk, "AssetTransitDesk_OperationIdZero");
+      });
+
       it("the buyer address is zero", async () => {
         await expect(
-          assetTransitDesk.connect(manager).issueAsset(ADDRESS_ZERO, 10n),
+          assetTransitDesk.connect(manager).issueAsset(assetIssuanceId, ADDRESS_ZERO, 10n),
         )
           .to.be.revertedWithCustomError(assetTransitDesk, "AssetTransitDesk_BuyerAddressZero");
       });
@@ -257,9 +289,19 @@ describe("Contract 'AssetTransitDesk'", () => {
       it("the contract is paused", async () => {
         await assetTransitDesk.connect(pauser).pause();
         await expect(
-          assetTransitDesk.connect(manager).issueAsset(account.address, 10n),
+          assetTransitDesk.connect(manager).issueAsset(assetIssuanceId, account.address, 10n),
         )
           .to.be.revertedWithCustomError(assetTransitDesk, "EnforcedPause");
+      });
+
+      it("the operation already exists", async () => {
+        const someAmount = 10n;
+        await assetTransitDesk.connect(manager).issueAsset(assetIssuanceId, account.address, someAmount);
+
+        await expect(
+          assetTransitDesk.connect(manager).issueAsset(assetIssuanceId, account.address, someAmount),
+        )
+          .to.be.revertedWithCustomError(assetTransitDesk, "AssetTransitDesk_OperationAlreadyExists");
       });
     });
   });
@@ -269,14 +311,20 @@ describe("Contract 'AssetTransitDesk'", () => {
       let tx: TransactionResponse;
       const principalAmount = 100n;
       const netYieldAmount = 10n;
+      const assetRedemptionId = ethers.encodeBytes32String("assetRedemptionId");
 
       beforeEach(async () => {
-        tx = await assetTransitDesk.connect(manager).redeemAsset(account.address, principalAmount, netYieldAmount);
+        tx = await assetTransitDesk.connect(manager).redeemAsset(
+          assetRedemptionId,
+          account.address,
+          principalAmount,
+          netYieldAmount,
+        );
       });
 
       it("should emit the required event", async () => {
         await expect(tx).to.emit(assetTransitDesk, "AssetRedeemed")
-          .withArgs(account.address, principalAmount, netYieldAmount);
+          .withArgs(assetRedemptionId, account.address, principalAmount, netYieldAmount);
       });
 
       it("should update token balances correctly", async () => {
@@ -303,12 +351,24 @@ describe("Contract 'AssetTransitDesk'", () => {
           principalAmount + netYieldAmount,
         );
       });
+
+      it("should store the redemption operation correctly", async () => {
+        checkEquality(
+          resultToObject(await assetTransitDesk.getRedemptionOperation(assetRedemptionId)),
+          {
+            status: OperationStatus.Successful,
+            buyer: account.address,
+            principalAmount: principalAmount,
+            netYieldAmount: netYieldAmount,
+          });
+      });
     });
 
     describe("Should revert if", () => {
+      const assetRedemptionId = ethers.encodeBytes32String("assetRedemptionId");
       it("called by a non-manager", async () => {
         await expect(
-          assetTransitDesk.connect(stranger).redeemAsset(account.address, 10n, 10n),
+          assetTransitDesk.connect(stranger).redeemAsset(assetRedemptionId, account.address, 10n, 10n),
         )
           .to.be.revertedWithCustomError(assetTransitDesk, "AccessControlUnauthorizedAccount")
           .withArgs(stranger.address, MANAGER_ROLE);
@@ -316,21 +376,28 @@ describe("Contract 'AssetTransitDesk'", () => {
 
       it("the principal amount is zero", async () => {
         await expect(
-          assetTransitDesk.connect(manager).redeemAsset(account.address, 0n, 10n),
+          assetTransitDesk.connect(manager).redeemAsset(assetRedemptionId, account.address, 0n, 10n),
         )
           .to.be.revertedWithCustomError(assetTransitDesk, "AssetTransitDesk_PrincipalAmountZero");
       });
 
       it("the net yield amount is zero", async () => {
         await expect(
-          assetTransitDesk.connect(manager).redeemAsset(account.address, 10n, 0n),
+          assetTransitDesk.connect(manager).redeemAsset(assetRedemptionId, account.address, 10n, 0n),
         )
           .to.be.revertedWithCustomError(assetTransitDesk, "AssetTransitDesk_NetYieldAmountZero");
       });
 
+      it("the asset redemption ID is zero", async () => {
+        await expect(
+          assetTransitDesk.connect(manager).redeemAsset(ethers.ZeroHash, account.address, 10n, 10n),
+        )
+          .to.be.revertedWithCustomError(assetTransitDesk, "AssetTransitDesk_OperationIdZero");
+      });
+
       it("the buyer address is zero", async () => {
         await expect(
-          assetTransitDesk.connect(manager).redeemAsset(ADDRESS_ZERO, 10n, 10n),
+          assetTransitDesk.connect(manager).redeemAsset(assetRedemptionId, ADDRESS_ZERO, 10n, 10n),
         )
           .to.be.revertedWithCustomError(assetTransitDesk, "AssetTransitDesk_BuyerAddressZero");
       });
@@ -338,9 +405,30 @@ describe("Contract 'AssetTransitDesk'", () => {
       it("the contract is paused", async () => {
         await assetTransitDesk.connect(pauser).pause();
         await expect(
-          assetTransitDesk.connect(manager).redeemAsset(account.address, 10n, 10n),
+          assetTransitDesk.connect(manager).redeemAsset(assetRedemptionId, account.address, 10n, 10n),
         )
           .to.be.revertedWithCustomError(assetTransitDesk, "EnforcedPause");
+      });
+
+      it("the operation already exists", async () => {
+        const someAmount = 10n;
+        const someNetYieldAmount = 10n;
+        await assetTransitDesk.connect(manager).redeemAsset(
+          assetRedemptionId,
+          account.address,
+          someAmount,
+          someNetYieldAmount,
+        );
+
+        await expect(
+          assetTransitDesk.connect(manager).redeemAsset(
+            assetRedemptionId,
+            account.address,
+            someAmount,
+            someNetYieldAmount,
+          ),
+        )
+          .to.be.revertedWithCustomError(assetTransitDesk, "AssetTransitDesk_OperationAlreadyExists");
       });
     });
   });
@@ -530,14 +618,36 @@ describe("Contract 'AssetTransitDesk'", () => {
 
   describe("Snapshot scenarios", () => {
     it("Simple usage scenario", async () => {
+      const issuanceId = ethers.encodeBytes32String("issuance-id");
+      const redemptionId = ethers.encodeBytes32String("redemption-id");
+
       await expect.startChainshot({
         name: "Usage example",
         accounts: { deployer, manager, account, surplusTreasury, pauser, stranger },
         contracts: { assetTransitDesk, LP: liquidityPool },
         tokens: { BRLC: tokenMock },
+        customState: {
+          issuanceOperation() {
+            return assetTransitDesk.getIssuanceOperation(issuanceId);
+          },
+          redemptionOperation() {
+            return assetTransitDesk.getRedemptionOperation(redemptionId);
+          },
+        },
       });
-      await assetTransitDesk.connect(manager).issueAsset(account.address, 100n);
-      await assetTransitDesk.connect(manager).redeemAsset(account.address, 100n, 10n);
+
+      await assetTransitDesk.connect(manager).issueAsset(
+        issuanceId,
+        account.address,
+        100n,
+      );
+      await assetTransitDesk.connect(manager).redeemAsset(
+        redemptionId,
+        account.address,
+        100n,
+        10n,
+      );
+
       await expect.stopChainshot();
     });
 
@@ -549,6 +659,14 @@ describe("Contract 'AssetTransitDesk'", () => {
         accounts: { deployer, manager, account, surplusTreasury },
         contracts: { assetTransitDesk: assetTransitDesk, LP: liquidityPool },
         tokens: { BRLC: tokenMock },
+        customState: {
+          liquidityPool() {
+            return assetTransitDesk.getLiquidityPool();
+          },
+          surplusTreasury() {
+            return assetTransitDesk.getSurplusTreasury();
+          },
+        },
       });
 
       await liquidityPool.grantRole(ADMIN_ROLE, assetTransitDesk);

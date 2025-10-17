@@ -3,29 +3,127 @@
 pragma solidity ^0.8.24;
 
 /**
+ * @title IAssetTransitDeskTypes interface
+ * @author CloudWalk Inc. (See https://www.cloudwalk.io)
+ * @dev The types part of the AssetTransitDesk smart contract interface.
+ */
+interface IAssetTransitDeskTypes {
+    /**
+     * @dev Possible statuses of an operation.
+     *
+     * The values:
+     *
+     * - Nonexistent = 0 -- The operation does not exist (the default value).
+     * - Successful = 1 --- The operation has been executed successfully.
+     */
+    enum OperationStatus {
+        Nonexistent,
+        Successful
+    }
+
+    /**
+     * @dev The data of an asset issuance operation.
+     *
+     * Fields:
+     *
+     * - status -------------- The status of the operation according to the {OperationStatus} enum.
+     * - buyer --------------- The address of the buyer.
+     * - principalAmount ----- The amount of the principal.
+     */
+    struct IssuanceOperation {
+        // Slot 1
+        OperationStatus status;
+        address buyer;
+        uint64 principalAmount;
+        // uint24 __reserved; // Reserved until the end of the storage slot
+    }
+
+    /**
+     * @dev The data of a redemption operation.
+     *
+     * Fields:
+     *
+     * - status -------------- The status of the operation according to the {OperationStatus} enum.
+     * - buyer --------------- The address of the buyer.
+     * - principalAmount ----- The amount of the principal.
+     * - netYieldAmount ------ The amount of the net yield.
+     */
+    struct RedemptionOperation {
+        // Slot 1
+        OperationStatus status;
+        address buyer;
+        uint64 principalAmount;
+        // uint24 __reserved; // Reserved until the end of the storage slot
+
+        // Slot 2
+        uint64 netYieldAmount;
+        // uint96 __reserved; // Reserved until the end of the storage slot
+    }
+
+    /**
+     * @dev The view of an issuance operation.
+     *
+     * Fields:
+     *
+     * - status -------------- The status of the operation according to the {OperationStatus} enum.
+     * - buyer --------------- The address of the buyer.
+     * - principalAmount ----- The amount of the principal.
+     */
+    struct IssuanceOperationView {
+        OperationStatus status;
+        address buyer;
+        uint256 principalAmount;
+    }
+
+    /**
+     * @dev The view of a redemption operation.
+     *
+     * Fields:
+     *
+     * - status -------------- The status of the operation according to the {OperationStatus} enum.
+     * - buyer --------------- The address of the buyer.
+     * - principalAmount ----- The amount of the principal.
+     * - netYieldAmount ------ The amount of the net yield.
+     */
+    struct RedemptionOperationView {
+        OperationStatus status;
+        address buyer;
+        uint256 principalAmount;
+        uint256 netYieldAmount;
+    }
+}
+
+/**
  * @title IAssetTransitDeskPrimary interface
  * @author CloudWalk Inc. (See https://www.cloudwalk.io)
  * @dev The primary part of the AssetTransitDesk smart contract interface.
  */
-interface IAssetTransitDeskPrimary {
+interface IAssetTransitDeskPrimary is IAssetTransitDeskTypes {
     // ------------------ Events ---------------------------------- //
 
     /**
      * @dev Emitted when an asset is issued.
      *
+     * @param assetIssuanceId The ID of the asset issuance operation.
      * @param buyer The address of the buyer.
      * @param principalAmount The amount of the principal.
      */
-    event AssetIssued(address buyer, uint64 principalAmount);
+    event AssetIssued(bytes32 indexed assetIssuanceId, address indexed buyer, uint64 principalAmount);
 
     /**
      * @dev Emitted when an asset is redeemed.
      *
+     * @param assetRedemptionId The ID of the asset redemption operation.
      * @param buyer The address of the buyer.
      * @param principalAmount The amount of the principal.
      * @param netYieldAmount The amount of the net yield.
      */
-    event AssetRedeemed(address buyer, uint64 principalAmount, uint64 netYieldAmount);
+    event AssetRedeemed(
+        bytes32 indexed assetRedemptionId,
+        address indexed buyer,
+        uint64 principalAmount,
+        uint64 netYieldAmount
+    );
 
     // ------------------ Transactional functions ----------------- //
 
@@ -34,21 +132,46 @@ interface IAssetTransitDeskPrimary {
      *
      * Emits an {AssetIssued} event.
      *
+     * @param assetIssuanceId The ID of the asset issuance operation.
      * @param buyer The address of the buyer.
      * @param principalAmount The amount of the principal.
      */
-    function issueAsset(address buyer, uint64 principalAmount) external;
+    function issueAsset(bytes32 assetIssuanceId, address buyer, uint64 principalAmount) external;
 
     /**
      * @dev Redeems an asset.
      *
      * Emits an {AssetRedeemed} event.
      *
+     * @param assetRedemptionId The ID of the asset redemption operation.
      * @param buyer The address of the buyer.
      * @param principalAmount The amount of the principal.
      * @param netYieldAmount The amount of the net yield.
      */
-    function redeemAsset(address buyer, uint64 principalAmount, uint64 netYieldAmount) external;
+    function redeemAsset(
+        bytes32 assetRedemptionId,
+        address buyer,
+        uint64 principalAmount,
+        uint64 netYieldAmount
+    ) external;
+
+    // ------------------ View functions -------------------------- //
+
+    /**
+     * @dev Returns the data of an issuance operation.
+     *
+     * @param assetIssuanceId The ID of the asset issuance operation.
+     * @return The data of the issuance operation.
+     */
+    function getIssuanceOperation(bytes32 assetIssuanceId) external view returns (IssuanceOperationView memory);
+
+    /**
+     * @dev Returns the data of a redemption operation.
+     *
+     * @param assetRedemptionId The ID of the asset redemption operation.
+     * @return The data of the redemption operation.
+     */
+    function getRedemptionOperation(bytes32 assetRedemptionId) external view returns (RedemptionOperationView memory);
 }
 
 /**
@@ -157,6 +280,12 @@ interface IAssetTransitDeskErrors {
 
     /// @dev Thrown if the provided net yield amount is zero.
     error AssetTransitDesk_NetYieldAmountZero();
+
+    /// @dev Thrown if the provided operation identifier is already used.
+    error AssetTransitDesk_OperationAlreadyExists();
+
+    /// @dev Thrown if the provided operation identifier is zero.
+    error AssetTransitDesk_OperationIdZero();
 
     /// @dev Thrown if the provided principal amount is zero.
     error AssetTransitDesk_PrincipalAmountZero();

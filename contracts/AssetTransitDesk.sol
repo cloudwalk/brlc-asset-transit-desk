@@ -88,11 +88,20 @@ contract AssetTransitDesk is
      *
      * @dev Requirements:
      * - Caller must have the {MANAGER_ROLE} role.
+     * - `assetIssuanceId` must not be zero.
      * - `buyer` must not be the zero address.
      * - `principalAmount` must be greater than zero.
      * - Contract must not be paused.
      */
-    function issueAsset(address buyer, uint64 principalAmount) external whenNotPaused onlyRole(MANAGER_ROLE) {
+    function issueAsset(
+        bytes32 assetIssuanceId,
+        address buyer,
+        uint64 principalAmount
+    ) external whenNotPaused onlyRole(MANAGER_ROLE) {
+        if (assetIssuanceId == bytes32(0)) {
+            revert AssetTransitDesk_OperationIdZero();
+        }
+
         if (buyer == address(0)) {
             revert AssetTransitDesk_BuyerAddressZero();
         }
@@ -103,10 +112,20 @@ contract AssetTransitDesk is
 
         AssetTransitDeskStorage storage $ = _getAssetTransitDeskStorage();
 
+        if ($.issuanceOperations[assetIssuanceId].status != OperationStatus.Nonexistent) {
+            revert AssetTransitDesk_OperationAlreadyExists();
+        }
+
         IERC20($.token).safeTransferFrom(buyer, address(this), principalAmount);
         ILiquidityPool($.liquidityPool).depositFromWorkingTreasury(address(this), principalAmount);
 
-        emit AssetIssued(buyer, principalAmount);
+        $.issuanceOperations[assetIssuanceId] = IssuanceOperation({
+            status: OperationStatus.Successful,
+            buyer: buyer,
+            principalAmount: principalAmount
+        });
+
+        emit AssetIssued(assetIssuanceId, buyer, principalAmount);
     }
 
     /**
@@ -114,16 +133,22 @@ contract AssetTransitDesk is
      *
      * @dev Requirements:
      * - Caller must have the {MANAGER_ROLE} role.
+     * - `assetRedemptionId` must not be zero.
      * - `buyer` must not be the zero address.
      * - `principalAmount` must be greater than zero.
      * - `netYieldAmount` must be greater than zero.
      * - Contract must not be paused.
      */
     function redeemAsset(
+        bytes32 assetRedemptionId,
         address buyer,
         uint64 principalAmount,
         uint64 netYieldAmount
     ) external whenNotPaused onlyRole(MANAGER_ROLE) {
+        if (assetRedemptionId == bytes32(0)) {
+            revert AssetTransitDesk_OperationIdZero();
+        }
+
         if (buyer == address(0)) {
             revert AssetTransitDesk_BuyerAddressZero();
         }
@@ -138,11 +163,22 @@ contract AssetTransitDesk is
 
         AssetTransitDeskStorage storage $ = _getAssetTransitDeskStorage();
 
+        if ($.redemptionOperations[assetRedemptionId].status != OperationStatus.Nonexistent) {
+            revert AssetTransitDesk_OperationAlreadyExists();
+        }
+
         ILiquidityPool($.liquidityPool).withdrawToWorkingTreasury(address(this), principalAmount);
         IERC20($.token).safeTransferFrom($.surplusTreasury, address(this), netYieldAmount);
         IERC20($.token).safeTransfer(buyer, principalAmount + netYieldAmount);
 
-        emit AssetRedeemed(buyer, principalAmount, netYieldAmount);
+        $.redemptionOperations[assetRedemptionId] = RedemptionOperation({
+            status: OperationStatus.Successful,
+            buyer: buyer,
+            principalAmount: principalAmount,
+            netYieldAmount: netYieldAmount
+        });
+
+        emit AssetRedeemed(assetRedemptionId, buyer, principalAmount, netYieldAmount);
     }
 
     /**
@@ -201,6 +237,31 @@ contract AssetTransitDesk is
     }
 
     // ------------------ View functions -------------------------- //
+
+    /// @inheritdoc IAssetTransitDeskPrimary
+    function getIssuanceOperation(bytes32 assetIssuanceId) external view returns (IssuanceOperationView memory) {
+        IssuanceOperation storage operation = _getAssetTransitDeskStorage().issuanceOperations[assetIssuanceId];
+
+        return
+            IssuanceOperationView({
+                status: operation.status,
+                buyer: operation.buyer,
+                principalAmount: operation.principalAmount
+            });
+    }
+
+    /// @inheritdoc IAssetTransitDeskPrimary
+    function getRedemptionOperation(bytes32 assetRedemptionId) external view returns (RedemptionOperationView memory) {
+        RedemptionOperation storage operation = _getAssetTransitDeskStorage().redemptionOperations[assetRedemptionId];
+
+        return
+            RedemptionOperationView({
+                status: operation.status,
+                buyer: operation.buyer,
+                principalAmount: operation.principalAmount,
+                netYieldAmount: operation.netYieldAmount
+            });
+    }
 
     /// @inheritdoc IAssetTransitDeskConfiguration
     function getSurplusTreasury() external view returns (address) {

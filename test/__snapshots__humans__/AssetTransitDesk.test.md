@@ -4,8 +4,8 @@
 
 | Idx | Caller | Contract | Name | Args |
 | --- | ------ | -------- | ---- | ---- |
-| 1 | manager | assetTransitDesk | issueAsset | [account, 100] |
-| 2 | manager | assetTransitDesk | redeemAsset | [account, 100, 10] |
+| 1 | manager | assetTransitDesk | issueAsset | [0x69737375..0000000000, account, 100] |
+| 2 | manager | assetTransitDesk | redeemAsset | [0x72656465..0000000000, account, 100, 10] |
 
 ```mermaid
 sequenceDiagram
@@ -37,6 +37,7 @@ sequenceDiagram
 - **type**: methodCall
 - **caller**: manager
 - **args**: `{
+  "assetIssuanceId": "0x69737375..0000000000",
   "buyer": "account",
   "principalAmount": "100"
 }`
@@ -48,7 +49,7 @@ sequenceDiagram
 | 1 | BRLC | Transfer | `[account, assetTransitDesk, 100]` |
 | 2 | BRLC | Transfer | `[assetTransitDesk, LP, 100]` |
 | 3 | LP | Deposit | `[100]` |
-| 4 | assetTransitDesk | AssetIssued | `[account, 100]` |
+| 4 | assetTransitDesk | AssetIssued | `[0x69737375..0000000000, account, 100]` |
 
 **Balances**
 
@@ -66,6 +67,23 @@ sequenceDiagram
 | stranger | 0 |
 
 
+**issuanceOperation**
+```
+ [
+  1n,
+  "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+  100n,
+]
+```
+**redemptionOperation**
+```
+ [
+  0n,
+  "0x0000000000000000000000000000000000000000",
+  0n,
+  0n,
+]
+```
 
 </details>
 <details>
@@ -74,6 +92,7 @@ sequenceDiagram
 - **type**: methodCall
 - **caller**: manager
 - **args**: `{
+  "assetRedemptionId": "0x72656465..0000000000",
   "buyer": "account",
   "principalAmount": "100",
   "netYieldAmount": "10"
@@ -87,7 +106,7 @@ sequenceDiagram
 | 2 | LP | Withdrawal | `[100, 0]` |
 | 3 | BRLC | Transfer | `[surplusTreasury, assetTransitDesk, 10]` |
 | 4 | BRLC | Transfer | `[assetTransitDesk, account, 110]` |
-| 5 | assetTransitDesk | AssetRedeemed | `[account, 100, 10]` |
+| 5 | assetTransitDesk | AssetRedeemed | `[0x72656465..0000000000, account, 100, 10]` |
 
 **Balances**
 
@@ -105,6 +124,23 @@ sequenceDiagram
 | stranger | 0 |
 
 
+**issuanceOperation**
+```
+ [
+  1n,
+  "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+  100n,
+]
+```
+**redemptionOperation**
+```
+ [
+  1n,
+  "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+  100n,
+  10n,
+]
+```
 
 </details>
 
@@ -181,6 +217,14 @@ sequenceDiagram
 | surplusTreasury | 0 |
 
 
+**liquidityPool**
+```
+"0x0000000000000000000000000000000000000000"
+```
+**surplusTreasury**
+```
+"0x0000000000000000000000000000000000000000"
+```
 
 </details>
 <details>
@@ -210,6 +254,14 @@ _No events_
 | surplusTreasury | 0 |
 
 
+**liquidityPool**
+```
+"0x0000000000000000000000000000000000000000"
+```
+**surplusTreasury**
+```
+"0x0000000000000000000000000000000000000000"
+```
 
 </details>
 <details>
@@ -242,6 +294,14 @@ _No events_
 | surplusTreasury | 0 |
 
 
+**liquidityPool**
+```
+"0x0000000000000000000000000000000000000000"
+```
+**surplusTreasury**
+```
+"0x0000000000000000000000000000000000000000"
+```
 
 </details>
 <details>
@@ -274,6 +334,14 @@ _No events_
 | surplusTreasury | 0 |
 
 
+**liquidityPool**
+```
+"0x0000000000000000000000000000000000000000"
+```
+**surplusTreasury**
+```
+"0x0000000000000000000000000000000000000000"
+```
 
 </details>
 <details>
@@ -305,6 +373,14 @@ _No events_
 | surplusTreasury | 0 |
 
 
+**liquidityPool**
+```
+"0x9A9f2CCfdE556A7E9Ff0848998Aa4a0CFD8863AE"
+```
+**surplusTreasury**
+```
+"0x0000000000000000000000000000000000000000"
+```
 
 </details>
 <details>
@@ -336,6 +412,14 @@ _No events_
 | surplusTreasury | 0 |
 
 
+**liquidityPool**
+```
+"0x9A9f2CCfdE556A7E9Ff0848998Aa4a0CFD8863AE"
+```
+**surplusTreasury**
+```
+"0x90F79bf6EB2c4f870365E785982E1f101E93b906"
+```
 
 </details>
 

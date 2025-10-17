@@ -1,6 +1,14 @@
 import { expect } from "chai";
 import { network } from "hardhat";
+import { Result } from "ethers";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
+
+/**
+ * @dev helper function to convert wrongly typed typechain Result to a plain object
+ */
+export function resultToObject<T extends Record<string, unknown> = Record<string, unknown>>(result: unknown): T {
+  return (result as Result).toObject(true) as T;
+}
 
 export function checkEquality<T extends Record<string, unknown>>(
   actualObject: T,
