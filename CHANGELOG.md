@@ -2,15 +2,15 @@
 
 - Added operation identifiers to prevent duplicate execution and improve traceability.
   - Breaking change: function signatures now require IDs as the first argument.
-    - `depositAsset(bytes32 assetDepositId, address buyer, uint64 principalAmount)`
+    - `issueAsset(bytes32 assetIssuanceId, address buyer, uint64 principalAmount)`
     - `redeemAsset(bytes32 assetRedemptionId, address buyer, uint64 principalAmount, uint64 netYieldAmount)`
 
 - Updated events to include and index operation IDs and buyer for efficient querying:
-  - `AssetDeposited(bytes32 indexed assetDepositId, address indexed buyer, uint64 principalAmount)`
+  - `AssetIssued(bytes32 indexed assetIssuanceId, address indexed buyer, uint64 principalAmount)`
   - `AssetRedeemed(bytes32 indexed assetRedemptionId, address indexed buyer, uint64 principalAmount, uint64 netYieldAmount)`
 
 - Added view functions to inspect recorded operations:
-  - `getDepositOperation(bytes32 assetDepositId) → (status, buyer, principalAmount)`
+  - `getIssuanceOperation(bytes32 assetIssuanceId) → (status, buyer, principalAmount)`
   - `getRedemptionOperation(bytes32 assetRedemptionId) → (status, buyer, principalAmount, netYieldAmount)`
 
 - Added custom error to enforce idempotency:
@@ -20,10 +20,10 @@
 
 ## Introduced AssetTransitDesk contract
 
-- Orchestrate deposits and redemptions of CDBs.
+- Orchestrate issuance and redemptions of CDBs.
 
 ### Behavior
-- **Deposit**: `depositAsset(buyer, principal)`
+- **Issue**: `issueAsset(buyer, principal)`
   - Pulls `principal` from `buyer` to this contract (requires allowance).
   - Deposits `principal` to `liquidityPool` from this contract as a working treasury.
   - Emits `AssetIssued(buyer, principal)`.
@@ -34,7 +34,7 @@
   - Emits `AssetRedeemed(buyer, principal, netYield)`.
 
 ### Public/External API
-- `depositAsset(address buyer, uint64 principalAmount)` — manager-only, when not paused.
+- `issueAsset(address buyer, uint64 principalAmount)` — manager-only, when not paused.
 - `redeemAsset(address buyer, uint64 principalAmount, uint64 netYieldAmount)` — manager-only, when not paused.
 - `setSurplusTreasury(address newSurplusTreasury)` — owner-only.
 - `setLiquidityPool(address newLiquidityPool)` — owner-only.
@@ -55,7 +55,7 @@
 - `GRANTOR_ROLE` (admin: `OWNER_ROLE`):
   - Admin for `MANAGER_ROLE`, `PAUSER_ROLE`, `RESCUER_ROLE`.
 - `MANAGER_ROLE` (admin: `GRANTOR_ROLE`):
-  - Can `depositAsset`, `redeemAsset` when not paused.
+  - Can `issueAsset`, `redeemAsset` when not paused.
 - `PAUSER_ROLE` (admin: `GRANTOR_ROLE`):
   - Can `pause`/`unpause`.
 - `RESCUER_ROLE` (admin: `GRANTOR_ROLE`):
@@ -82,6 +82,6 @@
 - Buyer must approve this contract to spend their tokens.
 
 ### Security Notes
-- All state changes are role-gated; deposit/redemption guarded by `whenNotPaused`.
+- All state changes are role-gated; issuance/redemption guarded by `whenNotPaused`.
 - Pool address is strictly validated to prevent misconfiguration or token mismatch.
 - No automatic allowance is granted on pool change; approvals are explicit and owner-controlled via `approve`.

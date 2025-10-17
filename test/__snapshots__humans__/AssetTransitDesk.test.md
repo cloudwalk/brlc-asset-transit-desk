@@ -4,7 +4,7 @@
 
 | Idx | Caller | Contract | Name | Args |
 | --- | ------ | -------- | ---- | ---- |
-| 1 | manager | assetTransitDesk | depositAsset | [0x6465706f..0000000000, account, 100] |
+| 1 | manager | assetTransitDesk | issueAsset | [0x69737375..0000000000, account, 100] |
 | 2 | manager | assetTransitDesk | redeemAsset | [0x72656465..0000000000, account, 100, 10] |
 
 ```mermaid
@@ -15,11 +15,11 @@ sequenceDiagram
   participant assetTransitDesk
   participant surplusTreasury
   rect rgb(230,255,230)
-    manager->>assetTransitDesk: manager calls assetTransitDesk.depositAsset
+    manager->>assetTransitDesk: manager calls assetTransitDesk.issueAsset
     account-->>assetTransitDesk: BRLC.Transfer: account -> assetTransitDesk (100)
     assetTransitDesk-->>LP: BRLC.Transfer: assetTransitDesk -> LP (100)
     Note over LP: LP.Deposit
-    Note over assetTransitDesk: assetTransitDesk.AssetDeposited
+    Note over assetTransitDesk: assetTransitDesk.AssetIssued
   end
   rect rgb(230,255,230)
     manager->>assetTransitDesk: manager calls assetTransitDesk.redeemAsset
@@ -32,12 +32,12 @@ sequenceDiagram
 ```
 
 <details>
-<summary>Step 0: assetTransitDesk.depositAsset</summary>
+<summary>Step 0: assetTransitDesk.issueAsset</summary>
 
 - **type**: methodCall
 - **caller**: manager
 - **args**: `{
-  "assetDepositId": "0x6465706f..0000000000",
+  "assetIssuanceId": "0x69737375..0000000000",
   "buyer": "account",
   "principalAmount": "100"
 }`
@@ -49,7 +49,7 @@ sequenceDiagram
 | 1 | BRLC | Transfer | `[account, assetTransitDesk, 100]` |
 | 2 | BRLC | Transfer | `[assetTransitDesk, LP, 100]` |
 | 3 | LP | Deposit | `[100]` |
-| 4 | assetTransitDesk | AssetDeposited | `[0x6465706f..0000000000, account, 100]` |
+| 4 | assetTransitDesk | AssetIssued | `[0x69737375..0000000000, account, 100]` |
 
 **Balances**
 

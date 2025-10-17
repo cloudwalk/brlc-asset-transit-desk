@@ -39,7 +39,7 @@ contract AssetTransitDesk is
 
     // ------------------ Constants ------------------------------- //
 
-    /// @dev The role of a manager that is allowed to deposit and redeem assets.
+    /// @dev The role of a manager that is allowed to issue and redeem assets.
     bytes32 public constant MANAGER_ROLE = keccak256("MANAGER_ROLE");
 
     // ------------------ Constructor ----------------------------- //
@@ -88,17 +88,17 @@ contract AssetTransitDesk is
      *
      * @dev Requirements:
      * - Caller must have the {MANAGER_ROLE} role.
-     * - `assetDepositId` must not be zero.
+     * - `assetIssuanceId` must not be zero.
      * - `buyer` must not be the zero address.
      * - `principalAmount` must be greater than zero.
      * - Contract must not be paused.
      */
-    function depositAsset(
-        bytes32 assetDepositId,
+    function issueAsset(
+        bytes32 assetIssuanceId,
         address buyer,
         uint64 principalAmount
     ) external whenNotPaused onlyRole(MANAGER_ROLE) {
-        if (assetDepositId == bytes32(0)) {
+        if (assetIssuanceId == bytes32(0)) {
             revert AssetTransitDesk_OperationIdZero();
         }
 
@@ -112,20 +112,20 @@ contract AssetTransitDesk is
 
         AssetTransitDeskStorage storage $ = _getAssetTransitDeskStorage();
 
-        if ($.issuanceOperations[assetDepositId].status != OperationStatus.Nonexistent) {
+        if ($.issuanceOperations[assetIssuanceId].status != OperationStatus.Nonexistent) {
             revert AssetTransitDesk_OperationAlreadyExists();
         }
 
         IERC20($.token).safeTransferFrom(buyer, address(this), principalAmount);
         ILiquidityPool($.liquidityPool).depositFromWorkingTreasury(address(this), principalAmount);
 
-        $.issuanceOperations[assetDepositId] = IssuanceOperation({
+        $.issuanceOperations[assetIssuanceId] = IssuanceOperation({
             status: OperationStatus.Successful,
             buyer: buyer,
             principalAmount: principalAmount
         });
 
-        emit AssetDeposited(assetDepositId, buyer, principalAmount);
+        emit AssetIssued(assetIssuanceId, buyer, principalAmount);
     }
 
     /**
@@ -239,11 +239,11 @@ contract AssetTransitDesk is
     // ------------------ View functions -------------------------- //
 
     /// @inheritdoc IAssetTransitDeskPrimary
-    function getDepositOperation(bytes32 assetDepositId) external view returns (DepositOperationView memory) {
-        IssuanceOperation storage operation = _getAssetTransitDeskStorage().issuanceOperations[assetDepositId];
+    function getIssuanceOperation(bytes32 assetIssuanceId) external view returns (IssuanceOperationView memory) {
+        IssuanceOperation storage operation = _getAssetTransitDeskStorage().issuanceOperations[assetIssuanceId];
 
         return
-            DepositOperationView({
+            IssuanceOperationView({
                 status: operation.status,
                 buyer: operation.buyer,
                 principalAmount: operation.principalAmount

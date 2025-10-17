@@ -207,22 +207,22 @@ describe("Contract 'AssetTransitDesk'", () => {
     });
   });
 
-  describe("Method 'depositAsset()'", () => {
+  describe("Method 'issueAsset()'", () => {
     describe("Should execute as expected when called properly and", () => {
       let tx: TransactionResponse;
       const principalAmount = 100n;
-      const assetDepositId = ethers.encodeBytes32String("assetDepositId");
+      const assetIssuanceId = ethers.encodeBytes32String("assetIssuanceId");
 
       beforeEach(async () => {
-        tx = await assetTransitDesk.connect(manager).depositAsset(
-          assetDepositId,
+        tx = await assetTransitDesk.connect(manager).issueAsset(
+          assetIssuanceId,
           account.address, principalAmount,
         );
       });
 
       it("should emit the required event", async () => {
-        await expect(tx).to.emit(assetTransitDesk, "AssetDeposited").withArgs(
-          assetDepositId,
+        await expect(tx).to.emit(assetTransitDesk, "AssetIssued").withArgs(
+          assetIssuanceId,
           account.address,
           principalAmount,
         );
@@ -243,9 +243,9 @@ describe("Contract 'AssetTransitDesk'", () => {
         );
       });
 
-      it("should store the deposit operation correctly", async () => {
+      it("should store the issuance operation correctly", async () => {
         checkEquality(
-          resultToObject(await assetTransitDesk.getDepositOperation(assetDepositId)),
+          resultToObject(await assetTransitDesk.getIssuanceOperation(assetIssuanceId)),
           {
             status: OperationStatus.Successful,
             buyer: account.address,
@@ -255,10 +255,10 @@ describe("Contract 'AssetTransitDesk'", () => {
     });
 
     describe("Should revert if", () => {
-      const assetDepositId = ethers.encodeBytes32String("assetDepositId");
+      const assetIssuanceId = ethers.encodeBytes32String("assetIssuanceId");
       it("called by a non-manager", async () => {
         await expect(
-          assetTransitDesk.connect(stranger).depositAsset(assetDepositId, account.address, 10n),
+          assetTransitDesk.connect(stranger).issueAsset(assetIssuanceId, account.address, 10n),
         )
           .to.be.revertedWithCustomError(assetTransitDesk, "AccessControlUnauthorizedAccount")
           .withArgs(stranger.address, MANAGER_ROLE);
@@ -266,21 +266,21 @@ describe("Contract 'AssetTransitDesk'", () => {
 
       it("the principal amount is zero", async () => {
         await expect(
-          assetTransitDesk.connect(manager).depositAsset(assetDepositId, account.address, 0n),
+          assetTransitDesk.connect(manager).issueAsset(assetIssuanceId, account.address, 0n),
         )
           .to.be.revertedWithCustomError(assetTransitDesk, "AssetTransitDesk_PrincipalAmountZero");
       });
 
-      it("the asset deposit ID is zero", async () => {
+      it("the asset issuance ID is zero", async () => {
         await expect(
-          assetTransitDesk.connect(manager).depositAsset(ethers.ZeroHash, account.address, 10n),
+          assetTransitDesk.connect(manager).issueAsset(ethers.ZeroHash, account.address, 10n),
         )
           .to.be.revertedWithCustomError(assetTransitDesk, "AssetTransitDesk_OperationIdZero");
       });
 
       it("the buyer address is zero", async () => {
         await expect(
-          assetTransitDesk.connect(manager).depositAsset(assetDepositId, ADDRESS_ZERO, 10n),
+          assetTransitDesk.connect(manager).issueAsset(assetIssuanceId, ADDRESS_ZERO, 10n),
         )
           .to.be.revertedWithCustomError(assetTransitDesk, "AssetTransitDesk_BuyerAddressZero");
       });
@@ -288,17 +288,17 @@ describe("Contract 'AssetTransitDesk'", () => {
       it("the contract is paused", async () => {
         await assetTransitDesk.connect(pauser).pause();
         await expect(
-          assetTransitDesk.connect(manager).depositAsset(assetDepositId, account.address, 10n),
+          assetTransitDesk.connect(manager).issueAsset(assetIssuanceId, account.address, 10n),
         )
           .to.be.revertedWithCustomError(assetTransitDesk, "EnforcedPause");
       });
 
       it("the operation already exists", async () => {
         const someAmount = 10n;
-        await assetTransitDesk.connect(manager).depositAsset(assetDepositId, account.address, someAmount);
+        await assetTransitDesk.connect(manager).issueAsset(assetIssuanceId, account.address, someAmount);
 
         await expect(
-          assetTransitDesk.connect(manager).depositAsset(assetDepositId, account.address, someAmount),
+          assetTransitDesk.connect(manager).issueAsset(assetIssuanceId, account.address, someAmount),
         )
           .to.be.revertedWithCustomError(assetTransitDesk, "AssetTransitDesk_OperationAlreadyExists");
       });
@@ -617,7 +617,7 @@ describe("Contract 'AssetTransitDesk'", () => {
 
   describe("Snapshot scenarios", () => {
     it("Simple usage scenario", async () => {
-      const depositId = ethers.encodeBytes32String("deposit-id");
+      const issuanceId = ethers.encodeBytes32String("issuance-id");
       const redemptionId = ethers.encodeBytes32String("redemption-id");
 
       await expect.startChainshot({
@@ -627,7 +627,7 @@ describe("Contract 'AssetTransitDesk'", () => {
         tokens: { BRLC: tokenMock },
         customState: {
           issuanceOperation() {
-            return assetTransitDesk.getDepositOperation(depositId);
+            return assetTransitDesk.getIssuanceOperation(issuanceId);
           },
           redemptionOperation() {
             return assetTransitDesk.getRedemptionOperation(redemptionId);
@@ -635,8 +635,8 @@ describe("Contract 'AssetTransitDesk'", () => {
         },
       });
 
-      await assetTransitDesk.connect(manager).depositAsset(
-        depositId,
+      await assetTransitDesk.connect(manager).issueAsset(
+        issuanceId,
         account.address,
         100n,
       );
