@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.24;
+pragma solidity 0.8.28;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
@@ -136,7 +136,6 @@ contract AssetTransitDesk is
      * - `assetRedemptionId` must not be zero.
      * - `buyer` must not be the zero address.
      * - `principalAmount` must be greater than zero.
-     * - `netYieldAmount` must be greater than zero.
      * - Contract must not be paused.
      */
     function redeemAsset(
@@ -155,10 +154,6 @@ contract AssetTransitDesk is
 
         if (principalAmount == 0) {
             revert AssetTransitDesk_PrincipalAmountZero();
-        }
-
-        if (netYieldAmount == 0) {
-            revert AssetTransitDesk_NetYieldAmountZero();
         }
 
         AssetTransitDeskStorage storage $ = _getAssetTransitDeskStorage();

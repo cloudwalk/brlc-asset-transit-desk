@@ -1,3 +1,12 @@
+## Main Changes
+
+- Removed `netYieldAmount` checking for zero in `redeemAsset` function.
+- Updated build target to Cancun and increased Solidity compiler version to 0.8.28.
+
+## Migration
+
+No migration required.
+
 # 1.1.0
 
 ## Main Changes
