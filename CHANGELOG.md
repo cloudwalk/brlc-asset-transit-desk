@@ -1,3 +1,5 @@
+# 1.2.0
+
 ## Main Changes
 
 - Removed `netYieldAmount` checking for zero in `redeemAsset` function.
