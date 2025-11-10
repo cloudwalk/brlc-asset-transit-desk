@@ -307,62 +307,65 @@ describe("Contract 'AssetTransitDesk'", () => {
   });
 
   describe("Method 'redeemAsset()'", () => {
-    describe("Should execute as expected when called properly and", () => {
-      let tx: TransactionResponse;
-      const principalAmount = 100n;
-      const netYieldAmount = 10n;
-      const assetRedemptionId = ethers.encodeBytes32String("assetRedemptionId");
+    for (const netYieldAmount of [0n, 10n]) {
+      describe(`Should execute as expected when called properly with ${
+        netYieldAmount === 0n ? "zero" : "non-zero"
+      } net yield amount and`, () => {
+        let tx: TransactionResponse;
+        const principalAmount = 100n;
+        const assetRedemptionId = ethers.encodeBytes32String("assetRedemptionId");
 
-      beforeEach(async () => {
-        tx = await assetTransitDesk.connect(manager).redeemAsset(
-          assetRedemptionId,
-          account.address,
-          principalAmount,
-          netYieldAmount,
-        );
-      });
+        beforeEach(async () => {
+          tx = await assetTransitDesk.connect(manager).redeemAsset(
+            assetRedemptionId,
+            account.address,
+            principalAmount,
+            netYieldAmount,
+          );
+        });
 
-      it("should emit the required event", async () => {
-        await expect(tx).to.emit(assetTransitDesk, "AssetRedeemed")
-          .withArgs(assetRedemptionId, account.address, principalAmount, netYieldAmount);
-      });
+        it("should emit the required event", async () => {
+          await expect(tx).to.emit(assetTransitDesk, "AssetRedeemed")
+            .withArgs(assetRedemptionId, account.address, principalAmount, netYieldAmount);
+        });
 
-      it("should update token balances correctly", async () => {
-        await expect(tx).to.changeTokenBalances(tokenMock,
-          [liquidityPool, account, surplusTreasury, assetTransitDesk],
-          [-principalAmount, principalAmount + netYieldAmount, -netYieldAmount, 0],
-        );
-      });
+        it("should update token balances correctly", async () => {
+          await expect(tx).to.changeTokenBalances(tokenMock,
+            [liquidityPool, account, surplusTreasury, assetTransitDesk],
+            [-principalAmount, principalAmount + netYieldAmount, -netYieldAmount, 0],
+          );
+        });
 
-      it("should transfer tokens correctly", async () => {
-        await checkTokenPath(tx,
-          tokenMock,
-          [liquidityPool, assetTransitDesk],
-          principalAmount,
-        );
-        await checkTokenPath(tx,
-          tokenMock,
-          [surplusTreasury, assetTransitDesk],
-          netYieldAmount,
-        );
-        await checkTokenPath(tx,
-          tokenMock,
-          [assetTransitDesk, account],
-          principalAmount + netYieldAmount,
-        );
-      });
+        it("should transfer tokens correctly", async () => {
+          await checkTokenPath(tx,
+            tokenMock,
+            [liquidityPool, assetTransitDesk],
+            principalAmount,
+          );
+          await checkTokenPath(tx,
+            tokenMock,
+            [surplusTreasury, assetTransitDesk],
+            netYieldAmount,
+          );
+          await checkTokenPath(tx,
+            tokenMock,
+            [assetTransitDesk, account],
+            principalAmount + netYieldAmount,
+          );
+        });
 
-      it("should store the redemption operation correctly", async () => {
-        checkEquality(
-          resultToObject(await assetTransitDesk.getRedemptionOperation(assetRedemptionId)),
-          {
-            status: OperationStatus.Successful,
-            buyer: account.address,
-            principalAmount: principalAmount,
-            netYieldAmount: netYieldAmount,
-          });
+        it("should store the redemption operation correctly", async () => {
+          checkEquality(
+            resultToObject(await assetTransitDesk.getRedemptionOperation(assetRedemptionId)),
+            {
+              status: OperationStatus.Successful,
+              buyer: account.address,
+              principalAmount: principalAmount,
+              netYieldAmount: netYieldAmount,
+            });
+        });
       });
-    });
+    }
 
     describe("Should revert if", () => {
       const assetRedemptionId = ethers.encodeBytes32String("assetRedemptionId");
@@ -379,13 +382,6 @@ describe("Contract 'AssetTransitDesk'", () => {
           assetTransitDesk.connect(manager).redeemAsset(assetRedemptionId, account.address, 0n, 10n),
         )
           .to.be.revertedWithCustomError(assetTransitDesk, "AssetTransitDesk_PrincipalAmountZero");
-      });
-
-      it("the net yield amount is zero", async () => {
-        await expect(
-          assetTransitDesk.connect(manager).redeemAsset(assetRedemptionId, account.address, 10n, 0n),
-        )
-          .to.be.revertedWithCustomError(assetTransitDesk, "AssetTransitDesk_NetYieldAmountZero");
       });
 
       it("the asset redemption ID is zero", async () => {

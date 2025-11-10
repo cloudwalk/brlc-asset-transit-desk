@@ -278,9 +278,6 @@ interface IAssetTransitDeskErrors {
     /// @dev Thrown if the provided liquidity pool token does not match the underlying token.
     error AssetTransitDesk_LiquidityPoolTokenMismatch();
 
-    /// @dev Thrown if the provided net yield amount is zero.
-    error AssetTransitDesk_NetYieldAmountZero();
-
     /// @dev Thrown if the provided operation identifier is already used.
     error AssetTransitDesk_OperationAlreadyExists();
 
