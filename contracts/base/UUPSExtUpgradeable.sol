@@ -2,14 +2,15 @@
 
 pragma solidity ^0.8.24;
 
-import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import { UUPSUpgradeable } from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
+import { Initializable } from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 
 /**
  * @title UUPSExtUpgradeable base contract
  * @author CloudWalk Inc. (See https://www.cloudwalk.io)
  * @dev Extends OpenZeppelin's {UUPSUpgradeable} contract with additional checks for the new implementation address.
  */
-abstract contract UUPSExtUpgradeable is UUPSUpgradeable {
+abstract contract UUPSExtUpgradeable is Initializable, UUPSUpgradeable {
     // ------------------ Errors ---------------------------------- //
 
     /// @dev Thrown if the provided new implementation address is not a contract.
