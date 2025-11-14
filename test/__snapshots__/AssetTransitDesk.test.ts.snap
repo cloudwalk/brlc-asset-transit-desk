@@ -4,289 +4,32 @@ exports[`Contract 'AssetTransitDesk' Snapshot scenarios Configuration scenario 1
 Array [
   Object {
     "args": Array [
-      "0xa49807205ce4d355092ef5a8a18f56e8913cf4a201fbe287825b095693c21775",
-      "assetTransitDesk",
+      "treasury",
     ],
     "balances": Object {
       "BRLC": Object {
         "BRLC": 0n,
-        "LP": 0n,
         "account": 0n,
         "assetTransitDesk": 0n,
         "deployer": 0n,
         "manager": 0n,
-        "surplusTreasury": 0n,
-      },
-    },
-    "caller": "deployer",
-    "contract": "LP",
-    "customState": Object {
-      "liquidityPool": "0x0000000000000000000000000000000000000000",
-      "surplusTreasury": "0x0000000000000000000000000000000000000000",
-    },
-    "events": Array [
-      Object {
-        "args": Array [
-          "0xa49807205ce4d355092ef5a8a18f56e8913cf4a201fbe287825b095693c21775",
-          "assetTransitDesk",
-          "deployer",
-        ],
-        "contract": "LP",
-        "name": "RoleGranted",
-      },
-    ],
-    "methodFragment": FunctionFragment {
-      "constant": false,
-      "gas": null,
-      "inputs": Array [
-        ParamType {
-          "arrayChildren": null,
-          "arrayLength": null,
-          "baseType": "bytes32",
-          "components": null,
-          "indexed": undefined,
-          "name": "role",
-          "type": "bytes32",
-        },
-        ParamType {
-          "arrayChildren": null,
-          "arrayLength": null,
-          "baseType": "address",
-          "components": null,
-          "indexed": undefined,
-          "name": "account",
-          "type": "address",
-        },
-      ],
-      "name": "grantRole",
-      "outputs": Array [],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function",
-    },
-    "type": "methodCall",
-  },
-  Object {
-    "args": Array [
-      Array [
-        "assetTransitDesk",
-      ],
-    ],
-    "balances": Object {
-      "BRLC": Object {
-        "BRLC": 0n,
-        "LP": 0n,
-        "account": 0n,
-        "assetTransitDesk": 0n,
-        "deployer": 0n,
-        "manager": 0n,
-        "surplusTreasury": 0n,
-      },
-    },
-    "caller": "deployer",
-    "contract": "LP",
-    "customState": Object {
-      "liquidityPool": "0x0000000000000000000000000000000000000000",
-      "surplusTreasury": "0x0000000000000000000000000000000000000000",
-    },
-    "events": Array [],
-    "methodFragment": FunctionFragment {
-      "constant": false,
-      "gas": null,
-      "inputs": Array [
-        ParamType {
-          "arrayChildren": ParamType {
-            "arrayChildren": null,
-            "arrayLength": null,
-            "baseType": "address",
-            "components": null,
-            "indexed": undefined,
-            "name": "",
-            "type": "address",
-          },
-          "arrayLength": -1,
-          "baseType": "array",
-          "components": null,
-          "indexed": undefined,
-          "name": "newWorkingTreasuries",
-          "type": "address[]",
-        },
-      ],
-      "name": "setWorkingTreasuries",
-      "outputs": Array [],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function",
-    },
-    "type": "methodCall",
-  },
-  Object {
-    "args": Array [
-      "assetTransitDesk",
-      10000n,
-    ],
-    "balances": Object {
-      "BRLC": Object {
-        "BRLC": 0n,
-        "LP": 0n,
-        "account": 0n,
-        "assetTransitDesk": 0n,
-        "deployer": 0n,
-        "manager": 0n,
-        "surplusTreasury": 0n,
-      },
-    },
-    "caller": "surplusTreasury",
-    "contract": "BRLC",
-    "customState": Object {
-      "liquidityPool": "0x0000000000000000000000000000000000000000",
-      "surplusTreasury": "0x0000000000000000000000000000000000000000",
-    },
-    "events": Array [
-      Object {
-        "args": Array [
-          "surplusTreasury",
-          "assetTransitDesk",
-          10000n,
-        ],
-        "contract": "BRLC",
-        "name": "Approval",
-      },
-    ],
-    "methodFragment": FunctionFragment {
-      "constant": false,
-      "gas": null,
-      "inputs": Array [
-        ParamType {
-          "arrayChildren": null,
-          "arrayLength": null,
-          "baseType": "address",
-          "components": null,
-          "indexed": undefined,
-          "name": "spender",
-          "type": "address",
-        },
-        ParamType {
-          "arrayChildren": null,
-          "arrayLength": null,
-          "baseType": "uint256",
-          "components": null,
-          "indexed": undefined,
-          "name": "value",
-          "type": "uint256",
-        },
-      ],
-      "name": "approve",
-      "outputs": Array [
-        ParamType {
-          "arrayChildren": null,
-          "arrayLength": null,
-          "baseType": "bool",
-          "components": null,
-          "indexed": undefined,
-          "name": "",
-          "type": "bool",
-        },
-      ],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function",
-    },
-    "type": "methodCall",
-  },
-  Object {
-    "args": Array [
-      "LP",
-      10000n,
-    ],
-    "balances": Object {
-      "BRLC": Object {
-        "BRLC": 0n,
-        "LP": 0n,
-        "account": 0n,
-        "assetTransitDesk": 0n,
-        "deployer": 0n,
-        "manager": 0n,
-        "surplusTreasury": 0n,
+        "pauser": 0n,
+        "treasury": 0n,
       },
     },
     "caller": "deployer",
     "contract": "assetTransitDesk",
     "customState": Object {
-      "liquidityPool": "0x0000000000000000000000000000000000000000",
-      "surplusTreasury": "0x0000000000000000000000000000000000000000",
+      "treasury": "0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0",
     },
     "events": Array [
       Object {
         "args": Array [
-          "assetTransitDesk",
-          "LP",
-          10000n,
-        ],
-        "contract": "BRLC",
-        "name": "Approval",
-      },
-    ],
-    "methodFragment": FunctionFragment {
-      "constant": false,
-      "gas": null,
-      "inputs": Array [
-        ParamType {
-          "arrayChildren": null,
-          "arrayLength": null,
-          "baseType": "address",
-          "components": null,
-          "indexed": undefined,
-          "name": "spender",
-          "type": "address",
-        },
-        ParamType {
-          "arrayChildren": null,
-          "arrayLength": null,
-          "baseType": "uint256",
-          "components": null,
-          "indexed": undefined,
-          "name": "amount",
-          "type": "uint256",
-        },
-      ],
-      "name": "approve",
-      "outputs": Array [],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function",
-    },
-    "type": "methodCall",
-  },
-  Object {
-    "args": Array [
-      "LP",
-    ],
-    "balances": Object {
-      "BRLC": Object {
-        "BRLC": 0n,
-        "LP": 0n,
-        "account": 0n,
-        "assetTransitDesk": 0n,
-        "deployer": 0n,
-        "manager": 0n,
-        "surplusTreasury": 0n,
-      },
-    },
-    "caller": "deployer",
-    "contract": "assetTransitDesk",
-    "customState": Object {
-      "liquidityPool": "0x9A9f2CCfdE556A7E9Ff0848998Aa4a0CFD8863AE",
-      "surplusTreasury": "0x0000000000000000000000000000000000000000",
-    },
-    "events": Array [
-      Object {
-        "args": Array [
-          "LP",
+          "treasury",
           "0x0000000000000000000000000000000000000000",
         ],
         "contract": "assetTransitDesk",
-        "name": "LiquidityPoolChanged",
+        "name": "TreasuryChanged",
       },
     ],
     "methodFragment": FunctionFragment {
@@ -299,64 +42,11 @@ Array [
           "baseType": "address",
           "components": null,
           "indexed": undefined,
-          "name": "newLiquidityPool",
+          "name": "newTreasury",
           "type": "address",
         },
       ],
-      "name": "setLiquidityPool",
-      "outputs": Array [],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function",
-    },
-    "type": "methodCall",
-  },
-  Object {
-    "args": Array [
-      "surplusTreasury",
-    ],
-    "balances": Object {
-      "BRLC": Object {
-        "BRLC": 0n,
-        "LP": 0n,
-        "account": 0n,
-        "assetTransitDesk": 0n,
-        "deployer": 0n,
-        "manager": 0n,
-        "surplusTreasury": 0n,
-      },
-    },
-    "caller": "deployer",
-    "contract": "assetTransitDesk",
-    "customState": Object {
-      "liquidityPool": "0x9A9f2CCfdE556A7E9Ff0848998Aa4a0CFD8863AE",
-      "surplusTreasury": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
-    },
-    "events": Array [
-      Object {
-        "args": Array [
-          "surplusTreasury",
-          "0x0000000000000000000000000000000000000000",
-        ],
-        "contract": "assetTransitDesk",
-        "name": "SurplusTreasuryChanged",
-      },
-    ],
-    "methodFragment": FunctionFragment {
-      "constant": false,
-      "gas": null,
-      "inputs": Array [
-        ParamType {
-          "arrayChildren": null,
-          "arrayLength": null,
-          "baseType": "address",
-          "components": null,
-          "indexed": undefined,
-          "name": "newSurplusTreasury",
-          "type": "address",
-        },
-      ],
-      "name": "setSurplusTreasury",
+      "name": "setTreasury",
       "outputs": Array [],
       "payable": false,
       "stateMutability": "nonpayable",
@@ -378,14 +68,13 @@ Array [
     "balances": Object {
       "BRLC": Object {
         "BRLC": 0n,
-        "LP": 10100n,
         "account": 9900n,
         "assetTransitDesk": 0n,
         "deployer": 0n,
         "manager": 0n,
         "pauser": 0n,
         "stranger": 0n,
-        "surplusTreasury": 10000n,
+        "treasury": 10100n,
       },
     },
     "caller": "manager",
@@ -416,18 +105,11 @@ Array [
       Object {
         "args": Array [
           "assetTransitDesk",
-          "LP",
+          "treasury",
           100n,
         ],
         "contract": "BRLC",
         "name": "Transfer",
-      },
-      Object {
-        "args": Array [
-          100n,
-        ],
-        "contract": "LP",
-        "name": "Deposit",
       },
       Object {
         "args": Array [
@@ -489,14 +171,13 @@ Array [
     "balances": Object {
       "BRLC": Object {
         "BRLC": 0n,
-        "LP": 10000n,
         "account": 10010n,
         "assetTransitDesk": 0n,
         "deployer": 0n,
         "manager": 0n,
         "pauser": 0n,
         "stranger": 0n,
-        "surplusTreasury": 9990n,
+        "treasury": 9990n,
       },
     },
     "caller": "manager",
@@ -517,26 +198,9 @@ Array [
     "events": Array [
       Object {
         "args": Array [
-          "LP",
+          "treasury",
           "assetTransitDesk",
-          100n,
-        ],
-        "contract": "BRLC",
-        "name": "Transfer",
-      },
-      Object {
-        "args": Array [
-          100n,
-          0n,
-        ],
-        "contract": "LP",
-        "name": "Withdrawal",
-      },
-      Object {
-        "args": Array [
-          "surplusTreasury",
-          "assetTransitDesk",
-          10n,
+          110n,
         ],
         "contract": "BRLC",
         "name": "Transfer",

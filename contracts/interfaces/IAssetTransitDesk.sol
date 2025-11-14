@@ -183,56 +183,32 @@ interface IAssetTransitDeskConfiguration {
     // ------------------ Events ---------------------------------- //
 
     /**
-     * @dev Emitted when the surplus treasury address is changed.
+     * @dev Emitted when the treasury address is changed.
      *
-     * @param newSurplusTreasury The new address of the surplus treasury.
-     * @param oldSurplusTreasury The old address of the surplus treasury.
+     * @param newTreasury The new address of the treasury.
+     * @param oldTreasury The old address of the treasury.
      */
-    event SurplusTreasuryChanged(address newSurplusTreasury, address oldSurplusTreasury);
-
-    /**
-     * @dev Emitted when the liquidity pool address is changed.
-     *
-     * @param newLiquidityPool The new address of the liquidity pool.
-     * @param oldLiquidityPool The old address of the liquidity pool.
-     */
-    event LiquidityPoolChanged(address newLiquidityPool, address oldLiquidityPool);
+    event TreasuryChanged(address newTreasury, address oldTreasury);
 
     // ------------------ Transactional functions ----------------- //
 
     /**
-     * @dev Sets the surplus treasury address.
+     * @dev Sets the treasury address.
      *
-     * Emits a {SurplusTreasuryChanged} event.
+     * Emits a {TreasuryChanged} event.
      *
-     * @param newSurplusTreasury The new address of the surplus treasury to set.
+     * @param newTreasury The new address of the treasury to set.
      */
-    function setSurplusTreasury(address newSurplusTreasury) external;
-
-    /**
-     * @dev Sets the liquidity pool address.
-     *
-     * Emits a {LiquidityPoolChanged} event.
-     *
-     * @param newLiquidityPool The new address of the liquidity pool to set.
-     */
-    function setLiquidityPool(address newLiquidityPool) external;
+    function setTreasury(address newTreasury) external;
 
     // ------------------ View functions -------------------------- //
 
     /**
-     * @dev Returns the address of the surplus treasury.
+     * @dev Returns the address of the treasury.
      *
-     * @return The address of the surplus treasury.
+     * @return The address of the treasury.
      */
-    function getSurplusTreasury() external view returns (address);
-
-    /**
-     * @dev Returns the address of the liquidity pool.
-     *
-     * @return The address of the liquidity pool.
-     */
-    function getLiquidityPool() external view returns (address);
+    function getTreasury() external view returns (address);
 
     /**
      * @dev Returns the address of the underlying token.
@@ -263,20 +239,8 @@ interface IAssetTransitDeskErrors {
     /// @dev Thrown if the provided buyer address is zero.
     error AssetTransitDesk_BuyerAddressZero();
 
-    /// @dev Thrown if the provided liquidity pool is not registered as a working treasury.
-    error AssetTransitDesk_ContractNotRegisteredAsWorkingTreasury();
-
     /// @dev Thrown if the provided new implementation address is not an AssetTransitDesk contract.
     error AssetTransitDesk_ImplementationAddressInvalid();
-
-    /// @dev Thrown if the provided liquidity pool address is not a LiquidityPool contract.
-    error AssetTransitDesk_LiquidityPoolAddressInvalid();
-
-    /// @dev Thrown if the current contract is not an admin of the provided liquidity pool.
-    error AssetTransitDesk_LiquidityPoolNotAdmin();
-
-    /// @dev Thrown if the provided liquidity pool token does not match the underlying token.
-    error AssetTransitDesk_LiquidityPoolTokenMismatch();
 
     /// @dev Thrown if the provided operation identifier is already used.
     error AssetTransitDesk_OperationAlreadyExists();
@@ -293,11 +257,14 @@ interface IAssetTransitDeskErrors {
     /// @dev Thrown if the provided treasury address is zero.
     error AssetTransitDesk_TreasuryAddressZero();
 
-    /// @dev Thrown if the provided treasury has not granted the contract allowance to spend tokens.
-    error AssetTransitDesk_TreasuryAllowanceZero();
+    /// @dev Thrown if the provided treasury address is not a Treasury contract.
+    error AssetTransitDesk_TreasuryAddressInvalid();
 
     /// @dev Thrown if the provided treasury address is already configured.
     error AssetTransitDesk_TreasuryAlreadyConfigured();
+
+    /// @dev Thrown if the provided treasury token does not match the underlying token.
+    error AssetTransitDesk_TreasuryTokenMismatch();
 }
 
 /**
