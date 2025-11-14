@@ -60,4 +60,3 @@ contract TreasuryMock is ITreasury {
         _token = token_;
     }
 }
-

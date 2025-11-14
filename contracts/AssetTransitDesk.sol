@@ -277,7 +277,6 @@ contract AssetTransitDesk is
         try ITreasury(newTreasury).proveTreasury() {} catch {
             revert AssetTransitDesk_TreasuryAddressInvalid();
         }
-
         if (ITreasury(newTreasury).underlyingToken() != _getAssetTransitDeskStorage().token) {
             revert AssetTransitDesk_TreasuryTokenMismatch();
         }
