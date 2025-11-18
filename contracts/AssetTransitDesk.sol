@@ -201,6 +201,7 @@ contract AssetTransitDesk is
         _validateTreasury(newTreasury);
 
         $.treasury = newTreasury;
+        _resetReserveFields();
 
         emit TreasuryChanged(newTreasury, oldTreasury);
     }
@@ -280,6 +281,18 @@ contract AssetTransitDesk is
         if (ITreasury(newTreasury).underlyingToken() != _getAssetTransitDeskStorage().token) {
             revert AssetTransitDesk_TreasuryTokenMismatch();
         }
+    }
+
+    /**
+     * @dev Resets the reserved storage field to zero address.
+     *
+     * This function is called every time the treasury is configured to clean up the reserved slot
+     * that previously stored the liquidity pool address (now unused). This ensures the slot is
+     * zeroed out and ready for future reuse. If this slot is repurposed in future contract
+     * versions, this cleanup behavior may need to be adjusted or removed.
+     */
+    function _resetReserveFields() internal {
+        _getAssetTransitDeskStorage()._reserve = address(0);
     }
 
     /**

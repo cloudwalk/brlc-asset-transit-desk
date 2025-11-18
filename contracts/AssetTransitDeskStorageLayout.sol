@@ -28,7 +28,7 @@ abstract contract AssetTransitDeskStorageLayout is IAssetTransitDeskTypes {
      *
      * - token ---------------- The address of the underlying token.
      * - treasury ------------- The address of the treasury.
-     * - _obsolete ------------ Obsolete field, see description below.
+     * - _reserve ------------- Reserved field for future reuse, see description below.
      * - issuanceOperations --- Mapping of asset issuance IDs to issuance operations.
      * - redemptionOperations - Mapping of asset redemption IDs to redemption operations.
      *
@@ -47,10 +47,10 @@ abstract contract AssetTransitDeskStorageLayout is IAssetTransitDeskTypes {
         address treasury;
         // uint96 __reserved2; // Reserved until the end of the storage slot
 
-        // Slot 3 (obsolete - available for future reuse)
-        // IMPORTANT: Before reusing this field or slot, it MUST be explicitly cleaned up during upgrade.
-        // This field may contain non-zero values from previous contract versions (liquidityPool address).
-        address _obsolete;
+        // Slot 3 (available for future reuse)
+        // IMPORTANT: This field is zeroed each time when the `treasury` one is set.
+        //            Change that behaviour if you are going to reuse this slot.
+        address _reserve;
         // uint96 __reserved3; // Reserved until the end of the storage slot
 
         // Slot 4
