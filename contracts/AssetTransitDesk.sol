@@ -14,7 +14,7 @@ import { UUPSExtUpgradeable } from "./base/UUPSExtUpgradeable.sol";
 import { IAssetTransitDesk } from "./interfaces/IAssetTransitDesk.sol";
 import { IAssetTransitDeskPrimary } from "./interfaces/IAssetTransitDesk.sol";
 import { IAssetTransitDeskConfiguration } from "./interfaces/IAssetTransitDesk.sol";
-import { ILiquidityPool } from "./interfaces/ILiquidityPool.sol";
+import { ITreasury } from "./interfaces/ITreasury.sol";
 
 import { AssetTransitDeskStorageLayout } from "./AssetTransitDeskStorageLayout.sol";
 
@@ -112,12 +112,16 @@ contract AssetTransitDesk is
 
         AssetTransitDeskStorage storage $ = _getAssetTransitDeskStorage();
 
+        if ($.treasury == address(0)) {
+            revert AssetTransitDesk_TreasuryAddressZero();
+        }
+
         if ($.issuanceOperations[assetIssuanceId].status != OperationStatus.Nonexistent) {
             revert AssetTransitDesk_OperationAlreadyExists();
         }
 
         IERC20($.token).safeTransferFrom(buyer, address(this), principalAmount);
-        ILiquidityPool($.liquidityPool).depositFromWorkingTreasury(address(this), principalAmount);
+        IERC20($.token).safeTransfer($.treasury, principalAmount);
 
         $.issuanceOperations[assetIssuanceId] = IssuanceOperation({
             status: OperationStatus.Successful,
@@ -158,13 +162,18 @@ contract AssetTransitDesk is
 
         AssetTransitDeskStorage storage $ = _getAssetTransitDeskStorage();
 
+        if ($.treasury == address(0)) {
+            revert AssetTransitDesk_TreasuryAddressZero();
+        }
+
         if ($.redemptionOperations[assetRedemptionId].status != OperationStatus.Nonexistent) {
             revert AssetTransitDesk_OperationAlreadyExists();
         }
 
-        ILiquidityPool($.liquidityPool).withdrawToWorkingTreasury(address(this), principalAmount);
-        IERC20($.token).safeTransferFrom($.surplusTreasury, address(this), netYieldAmount);
-        IERC20($.token).safeTransfer(buyer, principalAmount + netYieldAmount);
+        uint256 totalAmount = principalAmount + netYieldAmount;
+
+        ITreasury($.treasury).withdraw(totalAmount);
+        IERC20($.token).safeTransfer(buyer, totalAmount);
 
         $.redemptionOperations[assetRedemptionId] = RedemptionOperation({
             status: OperationStatus.Successful,
@@ -181,43 +190,20 @@ contract AssetTransitDesk is
      *
      * @dev Requirements:
      * - Caller must have the {OWNER_ROLE} role.
-     * - `newSurplusTreasury` must not be the zero address.
-     * - `newSurplusTreasury` must differ from the current value.
-     * - `newSurplusTreasury` must grant allowance to this contract for the underlying token.
+     * - `newTreasury` must not be the zero address.
+     * - `newTreasury` must differ from the current value.
      */
-    function setSurplusTreasury(address newSurplusTreasury) external onlyRole(OWNER_ROLE) {
+    function setTreasury(address newTreasury) external onlyRole(OWNER_ROLE) {
         AssetTransitDeskStorage storage $ = _getAssetTransitDeskStorage();
-        address oldSurplusTreasury = $.surplusTreasury;
+        address oldTreasury = $.treasury;
 
-        _validateTreasuryChange(newSurplusTreasury, oldSurplusTreasury);
+        _validateTreasuryChange(newTreasury, oldTreasury);
+        _validateTreasury(newTreasury);
 
-        if (IERC20($.token).allowance(newSurplusTreasury, address(this)) == 0) {
-            revert AssetTransitDesk_TreasuryAllowanceZero();
-        }
+        $.treasury = newTreasury;
+        _resetReserveFields();
 
-        $.surplusTreasury = newSurplusTreasury;
-
-        emit SurplusTreasuryChanged(newSurplusTreasury, oldSurplusTreasury);
-    }
-
-    /**
-     * @inheritdoc IAssetTransitDeskConfiguration
-     *
-     * @dev Requirements:
-     * - Caller must have the {OWNER_ROLE} role.
-     * - `newLiquidityPool` must not be the zero address.
-     * - `newLiquidityPool` must differ from the current value.
-     */
-    function setLiquidityPool(address newLiquidityPool) external onlyRole(OWNER_ROLE) {
-        AssetTransitDeskStorage storage $ = _getAssetTransitDeskStorage();
-        address oldLiquidityPool = $.liquidityPool;
-
-        _validateTreasuryChange(newLiquidityPool, oldLiquidityPool);
-        _validateLiquidityPool(newLiquidityPool);
-
-        $.liquidityPool = newLiquidityPool;
-
-        emit LiquidityPoolChanged(newLiquidityPool, oldLiquidityPool);
+        emit TreasuryChanged(newTreasury, oldTreasury);
     }
 
     /**
@@ -259,13 +245,8 @@ contract AssetTransitDesk is
     }
 
     /// @inheritdoc IAssetTransitDeskConfiguration
-    function getSurplusTreasury() external view returns (address) {
-        return _getAssetTransitDeskStorage().surplusTreasury;
-    }
-
-    /// @inheritdoc IAssetTransitDeskConfiguration
-    function getLiquidityPool() external view returns (address) {
-        return _getAssetTransitDeskStorage().liquidityPool;
+    function getTreasury() external view returns (address) {
+        return _getAssetTransitDeskStorage().treasury;
     }
 
     /// @inheritdoc IAssetTransitDeskConfiguration
@@ -289,30 +270,29 @@ contract AssetTransitDesk is
         }
     }
 
-    function _validateLiquidityPool(address newLiquidityPool) internal view {
-        if (newLiquidityPool.code.length == 0) {
-            revert AssetTransitDesk_LiquidityPoolAddressInvalid();
+    function _validateTreasury(address newTreasury) internal view {
+        if (newTreasury.code.length == 0) {
+            revert AssetTransitDesk_TreasuryAddressInvalid();
         }
 
-        try ILiquidityPool(newLiquidityPool).proveLiquidityPool() {} catch {
-            revert AssetTransitDesk_LiquidityPoolAddressInvalid();
+        try ITreasury(newTreasury).proveTreasury() {} catch {
+            revert AssetTransitDesk_TreasuryAddressInvalid();
         }
-        if (ILiquidityPool(newLiquidityPool).token() != _getAssetTransitDeskStorage().token) {
-            revert AssetTransitDesk_LiquidityPoolTokenMismatch();
+        if (ITreasury(newTreasury).underlyingToken() != _getAssetTransitDeskStorage().token) {
+            revert AssetTransitDesk_TreasuryTokenMismatch();
         }
+    }
 
-        if (!AccessControlExtUpgradeable(newLiquidityPool).hasRole(keccak256("ADMIN_ROLE"), address(this))) {
-            revert AssetTransitDesk_LiquidityPoolNotAdmin();
-        }
-
-        address[] memory workingTreasuries = ILiquidityPool(newLiquidityPool).workingTreasuries();
-        for (uint256 i = 0; i < workingTreasuries.length; i++) {
-            if (workingTreasuries[i] == address(this)) {
-                return;
-            }
-        }
-
-        revert AssetTransitDesk_ContractNotRegisteredAsWorkingTreasury();
+    /**
+     * @dev Resets the reserved storage field to zero address.
+     *
+     * This function is called every time the treasury is configured to clean up the reserved slot
+     * that previously stored the liquidity pool address (now unused). This ensures the slot is
+     * zeroed out and ready for future reuse. If this slot is repurposed in future contract
+     * versions, this cleanup behavior may need to be adjusted or removed.
+     */
+    function _resetReserveFields() internal {
+        _getAssetTransitDeskStorage()._reserve = address(0);
     }
 
     /**

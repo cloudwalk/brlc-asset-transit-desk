@@ -17,17 +17,15 @@ const MANAGER_ROLE = ethers.id("MANAGER_ROLE");
 const CASHBACK_OPERATOR_ROLE = ethers.id("CASHBACK_OPERATOR_ROLE");
 const PAUSER_ROLE = ethers.id("PAUSER_ROLE");
 const RESCUER_ROLE = ethers.id("RESCUER_ROLE");
-const ADMIN_ROLE = ethers.id("ADMIN_ROLE");
 
 let assetTransitDeskFactory: Contracts.AssetTransitDesk__factory;
 let tokenMockFactory: Contracts.ERC20TokenMock__factory;
-let liquidityPoolFactory: Contracts.LiquidityPoolMock__factory;
+let treasuryFactory: Contracts.TreasuryMock__factory;
 
 let deployer: HardhatEthersSigner; // has GRANTOR_ROLE AND OWNER_ROLE
 let manager: HardhatEthersSigner; // has MANAGER_ROLE
 let account: HardhatEthersSigner; // has no roles
 let pauser: HardhatEthersSigner; // has PAUSER_ROLE
-let surplusTreasury: HardhatEthersSigner; // has no roles
 let stranger: HardhatEthersSigner; // has no roles
 
 const EXPECTED_VERSION = {
@@ -49,67 +47,59 @@ async function deployContracts() {
   await tokenMockDeployment.waitForDeployment();
 
   const tokenMock = tokenMockDeployment.connect(deployer);
-  const assetTransitDesk = await upgrades.deployProxy(assetTransitDeskFactory, [await tokenMock.getAddress()]);
+  const tokenAddress = await tokenMock.getAddress();
+
+  const assetTransitDesk = await upgrades.deployProxy(assetTransitDeskFactory, [tokenAddress]);
   await assetTransitDesk.waitForDeployment();
 
-  const liquidityPool = await upgrades.deployProxy(
-    liquidityPoolFactory,
-    [await tokenMock.getAddress(), [await assetTransitDesk.getAddress()]],
-  );
-  await liquidityPool.waitForDeployment();
+  const treasury = await treasuryFactory.deploy(tokenAddress);
+  await treasury.waitForDeployment();
 
-  return { assetTransitDesk, tokenMock, liquidityPool };
+  return { assetTransitDesk, tokenMock, treasury };
 }
 
 async function configureContracts(
   assetTransitDesk: Contracts.AssetTransitDesk,
   tokenMock: Contracts.ERC20TokenMock,
-  liquidityPool: Contracts.LiquidityPoolMock,
+  treasury: Contracts.TreasuryMock,
 ) {
   await assetTransitDesk.grantRole(GRANTOR_ROLE, deployer.address);
   await assetTransitDesk.grantRole(MANAGER_ROLE, manager.address);
   await assetTransitDesk.grantRole(PAUSER_ROLE, pauser.address);
 
   await tokenMock.mint(account, BALANCE_INITIAL);
-  await tokenMock.mint(liquidityPool, BALANCE_INITIAL);
-  await tokenMock.mint(surplusTreasury, BALANCE_INITIAL);
+  await tokenMock.mint(treasury, BALANCE_INITIAL);
 
-  await tokenMock.connect(surplusTreasury).approve(assetTransitDesk, BALANCE_INITIAL);
   await tokenMock.connect(account).approve(assetTransitDesk, BALANCE_INITIAL);
 
-  await liquidityPool.connect(deployer).grantRole(ADMIN_ROLE, assetTransitDesk);
-
-  await assetTransitDesk.approve(liquidityPool, BALANCE_INITIAL);
-  await assetTransitDesk.setLiquidityPool(liquidityPool);
-  await assetTransitDesk.setSurplusTreasury(surplusTreasury);
+  await assetTransitDesk.setTreasury(treasury);
 }
 
 async function deployAndConfigureContracts() {
   const contracts = await deployContracts();
 
-  await configureContracts(contracts.assetTransitDesk, contracts.tokenMock, contracts.liquidityPool);
+  await configureContracts(contracts.assetTransitDesk, contracts.tokenMock, contracts.treasury);
   return contracts;
 }
 
 describe("Contract 'AssetTransitDesk'", () => {
   before(async () => {
-    [deployer, manager, account, surplusTreasury, pauser, stranger] =
-     await ethers.getSigners();
+    [deployer, manager, account, pauser, stranger] = await ethers.getSigners();
 
     assetTransitDeskFactory = await ethers.getContractFactory("AssetTransitDesk");
     assetTransitDeskFactory = assetTransitDeskFactory.connect(deployer);
     tokenMockFactory = await ethers.getContractFactory("ERC20TokenMock");
     tokenMockFactory = tokenMockFactory.connect(deployer);
-    liquidityPoolFactory = await ethers.getContractFactory("LiquidityPoolMock");
-    liquidityPoolFactory = liquidityPoolFactory.connect(deployer);
+    treasuryFactory = await ethers.getContractFactory("TreasuryMock");
+    treasuryFactory = treasuryFactory.connect(deployer);
   });
 
   let assetTransitDesk: Contracts.AssetTransitDesk;
   let tokenMock: Contracts.ERC20TokenMock;
-  let liquidityPool: Contracts.LiquidityPoolMock;
+  let treasury: Contracts.TreasuryMock;
 
   beforeEach(async () => {
-    ({ assetTransitDesk, tokenMock, liquidityPool } = await setUpFixture(deployAndConfigureContracts));
+    ({ assetTransitDesk, tokenMock, treasury } = await setUpFixture(deployAndConfigureContracts));
   });
 
   describe("Method 'initialize()'", () => {
@@ -231,15 +221,15 @@ describe("Contract 'AssetTransitDesk'", () => {
 
       it("should update token balances correctly", async () => {
         await expect(tx).to.changeTokenBalances(tokenMock,
-          [liquidityPool, account, surplusTreasury, assetTransitDesk],
-          [principalAmount, -principalAmount, 0, 0],
+          [treasury, account, assetTransitDesk],
+          [principalAmount, -principalAmount, 0],
         );
       });
 
       it("should transfer tokens correctly", async () => {
         await checkTokenPath(tx,
           tokenMock,
-          [account, assetTransitDesk, liquidityPool],
+          [account, assetTransitDesk, treasury],
           principalAmount,
         );
       });
@@ -303,6 +293,19 @@ describe("Contract 'AssetTransitDesk'", () => {
         )
           .to.be.revertedWithCustomError(assetTransitDesk, "AssetTransitDesk_OperationAlreadyExists");
       });
+
+      it("the treasury is not configured", async () => {
+        const { assetTransitDesk: freshDesk, tokenMock: freshToken } = await deployContracts();
+        await freshDesk.grantRole(GRANTOR_ROLE, deployer.address);
+        await freshDesk.grantRole(MANAGER_ROLE, manager.address);
+        await freshToken.mint(account, BALANCE_INITIAL);
+        await freshToken.connect(account).approve(freshDesk, BALANCE_INITIAL);
+
+        await expect(
+          freshDesk.connect(manager).issueAsset(assetIssuanceId, account.address, 10n),
+        )
+          .to.be.revertedWithCustomError(freshDesk, "AssetTransitDesk_TreasuryAddressZero");
+      });
     });
   });
 
@@ -331,21 +334,16 @@ describe("Contract 'AssetTransitDesk'", () => {
 
         it("should update token balances correctly", async () => {
           await expect(tx).to.changeTokenBalances(tokenMock,
-            [liquidityPool, account, surplusTreasury, assetTransitDesk],
-            [-principalAmount, principalAmount + netYieldAmount, -netYieldAmount, 0],
+            [treasury, account, assetTransitDesk],
+            [-(principalAmount + netYieldAmount), principalAmount + netYieldAmount, 0],
           );
         });
 
         it("should transfer tokens correctly", async () => {
           await checkTokenPath(tx,
             tokenMock,
-            [liquidityPool, assetTransitDesk],
-            principalAmount,
-          );
-          await checkTokenPath(tx,
-            tokenMock,
-            [surplusTreasury, assetTransitDesk],
-            netYieldAmount,
+            [treasury, assetTransitDesk],
+            principalAmount + netYieldAmount,
           );
           await checkTokenPath(tx,
             tokenMock,
@@ -426,163 +424,101 @@ describe("Contract 'AssetTransitDesk'", () => {
         )
           .to.be.revertedWithCustomError(assetTransitDesk, "AssetTransitDesk_OperationAlreadyExists");
       });
+
+      it("the treasury is not configured", async () => {
+        const { assetTransitDesk: freshDesk } = await deployContracts();
+        await freshDesk.grantRole(GRANTOR_ROLE, deployer.address);
+        await freshDesk.grantRole(MANAGER_ROLE, manager.address);
+
+        await expect(
+          freshDesk.connect(manager).redeemAsset(assetRedemptionId, account.address, 10n, 10n),
+        )
+          .to.be.revertedWithCustomError(freshDesk, "AssetTransitDesk_TreasuryAddressZero");
+      });
     });
   });
 
-  describe("Method 'setLiquidityPool()'", () => {
-    let newLiquidityPool: Contracts.LiquidityPoolMock;
+  describe("Method 'setTreasury()'", () => {
+    let newTreasury: Contracts.TreasuryMock;
 
-    async function getNewValidLiquidityPool() {
-      const liquidityPool = await upgrades.deployProxy(
-        liquidityPoolFactory,
-        [await tokenMock.getAddress(), [await assetTransitDesk.getAddress()]],
-      );
-      await liquidityPool.waitForDeployment();
-      await liquidityPool.connect(deployer).grantRole(ADMIN_ROLE, assetTransitDesk);
-      return liquidityPool;
+    async function getNewValidTreasury() {
+      const tokenAddress = await tokenMock.getAddress();
+      const treasury = await treasuryFactory.deploy(tokenAddress);
+      await treasury.waitForDeployment();
+      return treasury;
     }
 
     beforeEach(async () => {
-      newLiquidityPool = await setUpFixture(getNewValidLiquidityPool);
+      newTreasury = await setUpFixture(getNewValidTreasury);
     });
 
     describe("Should execute as expected when called properly and", () => {
       let tx: TransactionResponse;
 
       beforeEach(async () => {
-        tx = await assetTransitDesk.setLiquidityPool(newLiquidityPool);
+        tx = await assetTransitDesk.setTreasury(newTreasury);
       });
 
       it("should emit the required event", async () => {
-        await expect(tx).to.emit(assetTransitDesk, "LiquidityPoolChanged").withArgs(newLiquidityPool, liquidityPool);
+        await expect(tx).to.emit(assetTransitDesk, "TreasuryChanged").withArgs(newTreasury, treasury);
       });
 
-      it("should update the liquidity pool address", async () => {
-        expect(await assetTransitDesk.getLiquidityPool()).to.equal(newLiquidityPool);
+      it("should update the treasury address", async () => {
+        expect(await assetTransitDesk.getTreasury()).to.equal(newTreasury);
       });
     });
 
     describe("Should revert if", () => {
       it("called by a non-owner", async () => {
         await expect(
-          assetTransitDesk.connect(stranger).setLiquidityPool(newLiquidityPool),
+          assetTransitDesk.connect(stranger).setTreasury(newTreasury),
         )
           .to.be.revertedWithCustomError(assetTransitDesk, "AccessControlUnauthorizedAccount")
           .withArgs(stranger.address, OWNER_ROLE);
       });
 
-      it("the new liquidity pool address is zero", async () => {
+      it("the new treasury address is zero", async () => {
         await expect(
-          assetTransitDesk.setLiquidityPool(ADDRESS_ZERO),
+          assetTransitDesk.setTreasury(ADDRESS_ZERO),
         )
           .to.be.revertedWithCustomError(assetTransitDesk, "AssetTransitDesk_TreasuryAddressZero");
       });
 
-      it("the new liquidity pool address is the same as the current liquidity pool address", async () => {
+      it("the new treasury address is the same as the current treasury address", async () => {
         await expect(
-          assetTransitDesk.setLiquidityPool(liquidityPool),
+          assetTransitDesk.setTreasury(treasury),
         )
           .to.be.revertedWithCustomError(assetTransitDesk, "AssetTransitDesk_TreasuryAlreadyConfigured");
       });
 
-      it("the new liquidity pool address is not smart-contract", async () => {
+      it("the new treasury address is not a smart contract", async () => {
         await expect(
-          assetTransitDesk.setLiquidityPool(stranger),
+          assetTransitDesk.setTreasury(stranger),
         )
-          .to.be.revertedWithCustomError(assetTransitDesk, "AssetTransitDesk_LiquidityPoolAddressInvalid");
+          .to.be.revertedWithCustomError(assetTransitDesk, "AssetTransitDesk_TreasuryAddressInvalid");
       });
 
-      it("the new liquidity pool address is not implementing the required interface", async () => {
+      it("the new treasury address is not implementing the required interface", async () => {
         await expect(
-          assetTransitDesk.setLiquidityPool(tokenMock),
+          assetTransitDesk.setTreasury(tokenMock),
         )
-          .to.be.revertedWithCustomError(assetTransitDesk, "AssetTransitDesk_LiquidityPoolAddressInvalid");
+          .to.be.revertedWithCustomError(assetTransitDesk, "AssetTransitDesk_TreasuryAddressInvalid");
       });
 
-      it("the new liquidity pool token does not match the underlying token", async () => {
-        await newLiquidityPool.setToken(SOME_ADDRESS);
+      it("the new treasury token does not match the underlying token", async () => {
+        await newTreasury.setToken(SOME_ADDRESS);
 
         await expect(
-          assetTransitDesk.setLiquidityPool(newLiquidityPool),
+          assetTransitDesk.setTreasury(newTreasury),
         )
-          .to.be.revertedWithCustomError(assetTransitDesk, "AssetTransitDesk_LiquidityPoolTokenMismatch");
-      });
-
-      it("the new liquidity pool has not configured the contract required role", async () => {
-        await newLiquidityPool.connect(deployer).revokeRole(ADMIN_ROLE, assetTransitDesk);
-
-        await expect(
-          assetTransitDesk.setLiquidityPool(newLiquidityPool),
-        )
-          .to.be.revertedWithCustomError(assetTransitDesk, "AssetTransitDesk_LiquidityPoolNotAdmin");
-      });
-
-      it("the new liquidity pool is not registered as a working treasury", async () => {
-        await newLiquidityPool.setWorkingTreasuries([SOME_ADDRESS]);
-
-        await expect(
-          assetTransitDesk.setLiquidityPool(newLiquidityPool),
-        )
-          .to.be.revertedWithCustomError(
-            assetTransitDesk,
-            "AssetTransitDesk_ContractNotRegisteredAsWorkingTreasury",
-          );
+          .to.be.revertedWithCustomError(assetTransitDesk, "AssetTransitDesk_TreasuryTokenMismatch");
       });
     });
   });
 
-  describe("Method 'setSurplusTreasury()'", () => {
-    describe("Should execute as expected when called properly and", () => {
-      let tx: TransactionResponse;
-      let newSurplusTreasury: HardhatEthersSigner;
-
-      beforeEach(async () => {
-        newSurplusTreasury = stranger;
-        await tokenMock.connect(newSurplusTreasury).approve(assetTransitDesk.getAddress(), BALANCE_INITIAL);
-        tx = await assetTransitDesk.setSurplusTreasury(newSurplusTreasury);
-      });
-
-      it("should emit the required event", async () => {
-        await expect(tx).to.emit(assetTransitDesk, "SurplusTreasuryChanged")
-          .withArgs(newSurplusTreasury, surplusTreasury.address);
-      });
-
-      it("should update the surplus treasury address", async () => {
-        expect(await assetTransitDesk.getSurplusTreasury()).to.equal(newSurplusTreasury);
-      });
-    });
-
-    describe("Should revert if", () => {
-      it("called by a non-owner", async () => {
-        const newSurplusTreasury = stranger;
-        await tokenMock.connect(newSurplusTreasury).approve(assetTransitDesk.getAddress(), BALANCE_INITIAL);
-        await expect(
-          assetTransitDesk.connect(stranger).setSurplusTreasury(stranger.address),
-        )
-          .to.be.revertedWithCustomError(assetTransitDesk, "AccessControlUnauthorizedAccount")
-          .withArgs(stranger.address, OWNER_ROLE);
-      });
-
-      it("the new surplus treasury address is zero", async () => {
-        await expect(
-          assetTransitDesk.setSurplusTreasury(ADDRESS_ZERO),
-        )
-          .to.be.revertedWithCustomError(assetTransitDesk, "AssetTransitDesk_TreasuryAddressZero");
-      });
-
-      it("the new surplus treasury address is the same as the current surplus treasury address", async () => {
-        await expect(
-          assetTransitDesk.setSurplusTreasury(surplusTreasury.address),
-        )
-          .to.be.revertedWithCustomError(assetTransitDesk, "AssetTransitDesk_TreasuryAlreadyConfigured");
-      });
-
-      it("the new surplus treasury address has not granted the contract allowance to spend tokens", async () => {
-        await expect(
-          assetTransitDesk.setSurplusTreasury(stranger.address),
-        )
-          .to.be.revertedWithCustomError(assetTransitDesk, "AssetTransitDesk_TreasuryAllowanceZero");
-      });
+  describe("Method 'getTreasury()'", () => {
+    it("should return the correct treasury address", async () => {
+      expect(await assetTransitDesk.getTreasury()).to.equal(treasury);
     });
   });
 
@@ -591,21 +527,21 @@ describe("Contract 'AssetTransitDesk'", () => {
       let tx: TransactionResponse;
 
       beforeEach(async () => {
-        tx = await assetTransitDesk.approve(liquidityPool, BALANCE_INITIAL);
+        tx = await assetTransitDesk.approve(treasury, BALANCE_INITIAL);
       });
 
       it("should emit the required event", async () => {
-        await expect(tx).to.emit(tokenMock, "Approval").withArgs(assetTransitDesk, liquidityPool, BALANCE_INITIAL);
+        await expect(tx).to.emit(tokenMock, "Approval").withArgs(assetTransitDesk, treasury, BALANCE_INITIAL);
       });
 
       it("should update the allowance", async () => {
-        expect(await tokenMock.allowance(assetTransitDesk, liquidityPool)).to.equal(BALANCE_INITIAL);
+        expect(await tokenMock.allowance(assetTransitDesk, treasury)).to.equal(BALANCE_INITIAL);
       });
     });
 
     describe("Should revert if", () => {
       it("called by a non-owner", async () => {
-        await expect(assetTransitDesk.connect(stranger).approve(liquidityPool, BALANCE_INITIAL))
+        await expect(assetTransitDesk.connect(stranger).approve(treasury, BALANCE_INITIAL))
           .to.be.revertedWithCustomError(assetTransitDesk, "AccessControlUnauthorizedAccount")
           .withArgs(stranger.address, OWNER_ROLE);
       });
@@ -619,8 +555,8 @@ describe("Contract 'AssetTransitDesk'", () => {
 
       await expect.startChainshot({
         name: "Usage example",
-        accounts: { deployer, manager, account, surplusTreasury, pauser, stranger },
-        contracts: { assetTransitDesk, LP: liquidityPool },
+        accounts: { deployer, manager, account, pauser, stranger },
+        contracts: { assetTransitDesk, treasury },
         tokens: { BRLC: tokenMock },
         customState: {
           issuanceOperation() {
@@ -648,29 +584,21 @@ describe("Contract 'AssetTransitDesk'", () => {
     });
 
     it("Configuration scenario", async () => {
-      const { assetTransitDesk, tokenMock, liquidityPool } = await deployContracts();
+      const { assetTransitDesk, tokenMock, treasury } = await deployContracts();
 
       await expect.startChainshot({
         name: "Configuration",
-        accounts: { deployer, manager, account, surplusTreasury },
-        contracts: { assetTransitDesk: assetTransitDesk, LP: liquidityPool },
+        accounts: { deployer, manager, account, pauser },
+        contracts: { assetTransitDesk, treasury },
         tokens: { BRLC: tokenMock },
         customState: {
-          liquidityPool() {
-            return assetTransitDesk.getLiquidityPool();
-          },
-          surplusTreasury() {
-            return assetTransitDesk.getSurplusTreasury();
+          treasury() {
+            return assetTransitDesk.getTreasury();
           },
         },
       });
 
-      await liquidityPool.grantRole(ADMIN_ROLE, assetTransitDesk);
-      await liquidityPool.setWorkingTreasuries([assetTransitDesk]);
-      await tokenMock.connect(surplusTreasury).approve(assetTransitDesk, BALANCE_INITIAL);
-      await assetTransitDesk.approve(liquidityPool, BALANCE_INITIAL);
-      await assetTransitDesk.setLiquidityPool(liquidityPool);
-      await assetTransitDesk.setSurplusTreasury(surplusTreasury);
+      await assetTransitDesk.setTreasury(treasury);
 
       await expect.stopChainshot();
     });

@@ -1,3 +1,67 @@
+## Main Changes
+
+- **Breaking**: Replaced LiquidityPool integration with Treasury contract.
+  - The contract now uses a single Treasury for both principal and yield management.
+  - Removed dependency on LiquidityPool contract entirely.
+
+- **Storage Layout Changes** (backwards compatible for upgrades):
+  - Renamed `surplusTreasury` storage field to `treasury`.
+  - Marked `liquidityPool` storage field as obsolete (`_obsolete`).
+  - Storage slot positions preserved for safe contract upgrades.
+
+- **Behavior Changes**:
+  - **Issue**: `issueAsset(assetIssuanceId, buyer, principal)`
+    - Pulls `principal` from `buyer` to this contract.
+    - Transfers `principal` directly to `treasury`.
+    - Emits `AssetIssued(assetIssuanceId, buyer, principal)`.
+  - **Redeem**: `redeemAsset(assetRedemptionId, buyer, principal, netYield)`
+    - Withdraws `principal + netYield` from `treasury` in a single call.
+    - Pays `buyer` the total amount (`principal + netYield`).
+    - Emits `AssetRedeemed(assetRedemptionId, buyer, principal, netYield)`.
+
+- **API Changes**:
+  - Renamed `setSurplusTreasury(address)` → `setTreasury(address)`.
+  - Renamed `getSurplusTreasury()` → `getTreasury()`.
+  - Removed `setLiquidityPool(address)`.
+  - Removed `getLiquidityPool()`.
+
+- **Event Changes**:
+  - Renamed `SurplusTreasuryChanged` → `TreasuryChanged`.
+  - Removed `LiquidityPoolChanged`.
+
+- **Error Changes**:
+  - Removed liquidity pool related errors:
+    - `AssetTransitDesk_ContractNotRegisteredAsWorkingTreasury()`
+    - `AssetTransitDesk_LiquidityPoolAddressInvalid()`
+    - `AssetTransitDesk_LiquidityPoolNotAdmin()`
+    - `AssetTransitDesk_LiquidityPoolTokenMismatch()`
+    - `AssetTransitDesk_TreasuryAllowanceZero()`
+  - Added treasury-specific errors:
+    - `AssetTransitDesk_TreasuryAddressInvalid()`
+    - `AssetTransitDesk_TreasuryTokenMismatch()`
+
+- **Enhanced Safety**:
+  - Added treasury zero-address checks in both `issueAsset()` and `redeemAsset()`.
+  - Treasury validation checks interface compliance via `proveTreasury()`.
+  - Treasury validation ensures token match with underlying token.
+
+## Migration
+
+### For Existing Contract Upgrades
+1. Deploy new implementation contract.
+2. Call `upgradeToAndCall()` to upgrade the proxy.
+3. **IMPORTANT**: Call `setTreasury(treasuryAddress)` immediately after upgrade.
+   - The old `surplusTreasury` value becomes the new `treasury` value.
+   - If `surplusTreasury` was not configured, treasury will be zero and operations will revert until configured.
+4. Ensure AssetTransitDesk has `WITHDRAWER_ROLE` in the Treasury contract.
+5. All historical operation data is preserved.
+
+### Storage Slot Reuse (Future Development)
+- **Slot 3 (`_obsolete` field)** is now available for future reuse.
+- This slot contains the old `liquidityPool` address from previous versions.
+- **IMPORTANT**: Before reusing this field or slot in future upgrades, it MUST be explicitly cleaned up (set to zero) during the upgrade process.
+- Failure to clean up may result in unexpected behavior if the old address value is misinterpreted.
+
 # 1.2.0
 
 ## Main Changes

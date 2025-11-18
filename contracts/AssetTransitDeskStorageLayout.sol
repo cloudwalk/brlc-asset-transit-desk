@@ -27,15 +27,14 @@ abstract contract AssetTransitDeskStorageLayout is IAssetTransitDeskTypes {
      * Fields:
      *
      * - token ---------------- The address of the underlying token.
-     * - surplusTreasury ------ The address of the surplus treasury.
-     * - liquidityPool -------- The address of the liquidity pool.
+     * - treasury ------------- The address of the treasury.
+     * - _reserve ------------- Reserved field for future reuse, see description below.
      * - issuanceOperations --- Mapping of asset issuance IDs to issuance operations.
      * - redemptionOperations - Mapping of asset redemption IDs to redemption operations.
      *
      * Notes:
-     * 1. The surplus treasury is used to withdraw the yield.
-     * 2. The liquidity pool is used to withdraw and deposit the principal.
-     * 3. Operation mappings store the history and state of all asset issuance and redemption operations.
+     * 1. The treasury is used to withdraw and deposit both the principal and yield.
+     * 2. Operation mappings store the history and state of all asset issuance and redemption operations.
      *
      * @custom:storage-location erc7201:cloudwalk.storage.AssetTransitDesk
      */
@@ -45,11 +44,13 @@ abstract contract AssetTransitDeskStorageLayout is IAssetTransitDeskTypes {
         // uint96 __reserved1; // Reserved until the end of the storage slot
 
         // Slot 2
-        address surplusTreasury;
+        address treasury;
         // uint96 __reserved2; // Reserved until the end of the storage slot
 
-        // Slot 3
-        address liquidityPool;
+        // Slot 3 (available for future reuse)
+        // IMPORTANT: This field is zeroed each time when the `treasury` one is set.
+        //            Change that behaviour if you are going to reuse this slot.
+        address _reserve;
         // uint96 __reserved3; // Reserved until the end of the storage slot
 
         // Slot 4
