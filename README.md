@@ -6,8 +6,7 @@
 
 [![codecov](https://codecov.io/github/cloudwalk/brlc-asset-transit-desk/branch/main/graph/badge.svg)](https://codecov.io/github/cloudwalk/brlc-asset-transit-desk)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-![example branch parameter](https://github.com/cloudwalk/brlc-asset-transit-desk/actions/workflows/build.yml/badge.svg?branch=main)
-![example branch parameter](https://github.com/cloudwalk/brlc-asset-transit-desk/actions/workflows/test.yml/badge.svg?branch=main)
+[![Branch Workflow](https://github.com/cloudwalk/brlc-asset-transit-desk/actions/workflows/branch.yml/badge.svg?branch=main)](https://github.com/cloudwalk/brlc-asset-transit-desk/actions/workflows/branch.yml)
 
 This repository contains Asset Transit Desk smart contracts.
 
