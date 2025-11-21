@@ -1,3 +1,5 @@
+# 1.3.0
+
 ## Main Changes
 
 - **Breaking**: Replaced LiquidityPool integration with Treasury contract.
@@ -48,24 +50,20 @@
 
 ## Migration
 
-### For Existing Contract Upgrades
+### Upgrade Steps
 1. Deploy new implementation contract.
-2. Call `upgradeToAndCall()` to upgrade the proxy.
-3. **IMPORTANT**: Call `setTreasury(treasuryAddress)` immediately after upgrade.
-   - The old `surplusTreasury` value automatically becomes the new `treasury` value (same storage slot).
-   - However, `setTreasury()` must still be called to:
-     - Automatically clean up the obsolete `_reserve` field (old `liquidityPool` address).
-     - Validate the treasury configuration against the new Treasury interface requirements.
-   - If `surplusTreasury` was not previously configured, treasury will be zero and operations will revert until configured.
-4. Ensure AssetTransitDesk has `WITHDRAWER_ROLE` in the Treasury contract.
-5. All historical operation data is preserved.
+2. Upgrade proxy via `upgradeToAndCall()`.
+3. **Call `setTreasury(treasuryAddress)` immediately after upgrade** to:
+   - Clean up obsolete `_reserve` field (old `liquidityPool` address).
+   - Validate treasury interface compliance.
+   - Note: The `surplusTreasury` value persists as `treasury` (same storage slot).
+4. Grant AssetTransitDesk the `WITHDRAWER_ROLE` in the Treasury contract.
 
-### Storage Slot Reuse (Future Development)
-- **Slot 3 (`_reserve` field)** is automatically cleaned up (zeroed) each time `setTreasury()` is called.
-- This slot previously contained the `liquidityPool` address from older versions.
-- After the first `setTreasury()` call post-upgrade, this slot is zeroed and available for future reuse.
-- **IMPORTANT**: If you repurpose this slot in future contract versions, you must remove or modify the automatic cleanup
-  behavior in `_resetReserveFields()` to avoid unintended side effects.
+### Important Notes
+- Historical operation data is fully preserved.
+- If `surplusTreasury` was not previously set, operations will revert until `setTreasury()` is called.
+- **Storage Slot 3 (`_reserve`)** is auto-zeroed on every `setTreasury()` call. If repurposing this slot in
+  future versions, remove/modify `_resetReserveFields()` to avoid conflicts.
 
 # 1.2.0
 
