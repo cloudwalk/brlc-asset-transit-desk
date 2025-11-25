@@ -44,7 +44,7 @@ Roles that must be granted to `AssetTransitDesk` on external contracts to allow 
 
 **Note:** `REQUIRES_ROLE` indicates that the actual role name must be determined from the external contract.
 
-**Note:** `ALLOWANCE` indicates that allowance must be configured.
+**Note:** `ALLOWANCE` indicates that allowance must be configured by token holder.
 
 | External Contract | Function Called | Role to Grant | Granted To | AssetTransitDesk Function |
 |-------------------|----------------|---------------|------------|---------------------------|
